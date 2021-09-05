@@ -44,22 +44,16 @@
 	public:
 		virtual bool OnUserCreate() override
 		{
-			col = FG_RED;
 			return true;
 		}
 
 		virtual bool OnUserUpdate(float deltaTime) override
 		{
-			for (int i = 0; i < GetWidth(); i++)
-				for (int j = 0; j < GetHeight(); j++)
-				{
-					Draw(i, j, PIXEL_SOLID, col);
-				}
+			DrawTriangle({ 0, 0 }, { 0, 20 }, { 20, 20 }, PIXEL_SOLID, FG_BLUE);
+			DrawLine({10, 10}, {20, 10}, PIXEL_SOLID, FG_RED);
+			Draw({ 30, 10 }, PIXEL_SOLID, FG_DARK_GREEN);
 			return true;
 		}
-	
-	private:
-		Pixel col;
 	};
 
 	int main()
@@ -68,7 +62,13 @@
 		demo.Construct(120, 120, 4, 4);
 	}
 * Commands:
-	Draw(x, y, PIXEL_TYPE, COLOUR);
+	SetTitle(title); -- set title of window, by default it's: "Undefined"
+	Draw(pos1, PIXEL_TYPE, COLOUR); -- draws simple point
+	DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR); -- draw line
+	DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draw triangle
+	DrawRectangle(pos, size, PIXEL_TYPE, COLOUR);
+	GetWidth(); -- returns width of screen
+	GetHeight(); -- returns height of screen
 **/
 #pragma endregion
 
@@ -81,6 +81,7 @@
 #include <iostream>
 #include <Windows.h>
 #include <chrono>
+#include <cmath>
 
 enum COLOUR
 {
@@ -126,6 +127,12 @@ enum PIXEL_TYPE
 	PIXEL_QUARTER = 0x2591,
 };
 
+struct vec2d
+{
+	int x;
+	int y;
+};
+
 namespace cge
 {
 	class ConsoleGameEngine
@@ -147,8 +154,6 @@ namespace cge
 
 			nFontW = fontw;
 			nFontH = fonth;
-
-			sAppName = L"Default";
 
 			hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
@@ -185,7 +190,7 @@ namespace cge
 			if (nScreenWidth > csbi.dwMaximumWindowSize.X)
 				exit(-5);
 
-			rectWindow = { 0, 0, static_cast<short>(nScreenWidth), static_cast<short>(nScreenHeight) };
+			rectWindow = { 0, 0, short(nScreenWidth - 1), short(nScreenHeight - 1) };
 			SetConsoleWindowInfo(hConsole, TRUE, &rectWindow);
 
 			screen = new CHAR_INFO[nScreenWidth * nScreenHeight];
@@ -197,24 +202,14 @@ namespace cge
 		}
 
 	public:
-		void Draw(int x, int y, short c = 0x2588, short col = 0x000F)
-		{
-			if (x >= 0 && x < nScreenWidth && y >= 0 && y < nScreenHeight)
-			{
-				screen[y * nScreenWidth + x].Char.UnicodeChar = c;
-				screen[y * nScreenWidth + x].Attributes = col;
-			}
-		}
-
-		int GetWidth()
-		{
-			return nScreenWidth;
-		}
-
-		int GetHeight()
-		{
-			return nScreenHeight;
-		}
+		void SetTitle(std::wstring title);
+		void Draw(vec2d pos, short c = 0x2588, short col = 0x000F);
+		void DrawLine(vec2d pos1, vec2d pos2, short c = 0x2588, short col = 0x000F);
+		void DrawTriangle(vec2d pos1, vec2d pos2, vec2d pos3, short c = 0x2588, short col = 0x000F);
+		void DrawRectangle(vec2d pos, vec2d size, short c = 0x2588, short col = 0x000F);
+		void FillRectangle(vec2d pos, vec2d size, short c = 0x2588, short col = 0x000F);
+		int GetWidth();
+		int GetHeight();
 
 	private:
 		void GameThread()
@@ -226,22 +221,8 @@ namespace cge
 			std::chrono::duration<float> elapsedTime = tp2 - tp1;
 			tp1 = tp2;
 
-			if (OnUserCreate() == 0)
-			{
-				std::cerr << "Please override OnUserCreate!" << std::endl;
-				exit(0);
-			}
-
-			if (OnUserUpdate(elapsedTime.count()) == 0)
-			{
-				std::cerr << "Please override OnUserUpdate!" << std::endl;
-				exit(0);
-			}
-
 			if (!OnUserCreate())
-			{
 				exit(0);
-			}
 
 			while (1)
 			{
@@ -265,10 +246,122 @@ namespace cge
 		CHAR_INFO* screen = nullptr;
 		HANDLE hConsole;
 		SMALL_RECT rectWindow;
-		std::wstring sAppName = L"Default";
+		std::wstring sAppName = L"Undefined";
 		int nScreenWidth = 120;
 		int nScreenHeight = 40;
 		int nFontW = 4;
 		int nFontH = 4;
 	};
+
+	void ConsoleGameEngine::SetTitle(std::wstring title)
+	{
+		sAppName = title;
+	}
+
+	void ConsoleGameEngine::FillRectangle(vec2d pos, vec2d size, short c, short col)
+	{
+		if (pos.x >= 0 && pos.x < nScreenWidth && pos.y >= 0 && pos.y < nScreenHeight)
+		{
+			for (int i = pos.x; i < size.x; i++)
+				for (int j = pos.y; j < size.y; j++)
+				{
+					screen[j * nScreenWidth + i].Char.UnicodeChar = c;
+					screen[j * nScreenWidth + i].Attributes = col;
+				}
+		}
+	}
+
+	void ConsoleGameEngine::Draw(vec2d pos, short c, short col)
+	{
+		if (pos.x >= 0 && pos.x < nScreenWidth && pos.y >= 0 && pos.y < nScreenHeight)
+		{
+			screen[pos.y * nScreenWidth + pos.x].Char.UnicodeChar = c;
+			screen[pos.y * nScreenWidth + pos.x].Attributes = col;
+		}
+	}
+
+	void ConsoleGameEngine::DrawLine(vec2d pos1, vec2d pos2, short c, short col)
+	{
+		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
+		dx = pos2.x - pos1.x; dy = pos2.y - pos1.y;
+		dx1 = abs(dx); dy1 = abs(dy);
+		px = 2 * dy1 - dx1;	py = 2 * dx1 - dy1;
+		if (dy1 <= dx1)
+		{
+			if (dx >= 0)
+			{
+				x = pos1.x; y = pos1.y; xe = pos2.x;
+			}
+			else
+			{
+				x = pos2.x; y = pos2.y; xe = pos1.x;
+			}
+
+			Draw({ x, y }, c, col);
+
+			for (i = 0; x < xe; i++)
+			{
+				x = x + 1;
+				if (px < 0)
+					px = px + 2 * dy1;
+				else
+				{
+					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y = y + 1; else y = y - 1;
+					px = px + 2 * (dy1 - dx1);
+				}
+				Draw({ x, y }, c, col);
+			}
+		}
+		else
+		{
+			if (dy >= 0)
+			{
+				x = pos1.x; y = pos1.y; ye = pos2.y;
+			}
+			else
+			{
+				x = pos2.x; y = pos2.y; ye = pos1.y;
+			}
+
+			Draw({ x, y }, c, col);
+
+			for (i = 0; y < ye; i++)
+			{
+				y = y + 1;
+				if (py <= 0)
+					py = py + 2 * dx1;
+				else
+				{
+					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x = x + 1; else x = x - 1;
+					py = py + 2 * (dx1 - dy1);
+				}
+				Draw({ x, y }, c, col);
+			}
+		}
+	}
+
+	void ConsoleGameEngine::DrawTriangle(vec2d pos1, vec2d pos2, vec2d pos3, short c, short col)
+	{
+		DrawLine(pos1, pos2, c, col);
+		DrawLine(pos2, pos3, c, col);
+		DrawLine(pos3, pos1, c, col);
+	}
+
+	void ConsoleGameEngine::DrawRectangle(vec2d pos, vec2d size, short c, short col)
+	{
+		DrawLine(pos, { size.x, pos.y });
+		DrawLine({ size.x, pos.y }, size);
+		DrawLine(size, { pos.x, size.y });
+		DrawLine({ pos.x, size.y }, pos);
+	}
+
+	int ConsoleGameEngine::GetWidth()
+	{
+		return nScreenWidth;
+	}
+
+	int ConsoleGameEngine::GetHeight()
+	{
+		return nScreenHeight;
+	}
 }
