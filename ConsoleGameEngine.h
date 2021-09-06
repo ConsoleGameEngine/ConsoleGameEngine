@@ -36,7 +36,7 @@
 
 #pragma region DOCS
 /**
-* Example:
+* Example (engine only supports .spr files, check https://github.com/defini7/lab/tree/main/Sprite_Editor for editing .spr files):
 	#include "ConsoleGameEngine.h"
 
 	class Example : public cge::ConsoleGameEngine
@@ -44,6 +44,7 @@
 	public:
 		virtual bool OnUserCreate() override
 		{
+			spr = new cge::Sprite(L"ball.png");
 			return true;
 		}
 
@@ -54,6 +55,10 @@
 			Draw({ 30, 10 }, PIXEL_SOLID, FG_DARK_GREEN);
 			return true;
 		}
+
+	private:
+		cge::Sprite* spr = nullptr;
+
 	};
 
 	int main()
@@ -64,9 +69,11 @@
 * Commands:
 	SetTitle(title); -- set title of window, by default it's: "Undefined"
 	Draw(pos1, PIXEL_TYPE, COLOUR); -- draws simple point
+	DrawSprite(sprite); -- draws sprite
 	DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR); -- draw line
 	DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draw triangle
-	DrawRectangle(pos, size, PIXEL_TYPE, COLOUR);
+	DrawRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws rectangle
+	FillRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws and fill rectangle
 	GetWidth(); -- returns width of screen
 	GetHeight(); -- returns height of screen
 **/
@@ -76,65 +83,191 @@
 #error Please, enable UNICODE
 #endif
 
-#define Pixel wchar_t
-
 #include <iostream>
 #include <Windows.h>
+#include <vector>
 #include <chrono>
 #include <cmath>
 
-enum COLOUR
-{
-	FG_BLACK = 0x0000,
-	FG_DARK_BLUE = 0x0001,
-	FG_DARK_GREEN = 0x0002,
-	FG_DARK_CYAN = 0x0003,
-	FG_DARK_RED = 0x0004,
-	FG_DARK_MAGENTA = 0x0005,
-	FG_DARK_YELLOW = 0x0006,
-	FG_GREY = 0x0007,
-	FG_DARK_GREY = 0x0008,
-	FG_BLUE = 0x0009,
-	FG_GREEN = 0x000A,
-	FG_CYAN = 0x000B,
-	FG_RED = 0x000C,
-	FG_MAGENTA = 0x000D,
-	FG_YELLOW = 0x000E,
-	FG_WHITE = 0x000F,
-	BG_BLACK = 0x0000,
-	BG_DARK_BLUE = 0x0010,
-	BG_DARK_GREEN = 0x0020,
-	BG_DARK_CYAN = 0x0030,
-	BG_DARK_RED = 0x0040,
-	BG_DARK_MAGENTA = 0x0050,
-	BG_DARK_YELLOW = 0x0060,
-	BG_GREY = 0x0070,
-	BG_DARK_GREY = 0x0080,
-	BG_BLUE = 0x0090,
-	BG_GREEN = 0x00A0,
-	BG_CYAN = 0x00B0,
-	BG_RED = 0x00C0,
-	BG_MAGENTA = 0x00D0,
-	BG_YELLOW = 0x00E0,
-	BG_WHITE = 0x00F0,
-};
-
-enum PIXEL_TYPE
-{
-	PIXEL_SOLID = 0x2588,
-	PIXEL_THREEQUARTERS = 0x2593,
-	PIXEL_HALF = 0x2592,
-	PIXEL_QUARTER = 0x2591,
-};
-
-struct vec2d
-{
-	int x;
-	int y;
-};
-
 namespace cge
 {
+	namespace Colour
+	{
+		namespace FG
+		{
+			int BLACK = 0x0000,
+				DARK_BLUE = 0x0001,
+				DARK_GREEN = 0x0002,
+				DARK_CYAN = 0x0003,
+				DARK_RED = 0x0004,
+				DARK_MAGENTA = 0x0005,
+				DARK_YELLOW = 0x0006,
+				GREY = 0x0007,
+				DARK_GREY = 0x0008,
+				BLUE = 0x0009,
+				GREEN = 0x000A,
+				CYAN = 0x000B,
+				RED = 0x000C,
+				MAGENTA = 0x000D,
+				YELLOW = 0x000E,
+				WHITE = 0x000F;
+		}
+		namespace BG
+		{
+			int BLACK = 0x0000,
+				DARK_BLUE = 0x0010,
+				DARK_GREEN = 0x0020,
+				DARK_CYAN = 0x0030,
+				DARK_RED = 0x0040,
+				DARK_MAGENTA = 0x0050,
+				DARK_YELLOW = 0x0060,
+				GREY = 0x0070,
+				DARK_GREY = 0x0080,
+				BLUE = 0x0090,
+				GREEN = 0x00A0,
+				CYAN = 0x00B0,
+				RED = 0x00C0,
+				MAGENTA = 0x00D0,
+				YELLOW = 0x00E0,
+				WHITE = 0x00F0;
+		}
+	}
+
+	namespace Pixel
+	{
+		int SOLID = 0x2588,
+			THREEQUARTERS = 0x2593,
+			HALF = 0x2592,
+			QUARTER = 0x2591;
+	}
+
+	struct vec2d
+	{
+		int x;
+		int y;
+	};
+
+	struct KeyState
+	{
+		bool bPressed;
+		bool bReleased;
+		bool bHeld;
+	};
+
+	class Sprite
+	{
+	public:
+		Sprite()
+		{
+
+		}
+
+		Sprite(int w, int h)
+		{
+			Create(w, h);
+		}
+
+		Sprite(std::wstring sFile)
+		{
+			if (!Load(sFile))
+				Create(8, 8);
+		}
+
+		int nWidth = 0;
+		int nHeight = 0;
+
+	private:
+		short* m_Glyphs = nullptr;
+		short* m_Colours = nullptr;
+
+		void Create(int w, int h)
+		{
+			nWidth = w;
+			nHeight = h;
+			m_Glyphs = new short[w * h];
+			m_Colours = new short[w * h];
+			for (int i = 0; i < w * h; i++)
+			{
+				m_Glyphs[i] = L' ';
+				m_Colours[i] = Colour::FG::BLACK;
+			}
+		}
+
+	public:
+		void SetGlyph(vec2d pos, short c)
+		{
+			if (pos.x < 0 || pos.x >= nWidth || pos.y < 0 || pos.y >= nHeight)
+				return;
+			else
+				m_Glyphs[pos.y * nWidth + pos.x] = c;
+		}
+
+		void SetColour(vec2d pos, short c)
+		{
+			if (pos.x < 0 || pos.x >= nWidth || pos.y < 0 || pos.y >= nHeight)
+				return;
+			else
+				m_Colours[pos.y * nWidth + pos.x] = c;
+		}
+
+		short GetGlyph(vec2d pos)
+		{
+			if (pos.x < 0 || pos.x >= nWidth || pos.y < 0 || pos.y >= nHeight)
+				return L' ';
+			else
+				return m_Glyphs[pos.y * nWidth + pos.x];
+		}
+
+		short GetColour(vec2d pos)
+		{
+			if (pos.x < 0 || pos.x >= nWidth || pos.y < 0 || pos.y >= nHeight)
+				return Colour::FG::BLACK;
+			else
+				return m_Colours[pos.y * nWidth + pos.x];
+		}
+
+		bool Save(std::wstring sFile)
+		{
+			FILE* f = nullptr;
+			_wfopen_s(&f, sFile.c_str(), L"wb");
+			if (f == nullptr)
+				return false;
+
+			fwrite(&nWidth, sizeof(int), 1, f);
+			fwrite(&nHeight, sizeof(int), 1, f);
+			fwrite(m_Colours, sizeof(short), nWidth * nHeight, f);
+			fwrite(m_Glyphs, sizeof(short), nWidth * nHeight, f);
+
+			fclose(f);
+
+			return true;
+		}
+
+		bool Load(std::wstring sFile)
+		{
+			delete[] m_Glyphs;
+			delete[] m_Colours;
+			nWidth = 0;
+			nHeight = 0;
+
+			FILE* f = nullptr;
+			_wfopen_s(&f, sFile.c_str(), L"rb");
+			if (f == nullptr)
+				return false;
+
+			std::fread(&nWidth, sizeof(int), 1, f);
+			std::fread(&nHeight, sizeof(int), 1, f);
+
+			Create(nWidth, nHeight);
+
+			std::fread(m_Colours, sizeof(short), nWidth * nHeight, f);
+			std::fread(m_Glyphs, sizeof(short), nWidth * nHeight, f);
+
+			std::fclose(f);
+			return true;
+		}
+	};
+
 	class ConsoleGameEngine
 	{
 	public:
@@ -196,23 +329,27 @@ namespace cge
 			screen = new CHAR_INFO[nScreenWidth * nScreenHeight];
 			memset(screen, 0, sizeof(CHAR_INFO) * nScreenWidth * nScreenHeight);
 
-			GameThread();
+			AppThread();
 
 			return 0;
 		}
+
+		std::vector<KeyState> keys;
 
 	public:
 		void SetTitle(std::wstring title);
 		void Draw(vec2d pos, short c = 0x2588, short col = 0x000F);
 		void DrawLine(vec2d pos1, vec2d pos2, short c = 0x2588, short col = 0x000F);
 		void DrawTriangle(vec2d pos1, vec2d pos2, vec2d pos3, short c = 0x2588, short col = 0x000F);
-		void DrawRectangle(vec2d pos, vec2d size, short c = 0x2588, short col = 0x000F);
-		void FillRectangle(vec2d pos, vec2d size, short c = 0x2588, short col = 0x000F);
+		void FillTriangle(vec2d pos1, vec2d pos2, vec2d pos3, short c = 0x2588, short col = 0x000F);
+		void DrawRectangle(vec2d pos1, vec2d pos2, short c = 0x2588, short col = 0x000F);
+		void FillRectangle(vec2d pos1, vec2d pos2, short c = 0x2588, short col = 0x000F);
+		void DrawSprite(vec2d pos, Sprite* sprite);
 		int GetWidth();
 		int GetHeight();
 
 	private:
-		void GameThread()
+		void AppThread()
 		{
 			auto tp1 = std::chrono::system_clock::now();
 			auto tp2 = std::chrono::system_clock::now();
@@ -223,6 +360,11 @@ namespace cge
 
 			if (!OnUserCreate())
 				exit(0);
+
+			for (int i = 0; i < 256; i++)
+			{
+				keys.push_back({false, false, false});
+			}
 
 			while (1)
 			{
@@ -237,6 +379,30 @@ namespace cge
 
 				if (!OnUserUpdate(deltaTime))
 					break;
+
+				for (int i = 0; i < 256; i++)
+				{
+					short keyState = GetKeyState(i);
+					if (keyState & 0x8000)
+					{
+						keys[i].bHeld = true;
+						keys[i].bPressed = false;
+						keys[i].bReleased = false;
+					}
+					else if (keyState & 1)
+					{
+						keys[i].bPressed = true;
+						keys[i].bHeld = false;
+						keys[i].bReleased = false;
+					}
+					else
+					{
+						keys[i].bReleased = true;
+						keys[i].bHeld = false;
+						keys[i].bPressed = false;
+					}
+						
+				}
 
 				WriteConsoleOutput(hConsole, screen, { (short)nScreenWidth, (short)nScreenHeight }, { 0,0 }, &rectWindow);
 			}
@@ -258,12 +424,12 @@ namespace cge
 		sAppName = title;
 	}
 
-	void ConsoleGameEngine::FillRectangle(vec2d pos, vec2d size, short c, short col)
+	void ConsoleGameEngine::FillRectangle(vec2d pos1, vec2d pos2, short c, short col)
 	{
-		if (pos.x >= 0 && pos.x < nScreenWidth && pos.y >= 0 && pos.y < nScreenHeight)
+		if (pos1.x >= 0 && pos1.x < nScreenWidth && pos1.y >= 0 && pos1.y < nScreenHeight)
 		{
-			for (int i = pos.x; i < size.x; i++)
-				for (int j = pos.y; j < size.y; j++)
+			for (int i = pos1.x; i < pos2.x; i++)
+				for (int j = pos1.y; j < pos2.y; j++)
 				{
 					screen[j * nScreenWidth + i].Char.UnicodeChar = c;
 					screen[j * nScreenWidth + i].Attributes = col;
@@ -347,12 +513,36 @@ namespace cge
 		DrawLine(pos3, pos1, c, col);
 	}
 
-	void ConsoleGameEngine::DrawRectangle(vec2d pos, vec2d size, short c, short col)
+	void ConsoleGameEngine::FillTriangle(vec2d pos1, vec2d pos2, vec2d pos3, short c, short col)
 	{
-		DrawLine(pos, { size.x, pos.y });
-		DrawLine({ size.x, pos.y }, size);
-		DrawLine(size, { pos.x, size.y });
-		DrawLine({ pos.x, size.y }, pos);
+		DrawTriangle(pos1, pos2, pos3, c, col);
+		for (int i = 0; i < 10; i++)
+		{
+			DrawTriangle({ pos1.x + i, pos1.y + i }, pos2, pos3, c, col);
+		}
+	}
+
+	void ConsoleGameEngine::DrawRectangle(vec2d pos1, vec2d pos2, short c, short col)
+	{
+		DrawLine(pos1, { pos2.x, pos1.y });
+		DrawLine({ pos2.x, pos1.y }, pos2);
+		DrawLine(pos2, { pos1.x, pos2.y });
+		DrawLine({ pos1.x, pos2.y }, pos1);
+	}
+
+	void ConsoleGameEngine::DrawSprite(vec2d pos, Sprite* sprite)
+	{
+		if (sprite == nullptr)
+			return;
+
+		for (int i = 0; i < sprite->nWidth; i++)
+		{
+			for (int j = 0; j < sprite->nHeight; j++)
+			{
+				if (sprite->GetGlyph({ i, j }) != L' ')
+					Draw({ pos.x + i, pos.y + j }, sprite->GetGlyph({ i, j }), sprite->GetColour({ i, j }));
+			}
+		}
 	}
 
 	int ConsoleGameEngine::GetWidth()
