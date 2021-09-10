@@ -32,7 +32,6 @@ Example (engine only supports .spr files, check [this](https://github.com/defini
 		Example demo;
 		demo.Construct(120, 120, 4, 4);
 	}
-   `
 Commands:
 - SetTitle(title); -- set title of window, by default it's: "Undefined"
 - Draw(pos1, PIXEL_TYPE, COLOUR); -- draws simple point
