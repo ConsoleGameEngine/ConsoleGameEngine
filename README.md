@@ -63,7 +63,6 @@ Example of usage:
 	   {
 	      vPos.x -= 2 * spr->GetWidth();
 	   }
-
 # License
 BSD 3-Clause License
 
