@@ -1,5 +1,69 @@
-# ConsoleGameEngine
+# ConsoleGameEngine description
 CGE (Console Game Engine) is an universal tool to create games, GUI or whatever you want.
+
+# Documentation
+Example (engine only supports .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
+	`#include "ConsoleGameEngine.h"
+
+	class Example : public cge::ConsoleGameEngine
+	{
+	public:
+		virtual bool OnUserCreate() override
+		{
+			spr = new cge::Sprite(L"ball.png");
+			return true;
+		}
+
+		virtual bool OnUserUpdate(float fDeltaTime) override
+		{
+			DrawTriangle({ 0, 0 }, { 0, 20 }, { 20, 20 }, PIXEL_SOLID, FG_BLUE);
+			DrawLine({10, 10}, {20, 10}, PIXEL_SOLID, FG_RED);
+			Draw({ 30, 10 }, PIXEL_SOLID, FG_DARK_GREEN);
+			return true;
+		}
+
+	private:
+		cge::Sprite* spr = nullptr;
+
+	};
+
+	int main()
+	{
+		Example demo;
+		demo.Construct(120, 120, 4, 4);
+	}`
+   
+Commands:
+SetTitle(title); -- set title of window, by default it's: "Undefined"
+Draw(pos1, PIXEL_TYPE, COLOUR); -- draws simple point
+DrawSprite(pos, sprite); -- draws sprite
+DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR); -- draw line
+DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draw triangle
+FillTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draws and fills triangle
+DrawRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws rectangle
+FillRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws and fills rectangle
+DrawCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws circle
+FillCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws and fills circle
+DrawString(pos, text, PIXEL_TYPE, COLOUR); -- draws string (notice that one character is one pixel)
+GetWidth(); -- returns width of screen
+GetHeight(); -- returns height of screen
+
+Keys buffer:
+This buffer contains 256 keys, and each key has 3 states:
+- Held
+- Pressed
+- Released.
+To select key from this buffer you need to use [Virtual Keys](https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes).
+Example of usage:
+   if (keys[VK_UP].bHeld)
+   {
+      vPos.y -= 2 * fDeltaTime;
+   }
+
+   if (keys[VK_LEFT].bPressed)
+   {
+      vPos.x -= 2 * spr->GetWidth();
+   }
 
 # License
 BSD 3-Clause License
