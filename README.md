@@ -31,22 +31,22 @@ Example (engine only supports .spr files, check [this](https://github.com/defini
 	{
 		Example demo;
 		demo.Construct(120, 120, 4, 4);
-	}`
-   
+	}
+   `
 Commands:
-SetTitle(title); -- set title of window, by default it's: "Undefined"
-Draw(pos1, PIXEL_TYPE, COLOUR); -- draws simple point
-DrawSprite(pos, sprite); -- draws sprite
-DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR); -- draw line
-DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draw triangle
-FillTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draws and fills triangle
-DrawRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws rectangle
-FillRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws and fills rectangle
-DrawCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws circle
-FillCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws and fills circle
-DrawString(pos, text, PIXEL_TYPE, COLOUR); -- draws string (notice that one character is one pixel)
-GetWidth(); -- returns width of screen
-GetHeight(); -- returns height of screen
+- SetTitle(title); -- set title of window, by default it's: "Undefined"
+- Draw(pos1, PIXEL_TYPE, COLOUR); -- draws simple point
+- DrawSprite(pos, sprite); -- draws sprite
+- DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR); -- draw line
+- DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draw triangle
+- FillTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draws and fills triangle
+- DrawRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws rectangle
+- FillRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws and fills rectangle
+- DrawCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws circle
+- FillCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws and fills circle
+- DrawString(pos, text, PIXEL_TYPE, COLOUR); -- draws string (notice that one character is one pixel)
+- GetWidth(); -- returns width of screen
+- GetHeight(); -- returns height of screen
 
 Keys buffer:
 This buffer contains 256 keys, and each key has 3 states:
@@ -55,7 +55,7 @@ This buffer contains 256 keys, and each key has 3 states:
 - Released.
 To select key from this buffer you need to use [Virtual Keys](https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes).
 Example of usage:
-   if (keys[VK_UP].bHeld)
+   `if (keys[VK_UP].bHeld)
    {
       vPos.y -= 2 * fDeltaTime;
    }
@@ -63,7 +63,7 @@ Example of usage:
    if (keys[VK_LEFT].bPressed)
    {
       vPos.x -= 2 * spr->GetWidth();
-   }
+   }`
 
 # License
 BSD 3-Clause License
