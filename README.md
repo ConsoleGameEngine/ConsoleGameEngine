@@ -54,14 +54,16 @@ This buffer contains 256 keys, and each key has 3 states:
 - Released.
 To select key from this buffer you need to use [Virtual Keys](https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes).
 Example of usage:
-	   `if (keys[VK_UP].bHeld)
+	   `
+	   if (keys[VK_UP].bHeld)
 	   {
 	      vPos.y -= 2 * fDeltaTime;
 	   }
+	   
 	   if (keys[VK_LEFT].bPressed)
 	   {
 	      vPos.x -= 2 * spr->GetWidth();
-	   }
+	   }`
 # License
 BSD 3-Clause License
 
