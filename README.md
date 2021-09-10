@@ -3,7 +3,7 @@ CGE (Console Game Engine) is an universal tool to create games, GUI or whatever 
 
 # Documentation
 1. Example (engine supports only .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
-	`cpp #include "ConsoleGameEngine.h"
+	```cpp #include "ConsoleGameEngine.h"
 
 	class Example : public cge::ConsoleGameEngine
 	{
@@ -31,7 +31,7 @@ CGE (Console Game Engine) is an universal tool to create games, GUI or whatever 
 	{
 		Example demo;
 		demo.Construct(120, 120, 4, 4);
-	}`
+	}```
 	
 Commands:
 - SetTitle(title); -- set title of window, by default it's: "Undefined"
@@ -55,7 +55,7 @@ This buffer contains 256 keys, and each key has 3 states:
 - Released.
 To select key from this buffer you need to use [Virtual Keys](https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes).
 Example of usage:
-	`cpp if (keys[VK_UP].bHeld)
+	```cpp if (keys[VK_UP].bHeld)
 	{
 		vPos.y -= 2 * fDeltaTime;
 	}
@@ -63,8 +63,7 @@ Example of usage:
 	if (keys[VK_LEFT].bPressed)
 	{
 		vPos.x -= 2 * spr->GetWidth();
-	}`
-	   
+	}```
 # License
 BSD 3-Clause License
 
