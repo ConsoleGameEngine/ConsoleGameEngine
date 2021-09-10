@@ -31,7 +31,7 @@ CGE (Console Game Engine) is an universal tool to create games, GUI or whatever 
 	{
 		Example demo;
 		demo.Construct(120, 120, 4, 4);
-	}```
+	}
 	
 Commands:
 - SetTitle(title); -- set title of window, by default it's: "Undefined"
