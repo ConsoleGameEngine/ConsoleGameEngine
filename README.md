@@ -58,7 +58,6 @@ Example of usage:
 	   {
 	      vPos.y -= 2 * fDeltaTime;
 	   }
-
 	   if (keys[VK_LEFT].bPressed)
 	   {
 	      vPos.x -= 2 * spr->GetWidth();
