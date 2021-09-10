@@ -62,7 +62,7 @@ Example of usage:
 	   if (keys[VK_LEFT].bPressed)
 	   {
 	      vPos.x -= 2 * spr->GetWidth();
-	   }`
+	   }
 
 # License
 BSD 3-Clause License
