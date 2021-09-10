@@ -1,4 +1,5 @@
 #pragma once
+#pragma comment(lib, "winmm.lib")
 
 #pragma region LICENSE
 /***
@@ -36,7 +37,7 @@
 
 #pragma region DOCS
 /**
-* Example (engine only supports .spr files, check https://github.com/defini7/lab/tree/main/Sprite_Editor for editing .spr files):
+* Example (engine only supports .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
 	#include "ConsoleGameEngine.h"
 
 	class Example : public cge::ConsoleGameEngine
@@ -48,7 +49,7 @@
 			return true;
 		}
 
-		virtual bool OnUserUpdate(float deltaTime) override
+		virtual bool OnUserUpdate(float fDeltaTime) override
 		{
 			DrawTriangle({ 0, 0 }, { 0, 20 }, { 20, 20 }, PIXEL_SOLID, FG_BLUE);
 			DrawLine({10, 10}, {20, 10}, PIXEL_SOLID, FG_RED);
@@ -69,19 +70,43 @@
 * Commands:
 	SetTitle(title); -- set title of window, by default it's: "Undefined"
 	Draw(pos1, PIXEL_TYPE, COLOUR); -- draws simple point
-	DrawSprite(sprite); -- draws sprite
+	DrawSprite(pos, sprite); -- draws sprite
 	DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR); -- draw line
 	DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draw triangle
+	FillTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draws and fills triangle
 	DrawRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws rectangle
-	FillRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws and fill rectangle
+	FillRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws and fills rectangle
+	DrawCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws circle
+	FillCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws and fills circle
+	DrawString(pos, text, PIXEL_TYPE, COLOUR); -- draws string (notice that one character is one pixel)
 	GetWidth(); -- returns width of screen
 	GetHeight(); -- returns height of screen
+
+* Keys buffer:
+	This buffer contains 256 keys, and each key has 3 states:
+	- Held
+	- Pressed
+	- Released.
+	To select key from this buffer you need to use [Virtual Keys](https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes).
+	Example of usage:
+		if (keys[VK_UP].bHeld)
+		{
+			vPos.y -= 2 * fDeltaTime;
+		}
+
+		if (keys[VK_LEFT].bPressed)
+		{
+			vPos.x -= 2 * spr->GetWidth();
+		}
+
 **/
 #pragma endregion
 
 #ifndef UNICODE
 #error Please, enable UNICODE
 #endif
+
+#define PI 3.1415926535
 
 #include <iostream>
 #include <Windows.h>
@@ -149,17 +174,22 @@ namespace cge
 
 	struct KeyState
 	{
-		bool bPressed;
-		bool bReleased;
 		bool bHeld;
+		bool bReleased;
+		bool bPressed;
 	};
+
+	/*struct MouseButtonState
+	{
+		
+	};*/
 
 	class Sprite
 	{
 	public:
 		Sprite()
 		{
-
+			Create(8, 8);
 		}
 
 		Sprite(int w, int h)
@@ -344,7 +374,11 @@ namespace cge
 		void FillTriangle(vec2d pos1, vec2d pos2, vec2d pos3, short c = 0x2588, short col = 0x000F);
 		void DrawRectangle(vec2d pos1, vec2d pos2, short c = 0x2588, short col = 0x000F);
 		void FillRectangle(vec2d pos1, vec2d pos2, short c = 0x2588, short col = 0x000F);
+		void DrawCircle(vec2d pos, int radius, short c = 0x2588, short col = 0x000F);
+		void FillCircle(vec2d pos, int radius, short c = 0x2588, short col = 0x000F);
 		void DrawSprite(vec2d pos, Sprite* sprite);
+		void DrawString(vec2d pos, std::wstring text, short c = 0x2588, short col = 0x000F);
+		/*vec2d GetMouse();*/
 		int GetWidth();
 		int GetHeight();
 
@@ -363,7 +397,7 @@ namespace cge
 
 			for (int i = 0; i < 256; i++)
 			{
-				keys.push_back({false, false, false});
+				keys.push_back({false});
 			}
 
 			while (1)
@@ -380,30 +414,30 @@ namespace cge
 				if (!OnUserUpdate(deltaTime))
 					break;
 
+				// Handle Keyboard Input
 				for (int i = 0; i < 256; i++)
 				{
-					short keyState = GetKeyState(i);
-					if (keyState & 0x8000)
-					{
-						keys[i].bHeld = true;
-						keys[i].bPressed = false;
-						keys[i].bReleased = false;
-					}
-					else if (keyState & 1)
-					{
-						keys[i].bPressed = true;
-						keys[i].bHeld = false;
-						keys[i].bReleased = false;
-					}
-					else
-					{
-						keys[i].bReleased = true;
-						keys[i].bHeld = false;
-						keys[i].bPressed = false;
-					}
-						
-				}
+					keyNewState[i] = GetAsyncKeyState(i);
 
+					keys[i].bPressed = false;
+					keys[i].bReleased = false;
+
+					if (keyNewState[i] != keyOldState[i])
+					{
+						if (keyNewState[i] & 0x8000)
+						{
+							keys[i].bPressed = !keys[i].bHeld;
+							keys[i].bHeld = true;
+						}
+						else
+						{
+							keys[i].bReleased = true;
+							keys[i].bHeld = false;
+						}
+					}
+
+					keyOldState[i] = keyNewState[i];
+				}
 				WriteConsoleOutput(hConsole, screen, { (short)nScreenWidth, (short)nScreenHeight }, { 0,0 }, &rectWindow);
 			}
 		}
@@ -413,6 +447,11 @@ namespace cge
 		HANDLE hConsole;
 		SMALL_RECT rectWindow;
 		std::wstring sAppName = L"Undefined";
+		LPPOINT lpPoint;
+
+		short keyOldState[256]{ 0 };
+		short keyNewState[256]{ 0 };
+
 		int nScreenWidth = 120;
 		int nScreenHeight = 40;
 		int nFontW = 4;
@@ -435,6 +474,33 @@ namespace cge
 					screen[j * nScreenWidth + i].Attributes = col;
 				}
 		}
+	}
+
+	void ConsoleGameEngine::DrawCircle(vec2d pos, int radius, short c, short col)
+	{
+		int x = 0;
+		int y = radius;
+		int p = 3 - 2 * radius;
+		if (!radius) return;
+
+		while (y >= x)
+		{
+			Draw({ pos.x - x, pos.y - y }, c, col);//upper left left
+			Draw({ pos.x - y, pos.y - x }, c, col);//upper upper left
+			Draw({ pos.x + y, pos.y - x }, c, col);//upper upper right
+			Draw({ pos.x + x, pos.y - y }, c, col);//upper right right
+			Draw({ pos.x - x, pos.y + y }, c, col);//lower left left
+			Draw({ pos.x - y, pos.y + x }, c, col);//lower lower left
+			Draw({ pos.x + y, pos.y + x }, c, col);//lower lower right
+			Draw({ pos.x + x, pos.y + y }, c, col);//lower right right
+			if (p < 0) p += 4 * x++ + 6;
+			else p += 4 * (x++ - y--) + 10;
+		}
+	}
+
+	void ConsoleGameEngine::FillCircle(vec2d pos, int radius, short c, short col)
+	{
+		return;
 	}
 
 	void ConsoleGameEngine::Draw(vec2d pos, short c, short col)
@@ -513,12 +579,140 @@ namespace cge
 		DrawLine(pos3, pos1, c, col);
 	}
 
+	// https://www.avrfreaks.net/sites/default/files/triangles.c
 	void ConsoleGameEngine::FillTriangle(vec2d pos1, vec2d pos2, vec2d pos3, short c, short col)
 	{
-		DrawTriangle(pos1, pos2, pos3, c, col);
-		for (int i = 0; i < 10; i++)
-		{
-			DrawTriangle({ pos1.x + i, pos1.y + i }, pos2, pos3, c, col);
+		auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw({ i, ny } , c, col); };
+
+		int t1x, t2x, y, minx, maxx, t1xp, t2xp;
+		bool changed1 = false;
+		bool changed2 = false;
+		int signx1, signx2, dx1, dy1, dx2, dy2;
+		int e1, e2;
+		// Sort vertices
+		if (pos1.y > pos2.y) { std::swap(pos1.y, pos2.y); std::swap(pos1.x, pos2.x); }
+		if (pos1.y > pos3.y) { std::swap(pos1.y, pos3.y); std::swap(pos1.x, pos3.x); }
+		if (pos2.y > pos3.y) { std::swap(pos2.y, pos3.y); std::swap(pos2.x, pos3.x); }
+
+		t1x = t2x = pos1.x; y = pos1.y;   // Starting points
+		dx1 = (int)(pos2.x - pos1.x); if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
+		else signx1 = 1;
+		dy1 = (int)(pos2.y - pos1.y);
+
+		dx2 = (int)(pos3.x - pos1.x); if (dx2 < 0) { dx2 = -dx2; signx2 = -1; }
+		else signx2 = 1;
+		dy2 = (int)(pos3.y - pos1.y);
+
+		if (dy1 > dx1) {   // swap values
+			std::swap(dx1, dy1);
+			changed1 = true;
+		}
+		if (dy2 > dx2) {   // swap values
+			std::swap(dy2, dx2);
+			changed2 = true;
+		}
+
+		e2 = (int)(dx2 >> 1);
+		// Flat top, just process the second half
+		if (pos1.y == pos2.y) goto next;
+		e1 = (int)(dx1 >> 1);
+
+		for (int i = 0; i < dx1;) {
+			t1xp = 0; t2xp = 0;
+			if (t1x < t2x) { minx = t1x; maxx = t2x; }
+			else { minx = t2x; maxx = t1x; }
+			// process first line until y value is about to change
+			while (i < dx1) {
+				i++;
+				e1 += dy1;
+				while (e1 >= dx1) {
+					e1 -= dx1;
+					if (changed1) t1xp = signx1;//t1x += signx1;
+					else          goto next1;
+				}
+				if (changed1) break;
+				else t1x += signx1;
+			}
+			// Move line
+		next1:
+			// process second line until y value is about to change
+			while (1) {
+				e2 += dy2;
+				while (e2 >= dx2) {
+					e2 -= dx2;
+					if (changed2) t2xp = signx2;//t2x += signx2;
+					else          goto next2;
+				}
+				if (changed2)     break;
+				else              t2x += signx2;
+			}
+		next2:
+			if (minx > t1x) minx = t1x; if (minx > t2x) minx = t2x;
+			if (maxx < t1x) maxx = t1x; if (maxx < t2x) maxx = t2x;
+			drawline(minx, maxx, y);    // Draw line from min to max points found on the y
+											// Now increase y
+			if (!changed1) t1x += signx1;
+			t1x += t1xp;
+			if (!changed2) t2x += signx2;
+			t2x += t2xp;
+			y += 1;
+			if (y == pos2.y) break;
+
+		}
+	next:
+		// Second half
+		dx1 = (int)(pos3.x - pos2.x); if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
+		else signx1 = 1;
+		dy1 = (int)(pos3.y - pos2.y);
+		t1x = pos2.x;
+
+		if (dy1 > dx1) {   // swap values
+			std::swap(dy1, dx1);
+			changed1 = true;
+		}
+		else changed1 = false;
+
+		e1 = (int)(dx1 >> 1);
+
+		for (int i = 0; i <= dx1; i++) {
+			t1xp = 0; t2xp = 0;
+			if (t1x < t2x) { minx = t1x; maxx = t2x; }
+			else { minx = t2x; maxx = t1x; }
+			// process first line until y value is about to change
+			while (i < dx1) {
+				e1 += dy1;
+				while (e1 >= dx1) {
+					e1 -= dx1;
+					if (changed1) { t1xp = signx1; break; }//t1x += signx1;
+					else          goto next3;
+				}
+				if (changed1) break;
+				else   	   	  t1x += signx1;
+				if (i < dx1) i++;
+			}
+		next3:
+			// process second line until y value is about to change
+			while (t2x != pos3.x) {
+				e2 += dy2;
+				while (e2 >= dx2) {
+					e2 -= dx2;
+					if (changed2) t2xp = signx2;
+					else          goto next4;
+				}
+				if (changed2)     break;
+				else              t2x += signx2;
+			}
+		next4:
+
+			if (minx > t1x) minx = t1x; if (minx > t2x) minx = t2x;
+			if (maxx < t1x) maxx = t1x; if (maxx < t2x) maxx = t2x;
+			drawline(minx, maxx, y);
+			if (!changed1) t1x += signx1;
+			t1x += t1xp;
+			if (!changed2) t2x += signx2;
+			t2x += t2xp;
+			y += 1;
+			if (y > pos3.y) return;
 		}
 	}
 
@@ -544,6 +738,24 @@ namespace cge
 			}
 		}
 	}
+
+	void ConsoleGameEngine::DrawString(vec2d pos, std::wstring text, short c, short col)
+	{
+		if (pos.x > 0 && pos.y > 0 && pos.x <= nScreenWidth && pos.y <= nScreenHeight)
+		{
+			for (size_t i = 0; i < text.size(); i++)
+			{
+				screen[pos.y * nScreenWidth + pos.x + i].Char.UnicodeChar = text[i];
+				screen[pos.y * nScreenWidth + pos.x + i].Attributes = col;
+			}
+		}
+	}
+
+	/*vec2d ConsoleGameEngine::GetMouse()
+	{
+		GetCursorPos(lpPoint);
+		return { lpPoint->x, lpPoint->y };
+	}*/
 
 	int ConsoleGameEngine::GetWidth()
 	{
