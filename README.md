@@ -3,8 +3,8 @@ CGE (Console Game Engine) is an universal tool to create games, GUI or whatever 
 
 # Documentation
 1. Example (engine supports only .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
-	```
-	cpp #include "ConsoleGameEngine.h"
+	```cpp 
+	#include "ConsoleGameEngine.h"
 
 	class Example : public cge::ConsoleGameEngine
 	{
