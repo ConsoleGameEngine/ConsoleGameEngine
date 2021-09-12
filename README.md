@@ -37,6 +37,7 @@ CGE (Console Game Engine) is an universal tool to create games, GUI or whatever 
 	
 Commands:
 - SetTitle(title); -- set title of window, by default it's: "Undefined"
+- Clear(COLOUR); -- clears screen
 - Draw(pos1, PIXEL_TYPE, COLOUR); -- draws simple point
 - DrawSprite(pos, sprite); -- draws sprite
 - DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR); -- draw line
@@ -51,7 +52,7 @@ Commands:
 - GetHeight(); -- returns height of screen
 
 2. Keys buffer:
-This buffer contains 256 keys, and each key has 3 states:
+This buffer contains 256 keys and each key has 3 states:
 - Held
 - Pressed
 - Released.
@@ -60,14 +61,34 @@ Example of usage:
 	```cpp 
 	if (keys[VK_UP].bHeld)
 	{
-		vPos.y -= 2 * fDeltaTime;
+		// do something
 	}
 
 	if (keys[VK_LEFT].bPressed)
 	{
-		vPos.x -= 2 * spr->GetWidth();
+		// do something
 	}
 	```
+	
+3. Mouse buttons buffer:
+This buffer contains 5 keys on mouse and each key has 3 states as keys in keys buffer:
+- Held
+- Pressed
+- Released.
+To select key from this buffer use numbers between 0 and 4.
+Example of usage:
+	```cpp
+	if (mouse[0].bHeld)
+	{
+		// do something
+	}
+
+	if (mouse[1].bPressed)
+	{
+		// do something
+	}
+	```
+
 # License
 BSD 3-Clause License
 
