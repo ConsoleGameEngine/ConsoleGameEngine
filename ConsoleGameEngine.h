@@ -114,7 +114,7 @@
 #include <chrono>
 #include <cmath>
 
-namespace cge
+namespace def
 {
 	namespace Colour
 	{
@@ -178,11 +178,6 @@ namespace cge
 		bool bReleased;
 		bool bPressed;
 	};
-
-	/*struct MouseButtonState
-	{
-		
-	};*/
 
 	class Sprite
 	{
@@ -310,7 +305,7 @@ namespace cge
 		virtual bool OnUserCreate() = 0;
 		virtual bool OnUserUpdate(float fDeltaTime) = 0;
 
-		int Construct(int width, int height, int fontw, int fonth)
+		int Start(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
 		{
 			nScreenWidth = width;
 			nScreenHeight = height;
@@ -365,9 +360,11 @@ namespace cge
 		}
 
 		std::vector<KeyState> keys;
+		std::vector<KeyState> mouse;
 
 	public:
 		void SetTitle(std::wstring title);
+		bool IsFocused();
 		void Draw(vec2d pos, short c = 0x2588, short col = 0x000F);
 		void DrawLine(vec2d pos1, vec2d pos2, short c = 0x2588, short col = 0x000F);
 		void DrawTriangle(vec2d pos1, vec2d pos2, vec2d pos3, short c = 0x2588, short col = 0x000F);
@@ -377,10 +374,15 @@ namespace cge
 		void DrawCircle(vec2d pos, int radius, short c = 0x2588, short col = 0x000F);
 		void FillCircle(vec2d pos, int radius, short c = 0x2588, short col = 0x000F);
 		void DrawSprite(vec2d pos, Sprite* sprite);
+		void DrawPartialSprite(vec2d pos, vec2d fpos1, vec2d fpos2, Sprite* sprite);
 		void DrawString(vec2d pos, std::wstring text, short c = 0x2588, short col = 0x000F);
-		/*vec2d GetMouse();*/
+		void Clear(short col = 0x000F);
+		vec2d GetMouse();
+		int GetMouseX();
+		int GetMouseY();
 		int GetWidth();
 		int GetHeight();
+		vec2d GetScreenSize();
 
 	private:
 		void AppThread()
@@ -396,9 +398,10 @@ namespace cge
 				exit(0);
 
 			for (int i = 0; i < 256; i++)
-			{
-				keys.push_back({false});
-			}
+				keys.push_back({ false, false, false });
+			
+			for (int i = 0; i < 5; i++)
+				mouse.push_back({ false });
 
 			while (1)
 			{
@@ -414,7 +417,55 @@ namespace cge
 				if (!OnUserUpdate(deltaTime))
 					break;
 
-				// Handle Keyboard Input
+				// Handle Mouse Input - Check for window events
+				INPUT_RECORD inBuf[32];
+				DWORD events = 0;
+				GetNumberOfConsoleInputEvents(hConsole, &events);
+				if (events > 0)
+					ReadConsoleInput(hConsole, inBuf, events, &events);
+
+				// Handle events - we only care about mouse clicks and movement
+				// for now
+				for (DWORD i = 0; i < events; i++)
+				{
+					switch (inBuf[i].EventType)
+					{
+					case FOCUS_EVENT:
+						bFocused = inBuf[i].Event.FocusEvent.bSetFocus;
+						break;
+
+					case MOUSE_EVENT:
+					{
+
+						switch (inBuf[i].Event.MouseEvent.dwEventFlags)
+						{
+						case MOUSE_MOVED:
+						{
+							nMousePosX = inBuf[i].Event.MouseEvent.dwMousePosition.X;
+							nMousePosY = inBuf[i].Event.MouseEvent.dwMousePosition.Y;
+						}
+						break;
+
+						case 0:
+						{
+							for (int m = 0; m < 5; m++)
+								mouseNewState[m] = (inBuf[i].Event.MouseEvent.dwButtonState & (1 << m)) > 0;
+
+						}
+						break;
+
+						default:
+							break;
+						}
+					}
+					break;
+
+					default:
+						break;
+						// We don't care just at the moment
+					}
+				}
+
 				for (int i = 0; i < 256; i++)
 				{
 					keyNewState[i] = GetAsyncKeyState(i);
@@ -438,6 +489,7 @@ namespace cge
 
 					keyOldState[i] = keyNewState[i];
 				}
+
 				WriteConsoleOutput(hConsole, screen, { (short)nScreenWidth, (short)nScreenHeight }, { 0,0 }, &rectWindow);
 			}
 		}
@@ -447,20 +499,32 @@ namespace cge
 		HANDLE hConsole;
 		SMALL_RECT rectWindow;
 		std::wstring sAppName = L"Undefined";
-		LPPOINT lpPoint;
 
 		short keyOldState[256]{ 0 };
 		short keyNewState[256]{ 0 };
 
-		int nScreenWidth = 120;
-		int nScreenHeight = 40;
-		int nFontW = 4;
-		int nFontH = 4;
+		bool mouseOldState[5] = { 0 };
+		bool mouseNewState[5] = { 0 };
+
+		int nMousePosX;
+		int nMousePosY;
+
+		int nScreenWidth;
+		int nScreenHeight;
+		int nFontW;
+		int nFontH;
+
+		bool bFocused = true;
 	};
 
 	void ConsoleGameEngine::SetTitle(std::wstring title)
 	{
 		sAppName = title;
+	}
+
+	bool ConsoleGameEngine::IsFocused()
+	{
+		return bFocused;
 	}
 
 	void ConsoleGameEngine::FillRectangle(vec2d pos1, vec2d pos2, short c, short col)
@@ -500,7 +564,10 @@ namespace cge
 
 	void ConsoleGameEngine::FillCircle(vec2d pos, int radius, short c, short col)
 	{
-		return;
+		for (int i = radius; i != 0; i--)
+		{
+			DrawCircle(pos, i, c, col);
+		}
 	}
 
 	void ConsoleGameEngine::Draw(vec2d pos, short c, short col)
@@ -739,6 +806,21 @@ namespace cge
 		}
 	}
 
+	void ConsoleGameEngine::DrawPartialSprite(vec2d pos, vec2d fpos1, vec2d fpos2, Sprite* sprite)
+	{
+		if (sprite == nullptr || fpos1.x < 0 || fpos1.y < 0 || fpos2.x > sprite->nWidth || fpos2.y > sprite->nHeight)
+			return;
+
+		for (int i = fpos1.x, x = 0; i < fpos2.x; i++, x++)
+		{
+			for (int j = fpos1.y, y = 0; j < fpos2.y; j++, y++)
+			{
+				if (sprite->GetGlyph({ i, j }) != L' ')
+					Draw({ pos.x + x, pos.y + y }, sprite->GetGlyph({ i, j }), sprite->GetColour({ i, j }));
+			}
+		}
+	}
+
 	void ConsoleGameEngine::DrawString(vec2d pos, std::wstring text, short c, short col)
 	{
 		if (pos.x > 0 && pos.y > 0 && pos.x <= nScreenWidth && pos.y <= nScreenHeight)
@@ -751,11 +833,25 @@ namespace cge
 		}
 	}
 
-	/*vec2d ConsoleGameEngine::GetMouse()
+	void ConsoleGameEngine::Clear(short col)
 	{
-		GetCursorPos(lpPoint);
-		return { lpPoint->x, lpPoint->y };
-	}*/
+		FillRectangle({ 0, 0 }, { nScreenWidth, nScreenHeight }, 0x2588, col);
+	}
+
+	vec2d ConsoleGameEngine::GetMouse()
+	{
+		return { nMousePosX, nMousePosY };
+	}
+
+	int ConsoleGameEngine::GetMouseX()
+	{
+		return nMousePosX;
+	}
+
+	int ConsoleGameEngine::GetMouseY()
+	{
+		return nMousePosY;
+	}
 
 	int ConsoleGameEngine::GetWidth()
 	{
@@ -765,5 +861,10 @@ namespace cge
 	int ConsoleGameEngine::GetHeight()
 	{
 		return nScreenHeight;
+	}
+
+	vec2d ConsoleGameEngine::GetScreenSize()
+	{
+		return { nScreenWidth, nScreenHeight };
 	}
 }
