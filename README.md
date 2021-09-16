@@ -36,28 +36,28 @@ CGE (Console Game Engine) is an universal tool to create games, GUI or whatever 
 	```
 	
 Commands:
-- SetTitle(title); -- set title of window, by default it's: "Undefined"
-- Clear(COLOUR); -- clears screen
-- Draw(pos1, PIXEL_TYPE, COLOUR); -- draws simple point
-- DrawSprite(pos, sprite); -- draws sprite
-- DrawPartialSprite(pos, file_pos, sprite); -- takes sprite from file and draws it
-- DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR); -- draw line
-- DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draw triangle
-- FillTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draws and fills triangle
-- DrawRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws rectangle
-- FillRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws and fills rectangle
-- DrawCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws circle
-- FillCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws and fills circle
-- DrawString(pos, text, PIXEL_TYPE, COLOUR); -- draws string (notice that one character is one pixel)
-- Clear(COLOUR); -- clears screen with colour
-- IsFocused(); -- returns true if console window is focused
-- GetMouseX(); -- returns position of mouse by X offset
-- GetMouseY(); -- returns position of mouse by Y offset
-- GetWidth(); -- returns width of screen
-- GetHeight(); -- returns height of screen
-- GetScreenSize(); -- returns size of screen
-- InitObject(filename); -- uses in OnUserCreate() function, takes as argument .obj file
-- DrawObject(rotate, speed); -- uses in OnUserCreate() function, takes as first argument boolean value to rotate object or not, as second value takes float argument of rotatable speed.
+- `SetTitle(title);` -- set title of window, by default it's: "Undefined"
+- `Clear(COLOUR);` -- clears screen
+- `Draw(pos1, PIXEL_TYPE, COLOUR);` -- draws simple point
+- `DrawSprite(pos, sprite);` -- draws sprite
+- `DrawPartialSprite(pos, file_pos, sprite);` -- takes sprite from file and draws it
+- `DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR);` -- draw line
+- `DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR);` -- draw triangle
+- `FillTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR);` -- draws and fills triangle
+- `DrawRectangle(pos, size, PIXEL_TYPE, COLOUR);` -- draws rectangle
+- `FillRectangle(pos, size, PIXEL_TYPE, COLOUR);` -- draws and fills rectangle
+- `DrawCircle(pos, radius, PIXEL_TYPE, COLOUR);` -- draws circle
+- `FillCircle(pos, radius, PIXEL_TYPE, COLOUR);` -- draws and fills circle
+- `DrawString(pos, text, PIXEL_TYPE, COLOUR);` -- draws string (notice that one character is one pixel)
+- `Clear(COLOUR);` -- clears screen with colour
+- `IsFocused();` -- returns true if console window is focused
+- `GetMouseX();` -- returns position of mouse by X offset
+- `GetMouseY();` -- returns position of mouse by Y offset
+- `GetWidth();` -- returns width of screen
+- `GetHeight();` -- returns height of screen
+- `GetScreenSize();` -- returns size of screen
+- `InitObject(filename);` -- uses in OnUserCreate() function, takes as argument .obj file
+- `DrawObject(rotate, speed);` -- uses in OnUserCreate() function, takes as first argument boolean value to rotate object or not, as second value takes float argument of rotatable speed.
 
 2. Keys buffer:
 This buffer contains 256 keys and each key has 3 states:
@@ -99,13 +99,13 @@ Example of usage:
 
 4. Structs:
 This engine contains different types of vectors:
-1. vi2d -- vector that contains two integer values
-2. vf2d -- vector that contains two float values
-3. vi3d -- vector that contains three integer values
-4. vf3d -- vector that contains three float values
-5. KeyState -- has three boolean values of state of button
-6. mat4x4 -- simple 4x4 matrix
-7. mesh -- contains function that loads .obj file in memory
+1. `vi2d` -- vector that contains two integer values
+2. `vf2d` -- vector that contains two float values
+3. `vi3d` -- vector that contains three integer values
+4. `vf3d`-- vector that contains three float values
+5. `KeyState` -- has three boolean values of state of button
+6. `mat4x4` -- simple 4x4 matrix
+7. `mesh` -- contains function that loads .obj file in memory
 
 # License
 BSD 3-Clause License
