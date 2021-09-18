@@ -3,7 +3,7 @@ CGE (Console Game Engine) is an universal tool to create games, GUI or whatever 
 You can find useful functions like:
 - Draw what you want and where you want.
 - Get mouse and keyboard input.
-- Set name of the window
+- Set name of the window.
 *All will be chikipibaroom or hop hey lalaley* - Definit aka. defini7
 
 # Documentation
