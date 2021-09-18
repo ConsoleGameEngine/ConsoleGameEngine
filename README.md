@@ -63,7 +63,6 @@ Commands:
 - `GetScreenSize();` -- returns size of screen
 - `InitObject(filename);` -- uses in OnUserCreate() function, takes as argument .obj file
 - `DrawObject(rotate, speed);` -- uses in OnUserCreate() function, takes as first argument boolean value to rotate object or not, as second value takes float argument of rotatable speed.
-- ``
 
 2. Keys buffer:
 This buffer contains 256 keys and each key has 3 states:
