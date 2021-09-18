@@ -4,39 +4,38 @@ CGE (Console Game Engine) is an universal tool to create games, GUI or whatever 
 # Documentation
 1. Example (engine supports only .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
 	```cpp 
-	#include "ConsoleGameEngine.h"
+	#include "defConsoleGameEngine.h"
 
-	class Example : public cge::ConsoleGameEngine
+	class Example : public def::ConsoleGameEngine
 	{
 	public:
+		Example()
+		{
+			sAppName = L"Example";
+		}
+
+	protected:
 		virtual bool OnUserCreate() override
 		{
-			spr = new cge::Sprite(L"ball.png");
 			return true;
 		}
 
 		virtual bool OnUserUpdate(float fDeltaTime) override
 		{
-			DrawTriangle({ 0, 0 }, { 0, 20 }, { 20, 20 }, PIXEL_SOLID, FG_BLUE);
-			DrawLine({10, 10}, {20, 10}, PIXEL_SOLID, FG_RED);
-			Draw({ 30, 10 }, PIXEL_SOLID, FG_DARK_GREEN);
 			return true;
-		}
-
-	private:
-		cge::Sprite* spr = nullptr;
-
+		}	
 	};
 
 	int main()
 	{
 		Example demo;
-		demo.Construct(120, 120, 4, 4);
+		if (demo.Construct(256, 240, 4, 4))
+			demo.Start();
+		return 0;
 	}
 	```
 	
 Commands:
-- `SetTitle(title);` -- set title of window, by default it's: "Undefined"
 - `Clear(COLOUR);` -- clears screen
 - `Draw(pos1, PIXEL_TYPE, COLOUR);` -- draws simple point
 - `DrawSprite(pos, sprite);` -- draws sprite
@@ -44,8 +43,14 @@ Commands:
 - `DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR);` -- draw line
 - `DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR);` -- draw triangle
 - `FillTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR);` -- draws and fills triangle
-- `DrawRectangle(pos, size, PIXEL_TYPE, COLOUR);` -- draws rectangle
-- `FillRectangle(pos, size, PIXEL_TYPE, COLOUR);` -- draws and fills rectangle
+- `DrawRectangle(pos1, pos2, PIXEL_TYPE, COLOUR);` -- draws rectangle
+- `DrawRectangle(x1, y1, x2, y2, PIXEL_TYPE, COLOUR);` -- draws rectangle
+- `DrawRectangle(pos, size, PIXEL_TYPE, COLOUR);` -- draws rectangle (using size)
+- `DrawRectangle(x, y, size_x, size_y, PIXEL_TYPE, COLOUR);` -- draws rectangle (using size)
+- `FillRectangle(pos1, pos2, PIXEL_TYPE, COLOUR);` -- draws and fills rectangle
+- `FillRectangle(x1, y1, x2, y2, PIXEL_TYPE, COLOUR);` -- draws and fills rectangle
+- `FillRectangle(pos, size, PIXEL_TYPE, COLOUR);` -- draws and fills rectangle (using size)
+- `FillRectangle(x, y, size_x, size_y, PIXEL_TYPE, COLOUR);` -- draws and fills rectangle (using size)
 - `DrawCircle(pos, radius, PIXEL_TYPE, COLOUR);` -- draws circle
 - `FillCircle(pos, radius, PIXEL_TYPE, COLOUR);` -- draws and fills circle
 - `DrawString(pos, text, PIXEL_TYPE, COLOUR);` -- draws string (notice that one character is one pixel)
@@ -58,6 +63,7 @@ Commands:
 - `GetScreenSize();` -- returns size of screen
 - `InitObject(filename);` -- uses in OnUserCreate() function, takes as argument .obj file
 - `DrawObject(rotate, speed);` -- uses in OnUserCreate() function, takes as first argument boolean value to rotate object or not, as second value takes float argument of rotatable speed.
+- ``
 
 2. Keys buffer:
 This buffer contains 256 keys and each key has 3 states:
