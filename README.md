@@ -1,5 +1,10 @@
 # ConsoleGameEngine description
 CGE (Console Game Engine) is an universal tool to create games, GUI or whatever you want.
+You can find useful functions like:
+- Draw what you want and where you want.
+- Get mouse and keyboard input.
+- Set name of the window
+*All will be chikipibaroom or hop hey lalaley* - Definit aka. defini7
 
 # Documentation
 1. Example (engine supports only .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
