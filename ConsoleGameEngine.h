@@ -35,70 +35,39 @@
 ***/
 #pragma endregion
 
-#pragma region DOCS
+#pragma region EXAMPLE
 /**
 * Example (engine only supports .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
-	#include "ConsoleGameEngine.h"
+	#include "defConsoleGameEngine.h"
 
-	class Example : public cge::ConsoleGameEngine
+	class Example : public def::ConsoleGameEngine
 	{
 	public:
+		Example()
+		{
+			sAppName = L"Example";
+		}
+
+	protected:
 		virtual bool OnUserCreate() override
 		{
-			spr = new cge::Sprite(L"ball.png");
 			return true;
 		}
 
 		virtual bool OnUserUpdate(float fDeltaTime) override
 		{
-			DrawTriangle({ 0, 0 }, { 0, 20 }, { 20, 20 }, PIXEL_SOLID, FG_BLUE);
-			DrawLine({10, 10}, {20, 10}, PIXEL_SOLID, FG_RED);
-			Draw({ 30, 10 }, PIXEL_SOLID, FG_DARK_GREEN);
 			return true;
-		}
-
-	private:
-		cge::Sprite* spr = nullptr;
-
+		}	
 	};
 
 	int main()
 	{
 		Example demo;
-		demo.Construct(120, 120, 4, 4);
+		if (demo.Construct(256, 240, 4, 4))
+			demo.Start();
+
+		return 0;
 	}
-* Commands:
-	SetTitle(title); -- set title of window, by default it's: "Undefined"
-	Draw(pos1, PIXEL_TYPE, COLOUR); -- draws simple point
-	DrawSprite(pos, sprite); -- draws sprite
-	DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR); -- draw line
-	DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draw triangle
-	FillTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR); -- draws and fills triangle
-	DrawRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws rectangle
-	FillRectangle(pos, size, PIXEL_TYPE, COLOUR); -- draws and fills rectangle
-	DrawCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws circle
-	FillCircle(pos, radius, PIXEL_TYPE, COLOUR); -- draws and fills circle
-	DrawString(pos, text, PIXEL_TYPE, COLOUR); -- draws string (notice that one character is one pixel)
-	GetWidth(); -- returns width of screen
-	GetHeight(); -- returns height of screen
-
-* Keys buffer:
-	This buffer contains 256 keys, and each key has 3 states:
-	- Held
-	- Pressed
-	- Released.
-	To select key from this buffer you need to use [Virtual Keys](https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes).
-	Example of usage:
-		if (keys[VK_UP].bHeld)
-		{
-			vPos.y -= 2 * fDeltaTime;
-		}
-
-		if (keys[VK_LEFT].bPressed)
-		{
-			vPos.x -= 2 * spr->GetWidth();
-		}
-
 **/
 #pragma endregion
 
@@ -109,6 +78,7 @@
 #define PI 3.1415926535
 
 #define _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
 #include <Windows.h>
@@ -118,6 +88,10 @@
 #include <fstream>
 #include <strstream>
 #include <algorithm>
+#include <locale>
+#include <codecvt>
+#include <thread>
+#include <atomic>
 
 namespace def
 {
@@ -270,20 +244,79 @@ namespace def
 			Create(w, h);
 		}
 
-		Sprite(std::wstring sFile)
+		Sprite(std::wstring sFileName)
 		{
-			if (!Load(sFile))
-				Create(8, 8);
+			if (sFileName[sFileName.length() - 3] == L'.' &&
+				sFileName[sFileName.length() - 2] == L'b' &&
+				sFileName[sFileName.length() - 1] == L'm' &&
+				sFileName[sFileName.length() - 0] == L'p')
+			{
+				std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converterX;
+
+				std::string sz = converterX.to_bytes(sFileName);
+
+				unsigned char* data = ReadBMP(sz.c_str());
+
+				m_Glyphs = new short[nWidth * nHeight];
+				m_Colours = new short[nWidth * nHeight];
+
+				for (int i = 0; i < nWidth; i++)
+				{
+					for (int j = 0; j < nHeight; j++)
+					{
+						m_Colours[j * nWidth + i] = (data[3 * (j * nWidth + i)] +
+													 data[3 * (j * nWidth + i) + 1] +
+													 data[3 * (j * nWidth + i) + 2]) / 3;
+						m_Glyphs[j * nWidth + i] = Pixel::SOLID;
+					}
+				}
+			}
+			else
+				if (!Load(sFileName))
+					Create(8, 8);
 		}
 
 		int nWidth = 0;
 		int nHeight = 0;
 
-		unsigned char* jpeg;
-
 	private:
 		short* m_Glyphs = nullptr;
 		short* m_Colours = nullptr;
+
+		unsigned char* ReadBMP(const char* filename)
+		{
+			int i;
+			FILE* f = fopen(filename, "rb");
+			unsigned char info[54];
+
+			// read the 54-byte header
+			fread(info, sizeof(unsigned char), 54, f);
+
+			// extract image height and width from header
+			int width = *(int*)&info[18];
+			int height = *(int*)&info[22];
+
+			nWidth = width;
+			nHeight = height;
+
+			// allocate 3 bytes per pixel
+			int size = 3 * width * height;
+			unsigned char* data = new unsigned char[size];
+
+			// read the rest of the data at once
+			fread(data, sizeof(unsigned char), size, f);
+			fclose(f);
+
+			for (i = 0; i < size; i += 3)
+			{
+				// flip the order of every 3 bytes
+				unsigned char tmp = data[i];
+				data[i] = data[i + 2];
+				data[i + 2] = tmp;
+			}
+
+			return data;
+		}
 
 		void Create(int w, int h)
 		{
@@ -376,6 +409,14 @@ namespace def
 	class ConsoleGameEngine
 	{
 	public:
+		ConsoleGameEngine()
+		{
+			hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+			hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
+
+			sAppName = L"Undefined";
+		}
+
 		virtual ~ConsoleGameEngine()
 		{
 			delete[] screen;
@@ -385,28 +426,31 @@ namespace def
 		virtual bool OnUserCreate() = 0;
 		virtual bool OnUserUpdate(float fDeltaTime) = 0;
 
-		int Start(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
+		bool Construct(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
 		{
+			if (width <= 0 || height <= 0 || fontw <= 0 || fonth <= 0)
+				return false;
+
 			nScreenWidth = width;
 			nScreenHeight = height;
 
 			nFontW = fontw;
 			nFontH = fonth;
 
-			hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+			hConsoleOut = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
-			if (hConsole == INVALID_HANDLE_VALUE)
-				exit(-1);
+			if (hConsoleOut == INVALID_HANDLE_VALUE)
+				return false;
 
 			rectWindow = { 0, 0, 1, 1 };
-			SetConsoleWindowInfo(hConsole, TRUE, &rectWindow);
+			SetConsoleWindowInfo(hConsoleOut, TRUE, &rectWindow);
 
 			COORD coord = { (short)nScreenWidth, (short)nScreenHeight };
-			if (!SetConsoleScreenBufferSize(hConsole, coord))
-				exit(-1);
+			if (!SetConsoleScreenBufferSize(hConsoleOut, coord))
+				return false;
 
-			if (!SetConsoleActiveScreenBuffer(hConsole))
-				exit(-2);
+			if (!SetConsoleActiveScreenBuffer(hConsoleOut))
+				return false;
 
 			CONSOLE_FONT_INFOEX cfi;
 			cfi.cbSize = sizeof(cfi);
@@ -417,26 +461,39 @@ namespace def
 			cfi.FontWeight = FW_NORMAL;
 
 			wcscpy_s(cfi.FaceName, L"Consolas");
-			if (!SetCurrentConsoleFontEx(hConsole, false, &cfi))
-				exit(-3);
+			if (!SetCurrentConsoleFontEx(hConsoleOut, false, &cfi))
+				return false;
+
+			if (!SetConsoleMode(hConsoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
+				return false;
 
 			CONSOLE_SCREEN_BUFFER_INFO csbi;
-			if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
-				exit(-4);
+			if (!GetConsoleScreenBufferInfo(hConsoleOut, &csbi))
+				return false;
 			if (nScreenHeight > csbi.dwMaximumWindowSize.Y)
-				exit(-5);
+				return false;
 			if (nScreenWidth > csbi.dwMaximumWindowSize.X)
-				exit(-5);
+				return false;
 
 			rectWindow = { 0, 0, short(nScreenWidth - 1), short(nScreenHeight - 1) };
-			SetConsoleWindowInfo(hConsole, TRUE, &rectWindow);
-
+			SetConsoleWindowInfo(hConsoleOut, TRUE, &rectWindow);
 			screen = new CHAR_INFO[nScreenWidth * nScreenHeight];
 			memset(screen, 0, sizeof(CHAR_INFO) * nScreenWidth * nScreenHeight);
 
-			AppThread();
+			return true;
+		}
 
-			return 0;
+		void Start()
+		{
+			bGameThreadActive = true;
+			std::thread t = std::thread(&def::ConsoleGameEngine::AppThread, this);
+
+			t.join();
+		}
+
+		void Stop()
+		{
+			bGameThreadActive = false;
 		}
 
 		std::vector<KeyState> keys;
@@ -550,6 +607,12 @@ namespace def
 		{
 			// Set up rotation matrices
 			mat4x4 matRotZ, matRotX;
+
+			// Set positive speed if it's less than 0
+			if (fSpeed < 0.0f)
+				fSpeed *= -1;
+
+			// Rotate object if bRotate = true
 			if (bRotate)
 				fTheta += fSpeed * deltaTime;
 
@@ -677,34 +740,50 @@ namespace def
 		}
 
 	public:
-		void SetTitle(std::wstring title);
-		bool IsFocused();
 		void Draw(vi2d pos, short c = 0x2588, short col = 0x000F);
 		void Draw(int x, int y, short c = 0x2588, short col = 0x000F);
+
 		void DrawLine(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
 		void DrawLine(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
+
 		void DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c = 0x2588, short col = 0x000F);
 		void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
+
 		void FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c = 0x2588, short col = 0x000F);
 		void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
+
 		void DrawRectangle(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
 		void DrawRectangle(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
+		void DrawRectangleS(vi2d pos, vi2d size, short c = 0x2588, short col = 0x000F);
+		void DrawRectangleS(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
+
 		void FillRectangle(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
 		void FillRectangle(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
+		void FillRectangleS(vi2d pos, vi2d size, short c = 0x2588, short col = 0x000F);
+		void FillRectangleS(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
+
 		void DrawCircle(vi2d pos, int radius, short c = 0x2588, short col = 0x000F);
 		void DrawCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
+
 		void FillCircle(vi2d pos, int radius, short c = 0x2588, short col = 0x000F);
 		void FillCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
+
 		void DrawSprite(vi2d pos, Sprite* sprite);
 		void DrawSprite(int x, int y, Sprite* sprite);
+
 		void DrawPartialSprite(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
 		void DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
+
 		void DrawString(vi2d pos, std::wstring text, short c = 0x2588, short col = 0x000F);
 		void DrawString(int x, int y, std::wstring text, short c = 0x2588, short col = 0x000F);
+
 		void Clear(short col = 0x000F);
+		bool IsFocused();
+
 		vi2d GetMouse();
 		int GetMouseX();
 		int GetMouseY();
+
 		int GetWidth();
 		int GetHeight();
 		vi2d GetScreenSize();
@@ -720,7 +799,7 @@ namespace def
 			tp1 = tp2;
 
 			if (!OnUserCreate())
-				exit(0);
+				bGameThreadActive = false;
 
 			for (int i = 0; i < 256; i++)
 				keys.push_back({ false, false, false });
@@ -728,7 +807,7 @@ namespace def
 			for (int i = 0; i < 5; i++)
 				mouse.push_back({ false });
 
-			while (1)
+			while (bGameThreadActive)
 			{
 				tp2 = std::chrono::system_clock::now();
 				std::chrono::duration<float> elapsedTime = tp2 - tp1;
@@ -737,17 +816,17 @@ namespace def
 
 				wchar_t buffer_title[256];
 				swprintf_s(buffer_title, 256, L"github.com/defini7 - Console Game Engine - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / deltaTime);
-				SetConsoleTitle(buffer_title);
+				SetConsoleTitleW(buffer_title);
 
 				if (!OnUserUpdate(deltaTime))
-					break;
+					bGameThreadActive = false;
 
 				// Handle Mouse Input - Check for window events
 				INPUT_RECORD inBuf[32];
 				DWORD events = 0;
-				GetNumberOfConsoleInputEvents(hConsole, &events);
+				GetNumberOfConsoleInputEvents(hConsoleIn, &events);
 				if (events > 0)
-					ReadConsoleInput(hConsole, inBuf, events, &events);
+					ReadConsoleInputW(hConsoleIn, inBuf, events, &events);
 
 				// Handle events - we only care about mouse clicks and movement
 				// for now
@@ -774,7 +853,6 @@ namespace def
 						{
 							for (int m = 0; m < 5; m++)
 								mouseNewState[m] = (inBuf[i].Event.MouseEvent.dwButtonState & (1 << m)) > 0;
-
 						}
 						break;
 
@@ -786,7 +864,6 @@ namespace def
 
 					default:
 						break;
-						// We don't care just at the moment
 					}
 				}
 
@@ -814,15 +891,38 @@ namespace def
 					keyOldState[i] = keyNewState[i];
 				}
 
-				WriteConsoleOutput(hConsole, screen, { (short)nScreenWidth, (short)nScreenHeight }, { 0,0 }, &rectWindow);
+				for (int m = 0; m < 5; m++)
+				{
+					mouse[m].bPressed = false;
+					mouse[m].bReleased = false;
+
+					if (mouseNewState[m] != mouseOldState[m])
+					{
+						if (mouseNewState[m])
+						{
+							mouse[m].bPressed = true;
+							mouse[m].bHeld = true;
+						}
+						else
+						{
+							mouse[m].bReleased = true;
+							mouse[m].bHeld = false;
+						}
+					}
+
+					mouseOldState[m] = mouseNewState[m];
+				}
+
+				WriteConsoleOutputW(hConsoleOut, screen, { (short)nScreenWidth, (short)nScreenHeight }, { 0,0 }, &rectWindow);
 			}
 		}
 
 	protected:
 		CHAR_INFO* screen = nullptr;
-		HANDLE hConsole;
+		HANDLE hConsoleOut;
+		HANDLE hConsoleIn;
 		SMALL_RECT rectWindow;
-		std::wstring sAppName = L"Undefined";
+		std::wstring sAppName;
 
 		short keyOldState[256]{ 0 };
 		short keyNewState[256]{ 0 };
@@ -840,13 +940,9 @@ namespace def
 
 		float deltaTime;
 
-		bool bFocused = true;
+		bool bGameThreadActive;
+		bool bFocused;
 	};
-
-	void ConsoleGameEngine::SetTitle(std::wstring title)
-	{
-		sAppName = title;
-	}
 
 	bool ConsoleGameEngine::IsFocused()
 	{
@@ -869,6 +965,16 @@ namespace def
 	void ConsoleGameEngine::FillRectangle(int x1, int y1, int x2, int y2, short c, short col)
 	{
 		FillRectangle({ x1, y1 }, { x2, y2 }, c, col);
+	}
+
+	void ConsoleGameEngine::FillRectangleS(vi2d pos, vi2d size, short c, short col)
+	{
+		FillRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
+	}
+
+	void ConsoleGameEngine::FillRectangleS(int x, int y, int size_x, int size_y, short c, short col)
+	{
+		FillRectangle({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
 
 	void ConsoleGameEngine::DrawCircle(vi2d pos, int radius, short c, short col)
@@ -1155,6 +1261,16 @@ namespace def
 	void ConsoleGameEngine::DrawRectangle(int x1, int y1, int x2, int y2, short c, short col)
 	{
 		DrawRectangle({ x1, y1 }, { x2, y2 }, c, col);
+	}
+
+	void ConsoleGameEngine::DrawRectangleS(vi2d pos, vi2d size, short c, short col)
+	{
+		DrawRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
+	}
+
+	void ConsoleGameEngine::DrawRectangleS(int x, int y, int size_x, int size_y, short c, short col)
+	{
+		DrawRectangle({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
 
 	void ConsoleGameEngine::DrawSprite(vi2d pos, Sprite* sprite)
