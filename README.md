@@ -1,5 +1,5 @@
 # ConsoleGameEngine description
-CGE (Console Game Engine) is an universal tool to create games, GUI or whatever you want.
+CGE (Console Game Engine) is an universal tool for creating games, GUI or whatever you want.
 You can find useful functions like:
 - Draw what you want and where you want.
 - Get mouse and keyboard input.
