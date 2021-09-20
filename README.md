@@ -5,7 +5,7 @@ You can find useful functions like:
 - Get mouse and keyboard input.
 - Set name of the window.
 
-*All will be chikipibaroom otherwise hop hey lalaley* - Definit aka. defini7
+*I can do this all day.* - Definit aka. defini7
 
 # Documentation
 1. Example (engine supports only .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
