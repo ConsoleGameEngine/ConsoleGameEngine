@@ -41,7 +41,7 @@ You can find useful functions like:
 	}
 	```
 	
-Commands:
+2. Commands:
 - `Clear(COLOUR);` -- clears screen
 - `Draw(pos1, PIXEL_TYPE, COLOUR);` -- draws simple point
 - `DrawSprite(pos, sprite);` -- draws sprite
