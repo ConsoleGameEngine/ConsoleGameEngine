@@ -57,7 +57,7 @@
 		virtual bool OnUserUpdate(float fDeltaTime) override
 		{
 			return true;
-		}	
+		}
 	};
 
 	int main()
@@ -72,12 +72,13 @@
 #pragma endregion
 
 #ifndef UNICODE
-#error Please, enable UNICODE
+#error Enable Unicode in settings
 #endif
 
 #define PI 3.1415926535
 
 #define _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
@@ -92,6 +93,7 @@
 #include <codecvt>
 #include <thread>
 #include <atomic>
+#include <string>
 
 namespace def
 {
@@ -265,8 +267,8 @@ namespace def
 					for (int j = 0; j < nHeight; j++)
 					{
 						m_Colours[j * nWidth + i] = (data[3 * (j * nWidth + i)] +
-													 data[3 * (j * nWidth + i) + 1] +
-													 data[3 * (j * nWidth + i) + 2]) / 3;
+							data[3 * (j * nWidth + i) + 1] +
+							data[3 * (j * nWidth + i) + 2]) / 3;
 						m_Glyphs[j * nWidth + i] = Pixel::SOLID;
 					}
 				}
@@ -537,7 +539,7 @@ namespace def
 			case 6: bg_col = BG::DARK_GREY; fg_col = FG::GREY; sym = Pixel::HALF; break;
 			case 7: bg_col = BG::DARK_GREY; fg_col = FG::GREY; sym = Pixel::THREEQUARTERS; break;
 			case 8: bg_col = BG::DARK_GREY; fg_col = FG::GREY; sym = Pixel::SOLID; break;
-			
+
 			case 9:  bg_col = BG::GREY; fg_col = FG::WHITE; sym = Pixel::QUARTER; break;
 			case 10: bg_col = BG::GREY; fg_col = FG::WHITE; sym = Pixel::HALF; break;
 			case 11: bg_col = BG::GREY; fg_col = FG::WHITE; sym = Pixel::THREEQUARTERS; break;
@@ -774,6 +776,11 @@ namespace def
 		void DrawPartialSprite(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
 		void DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
 
+		void DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
+		void DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
+
+		void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, short c = Pixel::SOLID, short col = FG::WHITE);
+
 		void DrawString(vi2d pos, std::wstring text, short c = 0x2588, short col = 0x000F);
 		void DrawString(int x, int y, std::wstring text, short c = 0x2588, short col = 0x000F);
 
@@ -803,9 +810,9 @@ namespace def
 
 			for (int i = 0; i < 256; i++)
 				keys.push_back({ false, false, false });
-			
+
 			for (int i = 0; i < 5; i++)
-				mouse.push_back({ false });
+				mouse.push_back({ false, false, false });
 
 			while (bGameThreadActive)
 			{
@@ -1111,7 +1118,7 @@ namespace def
 	// https://www.avrfreaks.net/sites/default/files/triangles.c
 	void ConsoleGameEngine::FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c, short col)
 	{
-		auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw({ i, ny } , c, col); };
+		auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw({ i, ny }, c, col); };
 
 		int t1x, t2x, y, minx, maxx, t1xp, t2xp;
 		bool changed1 = false;
@@ -1311,6 +1318,56 @@ namespace def
 	void ConsoleGameEngine::DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite)
 	{
 		DrawPartialSprite({ x, y }, { fx1, fy1 }, { fx2, fy2 }, sprite);
+	}
+
+	void ConsoleGameEngine::DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite)
+	{
+		DrawPartialSprite({ pos.x, pos.y }, { fpos1.x, fpos1.y }, { fpos1.x + fpos2.x, fpos1.y + fpos2.y }, sprite);
+	}
+
+	void ConsoleGameEngine::DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite)
+	{
+		DrawPartialSprite({ x, y }, { fx1, fy1 }, { fx1 + fx2, fy1 + fy2 }, sprite);
+	}
+
+	void ConsoleGameEngine::DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r, float s, short c, short col)
+	{
+		// pair.first = x coordinate
+		// pair.second = y coordinate
+
+		// Create translated model vector of coordinate pairs
+		std::vector<std::pair<float, float>> vecTransformedCoordinates;
+		int verts = vecModelCoordinates.size();
+		vecTransformedCoordinates.resize(verts);
+
+		// Rotate
+		for (int i = 0; i < verts; i++)
+		{
+			vecTransformedCoordinates[i].first = vecModelCoordinates[i].first * cosf(r) - vecModelCoordinates[i].second * sinf(r);
+			vecTransformedCoordinates[i].second = vecModelCoordinates[i].first * sinf(r) + vecModelCoordinates[i].second * cosf(r);
+		}
+
+		// Scale
+		for (int i = 0; i < verts; i++)
+		{
+			vecTransformedCoordinates[i].first = vecTransformedCoordinates[i].first * s;
+			vecTransformedCoordinates[i].second = vecTransformedCoordinates[i].second * s;
+		}
+
+		// Translate
+		for (int i = 0; i < verts; i++)
+		{
+			vecTransformedCoordinates[i].first = vecTransformedCoordinates[i].first + x;
+			vecTransformedCoordinates[i].second = vecTransformedCoordinates[i].second + y;
+		}
+
+		// Draw Closed Polygon
+		for (int i = 0; i < verts + 1; i++)
+		{
+			int j = (i + 1);
+			DrawLine((int)vecTransformedCoordinates[i % verts].first, (int)vecTransformedCoordinates[i % verts].second,
+				(int)vecTransformedCoordinates[j % verts].first, (int)vecTransformedCoordinates[j % verts].second, c, col);
+		}
 	}
 
 	void ConsoleGameEngine::DrawString(vi2d pos, std::wstring text, short c, short col)
