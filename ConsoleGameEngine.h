@@ -493,9 +493,10 @@ namespace def
 			t.join();
 		}
 
-		void Stop()
+		void Stop(std::wstring reason = L"GAME WAS STOPED")
 		{
 			bGameThreadActive = false;
+			std::wcout << reason << std::endl;
 		}
 
 		std::vector<KeyState> keys;
@@ -794,6 +795,10 @@ namespace def
 		int GetWidth();
 		int GetHeight();
 		vi2d GetScreenSize();
+
+		std::vector<int> AnyKeyHeld();
+		std::vector<int> AnyKeyPressed();
+		std::vector<int> AnyKeyReleased();
 
 	private:
 		void AppThread()
@@ -1420,5 +1425,38 @@ namespace def
 	vi2d ConsoleGameEngine::GetScreenSize()
 	{
 		return { nScreenWidth, nScreenHeight };
+	}
+
+	std::vector<int> ConsoleGameEngine::AnyKeyHeld()
+	{
+		std::vector<int> output;
+		for (int i = 0; i < keys.size(); i++)
+		{
+			if (keys[i].bHeld)
+				output.push_back(i);
+		}
+		return output;
+	}
+
+	std::vector<int> ConsoleGameEngine::AnyKeyPressed()
+	{
+		std::vector<int> output;
+		for (int i = 0; i < keys.size(); i++)
+		{
+			if (keys[i].bPressed)
+				output.push_back(i);
+		}
+		return output;
+	}
+
+	std::vector<int> ConsoleGameEngine::AnyKeyReleased()
+	{
+		std::vector<int> output;
+		for (int i = 0; i < keys.size(); i++)
+		{
+			if (keys[i].bReleased)
+				output.push_back(i);
+		}
+		return output;
 	}
 }
