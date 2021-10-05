@@ -151,3 +151,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Update date
 September 20th, 2021.
+Sorry, I am very lazy to update docs :(
