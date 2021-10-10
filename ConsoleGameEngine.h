@@ -54,7 +54,7 @@
 			return true;
 		}
 
-		virtual bool OnUserUpdate(float fDeltaTime) override
+		virtual bool OnUserUpdate(float dt) override
 		{
 			return true;
 		}
@@ -65,6 +65,8 @@
 		Example demo;
 		if (demo.Construct(256, 240, 4, 4))
 			demo.Start();
+		else
+			std::wcerr << "Could not construct console" << std::endl;
 
 		return 0;
 	}
@@ -142,6 +144,17 @@ namespace def
 			THREEQUARTERS = 0x2593,
 			HALF = 0x2592,
 			QUARTER = 0x2591;
+	}
+
+	namespace Font
+	{
+		std::wstring CONSOLAS = L"Consolas";
+		std::wstring COURIER_NEW = L"Courier New";
+		std::wstring LUCIDA_CONSOLE = L"Lucida Console";
+		std::wstring LUCIDA_SANS_TYPEWRITER = L"Lucida Sans Typewriter";
+		std::wstring MS_GOTHIC = L"MS Gothic";
+		std::wstring NSIMSUN = L"NSimSum";
+		std::wstring SIMSUM_EXTB = L"SimSun-ExtB";
 	}
 
 	struct vi2d
@@ -417,6 +430,7 @@ namespace def
 			hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
 
 			sAppName = L"Undefined";
+			sFont = L"Consolas";
 		}
 
 		virtual ~ConsoleGameEngine()
@@ -462,7 +476,7 @@ namespace def
 			cfi.FontFamily = FF_DONTCARE;
 			cfi.FontWeight = FW_NORMAL;
 
-			wcscpy_s(cfi.FaceName, L"Consolas");
+			wcscpy_s(cfi.FaceName, sFont.c_str());
 			if (!SetCurrentConsoleFontEx(hConsoleOut, false, &cfi))
 				return false;
 
@@ -489,14 +503,14 @@ namespace def
 		{
 			bGameThreadActive = true;
 			std::thread t = std::thread(&def::ConsoleGameEngine::AppThread, this);
-
 			t.join();
 		}
 
-		void Stop(std::wstring reason = L"GAME WAS STOPED")
+		void Stop(std::wstring reason = L"GAME WAS STOPED", int code = 0)
 		{
 			bGameThreadActive = false;
 			std::wcout << reason << std::endl;
+			exit(code);
 		}
 
 		std::vector<KeyState> keys;
@@ -514,11 +528,7 @@ namespace def
 			o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
 			o.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
 			float w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + m.m[3][3];
-
-			if (w != 0.0f)
-			{
-				o.x /= w; o.y /= w; o.z /= w;
-			}
+			if (w != 0.0f) o.x /= w; o.y /= w; o.z /= w;
 		}
 
 		// Taken From Command Line Webcam Video
@@ -935,6 +945,7 @@ namespace def
 		HANDLE hConsoleIn;
 		SMALL_RECT rectWindow;
 		std::wstring sAppName;
+		std::wstring sFont;
 
 		short keyOldState[256]{ 0 };
 		short keyNewState[256]{ 0 };
