@@ -1,3 +1,5 @@
+#ifdef DEF_CGE_APP
+
 #pragma once
 #pragma comment(lib, "winmm.lib")
 
@@ -1471,3 +1473,5 @@ namespace def
 		return output;
 	}
 }
+
+#endif
