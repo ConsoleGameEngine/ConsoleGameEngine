@@ -37,6 +37,8 @@ You can find useful functions like:
 		Example demo;
 		if (demo.Construct(256, 240, 4, 4))
 			demo.Start();
+		else
+			std::wcerr << "Could not construct console!" << std::endl;
 		return 0;
 	}
 	```
@@ -150,5 +152,5 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Update date
-September 20th, 2021.
-# Sorry, I am very lazy to update docs :(
+October 15th, 2021.
+# Sorry! I am very lazy for updating docs :(
