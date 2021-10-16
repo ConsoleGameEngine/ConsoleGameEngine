@@ -123,7 +123,7 @@ This engine contains different types of vectors:
 # License
 BSD 3-Clause License
 
-Copyright (c) 2021, deffy
+Copyright (c) 2021, Alex
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
