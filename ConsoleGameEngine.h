@@ -798,7 +798,7 @@ namespace def
 		void DrawString(int x, int y, std::wstring text, short c = 0x2588, short col = 0x000F);
 
 		void Clear(short col = 0x000F);
-		bool IsFocused();
+		bool Focused();
 
 		vi2d GetMouse();
 		int GetMouseX();
@@ -969,7 +969,7 @@ namespace def
 		bool bFocused;
 	};
 
-	bool ConsoleGameEngine::IsFocused()
+	bool ConsoleGameEngine::Focused()
 	{
 		return bFocused;
 	}
