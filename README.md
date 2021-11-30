@@ -1,5 +1,5 @@
-# ConsoleGameEngine description
-CGE (Console Game Engine) is an universal tool for creating games, GUI or whatever you want.
+# Consola Prod description
+Consola Prod is an universal tool for creating games, GUI or whatever you want.
 You can find useful functions like:
 - Draw what you want and where you want.
 - Get mouse and keyboard input.
@@ -10,7 +10,7 @@ You can find useful functions like:
 # Documentation
 1. Example (engine supports only .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
 	```cpp 
-	#include "defConsoleGameEngine.h"
+	#include "ConsolaProd.h"
 
 	class Example : public def::ConsoleGameEngine
 	{
