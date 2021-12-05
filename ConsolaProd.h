@@ -40,9 +40,9 @@
 #pragma region EXAMPLE
 /**
 * Example (engine only supports .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
-	#include "defConsoleGameEngine.h"
+	#include "ConsolaProd.hpp"
 
-	class Example : public def::ConsoleGameEngine
+	class Example : public def::ConsolaProd
 	{
 	public:
 		Example()
@@ -80,10 +80,12 @@
 #endif
 
 #define PI 3.1415926535
+#define M_PI 2.0 * acos(0.0)
 
+#define _CRT_SECURE_NOWARNINGS
 #define _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
+#define _SILENCE_CXX17_CODECVT_DEPRECATION_WARNINGS
 
 #include <iostream>
 #include <Windows.h>
@@ -263,10 +265,7 @@ namespace def
 
 		Sprite(std::wstring sFileName)
 		{
-			if (sFileName[sFileName.length() - 3] == L'.' &&
-				sFileName[sFileName.length() - 2] == L'b' &&
-				sFileName[sFileName.length() - 1] == L'm' &&
-				sFileName[sFileName.length() - 0] == L'p')
+			/*if ()
 			{
 				std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converterX;
 
@@ -288,9 +287,9 @@ namespace def
 					}
 				}
 			}
-			else
-				if (!Load(sFileName))
-					Create(8, 8);
+			else*/
+			if (!Load(sFileName))
+				Create(8, 8);
 		}
 
 		int nWidth = 0;
@@ -300,40 +299,40 @@ namespace def
 		short* m_Glyphs = nullptr;
 		short* m_Colours = nullptr;
 
-		unsigned char* ReadBMP(const char* filename)
-		{
-			int i;
-			FILE* f = fopen(filename, "rb");
-			unsigned char info[54];
+		//unsigned char* ReadBMP(const char* filename)
+		//{
+		//	int i;
+		//	FILE* f = fopen(filename, "rb");
+		//	unsigned char info[54];
 
-			// read the 54-byte header
-			fread(info, sizeof(unsigned char), 54, f);
+		//	// read the 54-byte header
+		//	fread(info, sizeof(unsigned char), 54, f);
 
-			// extract image height and width from header
-			int width = *(int*)&info[18];
-			int height = *(int*)&info[22];
+		//	// extract image height and width from header
+		//	int width = *(int*)&info[18];
+		//	int height = *(int*)&info[22];
 
-			nWidth = width;
-			nHeight = height;
+		//	nWidth = width;
+		//	nHeight = height;
 
-			// allocate 3 bytes per pixel
-			int size = 3 * width * height;
-			unsigned char* data = new unsigned char[size];
+		//	// allocate 3 bytes per pixel
+		//	int size = 3 * width * height;
+		//	unsigned char* data = new unsigned char[size];
 
-			// read the rest of the data at once
-			fread(data, sizeof(unsigned char), size, f);
-			fclose(f);
+		//	// read the rest of the data at once
+		//	fread(data, sizeof(unsigned char), size, f);
+		//	fclose(f);
 
-			for (i = 0; i < size; i += 3)
-			{
-				// flip the order of every 3 bytes
-				unsigned char tmp = data[i];
-				data[i] = data[i + 2];
-				data[i + 2] = tmp;
-			}
+		//	for (i = 0; i < size; i += 3)
+		//	{
+		//		// flip the order of every 3 bytes
+		//		unsigned char tmp = data[i];
+		//		data[i] = data[i + 2];
+		//		data[i + 2] = tmp;
+		//	}
 
-			return data;
-		}
+		//	return data;
+		//}
 
 		void Create(int w, int h)
 		{
@@ -423,10 +422,10 @@ namespace def
 		}
 	};
 
-	class ConsoleGameEngine
+	class ConsolaProd
 	{
 	public:
-		ConsoleGameEngine()
+		ConsolaProd()
 		{
 			hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
 			hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
@@ -435,7 +434,7 @@ namespace def
 			sFont = L"Consolas";
 		}
 
-		virtual ~ConsoleGameEngine()
+		virtual ~ConsolaProd()
 		{
 			delete[] screen;
 		}
@@ -504,7 +503,7 @@ namespace def
 		void Start()
 		{
 			bGameThreadActive = true;
-			std::thread t = std::thread(&def::ConsoleGameEngine::AppThread, this);
+			std::thread t = std::thread(&def::ConsolaProd::AppThread, this);
 			t.join();
 		}
 
@@ -797,16 +796,18 @@ namespace def
 		void DrawString(vi2d pos, std::wstring text, short c = 0x2588, short col = 0x000F);
 		void DrawString(int x, int y, std::wstring text, short c = 0x2588, short col = 0x000F);
 
-		void Clear(short col = 0x000F);
+		void Clear(short c, short col = 0x000F);
 		bool Focused();
 
 		vi2d GetMouse();
 		int GetMouseX();
 		int GetMouseY();
+		vf2d GetMouseF();
 
-		int GetWidth();
-		int GetHeight();
+		int GetScreenWidth();
+		int GetScreenHeight();
 		vi2d GetScreenSize();
+		vf2d GetScreenSizeF();
 
 		std::vector<int> AnyKeyHeld();
 		std::vector<int> AnyKeyPressed();
@@ -969,12 +970,12 @@ namespace def
 		bool bFocused;
 	};
 
-	bool ConsoleGameEngine::Focused()
+	bool ConsolaProd::Focused()
 	{
 		return bFocused;
 	}
 
-	void ConsoleGameEngine::FillRectangle(vi2d pos1, vi2d pos2, short c, short col)
+	void ConsolaProd::FillRectangle(vi2d pos1, vi2d pos2, short c, short col)
 	{
 		if (pos1.x >= 0 && pos1.x < nScreenWidth && pos1.y >= 0 && pos1.y < nScreenHeight)
 		{
@@ -987,22 +988,22 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::FillRectangle(int x1, int y1, int x2, int y2, short c, short col)
+	void ConsolaProd::FillRectangle(int x1, int y1, int x2, int y2, short c, short col)
 	{
 		FillRectangle({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
-	void ConsoleGameEngine::FillRectangleS(vi2d pos, vi2d size, short c, short col)
+	void ConsolaProd::FillRectangleS(vi2d pos, vi2d size, short c, short col)
 	{
 		FillRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
 	}
 
-	void ConsoleGameEngine::FillRectangleS(int x, int y, int size_x, int size_y, short c, short col)
+	void ConsolaProd::FillRectangleS(int x, int y, int size_x, int size_y, short c, short col)
 	{
 		FillRectangle({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
 
-	void ConsoleGameEngine::DrawCircle(vi2d pos, int radius, short c, short col)
+	void ConsolaProd::DrawCircle(vi2d pos, int radius, short c, short col)
 	{
 		int x = 0;
 		int y = radius;
@@ -1024,12 +1025,12 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::DrawCircle(int x, int y, int radius, short c, short col)
+	void ConsolaProd::DrawCircle(int x, int y, int radius, short c, short col)
 	{
 		DrawCircle({ x, y }, radius, c, col);
 	}
 
-	void ConsoleGameEngine::FillCircle(vi2d pos, int radius, short c, short col)
+	void ConsolaProd::FillCircle(vi2d pos, int radius, short c, short col)
 	{
 		for (int i = radius; i != 0; i--)
 		{
@@ -1037,12 +1038,12 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::FillCircle(int x, int y, int radius, short c, short col)
+	void ConsolaProd::FillCircle(int x, int y, int radius, short c, short col)
 	{
 		FillCircle({ x, y }, radius, c, col);
 	}
 
-	void ConsoleGameEngine::Draw(vi2d pos, short c, short col)
+	void ConsolaProd::Draw(vi2d pos, short c, short col)
 	{
 		if (pos.x >= 0 && pos.x < nScreenWidth && pos.y >= 0 && pos.y < nScreenHeight)
 		{
@@ -1051,12 +1052,12 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::Draw(int x, int y, short c, short col)
+	void ConsolaProd::Draw(int x, int y, short c, short col)
 	{
 		Draw({ x, y }, c, col);
 	}
 
-	void ConsoleGameEngine::DrawLine(vi2d pos1, vi2d pos2, short c, short col)
+	void ConsolaProd::DrawLine(vi2d pos1, vi2d pos2, short c, short col)
 	{
 		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
 		dx = pos2.x - pos1.x; dy = pos2.y - pos1.y;
@@ -1116,25 +1117,25 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::DrawLine(int x1, int y1, int x2, int y2, short c, short col)
+	void ConsolaProd::DrawLine(int x1, int y1, int x2, int y2, short c, short col)
 	{
 		DrawLine({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
-	void ConsoleGameEngine::DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c, short col)
+	void ConsolaProd::DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c, short col)
 	{
 		DrawLine(pos1, pos2, c, col);
 		DrawLine(pos2, pos3, c, col);
 		DrawLine(pos3, pos1, c, col);
 	}
 
-	void ConsoleGameEngine::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
+	void ConsolaProd::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
 	{
 		DrawTriangle({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
 	}
 
 	// https://www.avrfreaks.net/sites/default/files/triangles.c
-	void ConsoleGameEngine::FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c, short col)
+	void ConsolaProd::FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c, short col)
 	{
 		auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw({ i, ny }, c, col); };
 
@@ -1270,12 +1271,12 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
+	void ConsolaProd::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
 	{
 		FillTriangle({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
 	}
 
-	void ConsoleGameEngine::DrawRectangle(vi2d pos1, vi2d pos2, short c, short col)
+	void ConsolaProd::DrawRectangle(vi2d pos1, vi2d pos2, short c, short col)
 	{
 		DrawLine(pos1, { pos2.x, pos1.y });
 		DrawLine({ pos2.x, pos1.y }, pos2);
@@ -1283,22 +1284,22 @@ namespace def
 		DrawLine({ pos1.x, pos2.y }, pos1);
 	}
 
-	void ConsoleGameEngine::DrawRectangle(int x1, int y1, int x2, int y2, short c, short col)
+	void ConsolaProd::DrawRectangle(int x1, int y1, int x2, int y2, short c, short col)
 	{
 		DrawRectangle({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
-	void ConsoleGameEngine::DrawRectangleS(vi2d pos, vi2d size, short c, short col)
+	void ConsolaProd::DrawRectangleS(vi2d pos, vi2d size, short c, short col)
 	{
 		DrawRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
 	}
 
-	void ConsoleGameEngine::DrawRectangleS(int x, int y, int size_x, int size_y, short c, short col)
+	void ConsolaProd::DrawRectangleS(int x, int y, int size_x, int size_y, short c, short col)
 	{
 		DrawRectangle({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
 
-	void ConsoleGameEngine::DrawSprite(vi2d pos, Sprite* sprite)
+	void ConsolaProd::DrawSprite(vi2d pos, Sprite* sprite)
 	{
 		if (sprite == nullptr)
 			return;
@@ -1313,12 +1314,12 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::DrawSprite(int x, int y, Sprite* sprite)
+	void ConsolaProd::DrawSprite(int x, int y, Sprite* sprite)
 	{
 		DrawSprite({ x, y }, sprite);
 	}
 
-	void ConsoleGameEngine::DrawPartialSprite(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite)
+	void ConsolaProd::DrawPartialSprite(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite)
 	{
 		if (sprite == nullptr || fpos1.x < 0 || fpos1.y < 0 || fpos2.x > sprite->nWidth || fpos2.y > sprite->nHeight)
 			return;
@@ -1333,22 +1334,22 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite)
+	void ConsolaProd::DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite)
 	{
 		DrawPartialSprite({ x, y }, { fx1, fy1 }, { fx2, fy2 }, sprite);
 	}
 
-	void ConsoleGameEngine::DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite)
+	void ConsolaProd::DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite)
 	{
 		DrawPartialSprite({ pos.x, pos.y }, { fpos1.x, fpos1.y }, { fpos1.x + fpos2.x, fpos1.y + fpos2.y }, sprite);
 	}
 
-	void ConsoleGameEngine::DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite)
+	void ConsolaProd::DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite)
 	{
 		DrawPartialSprite({ x, y }, { fx1, fy1 }, { fx1 + fx2, fy1 + fy2 }, sprite);
 	}
 
-	void ConsoleGameEngine::DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r, float s, short c, short col)
+	void ConsolaProd::DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r, float s, short c, short col)
 	{
 		// pair.first = x coordinate
 		// pair.second = y coordinate
@@ -1388,7 +1389,7 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::DrawString(vi2d pos, std::wstring text, short c, short col)
+	void ConsolaProd::DrawString(vi2d pos, std::wstring text, short c, short col)
 	{
 		if (pos.x > 0 && pos.y > 0 && pos.x <= nScreenWidth && pos.y <= nScreenHeight)
 		{
@@ -1400,47 +1401,57 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::DrawString(int x, int y, std::wstring text, short c, short col)
+	void ConsolaProd::DrawString(int x, int y, std::wstring text, short c, short col)
 	{
 		DrawString({ x, y }, text, c, col);
 	}
 
-	void ConsoleGameEngine::Clear(short col)
+	void ConsolaProd::Clear(short c, short col)
 	{
-		FillRectangle({ 0, 0 }, { nScreenWidth, nScreenHeight }, 0x2588, col);
+		FillRectangle({ 0, 0 }, { nScreenWidth, nScreenHeight }, c, col);
 	}
 
-	vi2d ConsoleGameEngine::GetMouse()
+	vi2d ConsolaProd::GetMouse()
 	{
 		return { nMousePosX, nMousePosY };
 	}
 
-	int ConsoleGameEngine::GetMouseX()
+	int ConsolaProd::GetMouseX()
 	{
 		return nMousePosX;
 	}
 
-	int ConsoleGameEngine::GetMouseY()
+	int ConsolaProd::GetMouseY()
 	{
 		return nMousePosY;
 	}
 
-	int ConsoleGameEngine::GetWidth()
+	vf2d ConsolaProd::GetMouseF()
+	{
+		return { (float)nMousePosX, (float)nMousePosY };
+	}
+
+	int ConsolaProd::GetScreenWidth()
 	{
 		return nScreenWidth;
 	}
 
-	int ConsoleGameEngine::GetHeight()
+	int ConsolaProd::GetScreenHeight()
 	{
 		return nScreenHeight;
 	}
 
-	vi2d ConsoleGameEngine::GetScreenSize()
+	vi2d ConsolaProd::GetScreenSize()
 	{
 		return { nScreenWidth, nScreenHeight };
 	}
 
-	std::vector<int> ConsoleGameEngine::AnyKeyHeld()
+	vf2d ConsolaProd::GetScreenSizeF()
+	{
+		return { (float)nScreenWidth, (float)nScreenHeight };
+	}
+
+	std::vector<int> ConsolaProd::AnyKeyHeld()
 	{
 		std::vector<int> output;
 		for (int i = 0; i < keys.size(); i++)
@@ -1451,7 +1462,7 @@ namespace def
 		return output;
 	}
 
-	std::vector<int> ConsoleGameEngine::AnyKeyPressed()
+	std::vector<int> ConsolaProd::AnyKeyPressed()
 	{
 		std::vector<int> output;
 		for (int i = 0; i < keys.size(); i++)
@@ -1462,7 +1473,7 @@ namespace def
 		return output;
 	}
 
-	std::vector<int> ConsoleGameEngine::AnyKeyReleased()
+	std::vector<int> ConsolaProd::AnyKeyReleased()
 	{
 		std::vector<int> output;
 		for (int i = 0; i < keys.size(); i++)
