@@ -1,4 +1,4 @@
-#ifdef DEF_CGE_APP
+#ifdef DEF_CP_APP
 
 #pragma once
 #pragma comment(lib, "winmm.lib")
