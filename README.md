@@ -1,126 +1,164 @@
-# Consola Prod description
-Consola Prod is an universal tool for creating games, GUI or whatever you want.
-You can find useful functions like:
-- Draw what you want and where you want.
-- Get mouse and keyboard input.
-- Set name of the window.
+# **Consola Prod**
 
-*I can do this all day* - Definit aka. defini7
+## Description
 
-# Documentation
-1. Example (engine supports only .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
-	```cpp 
-	#include "ConsolaProd.h"
+Consola Prod is a simple Microsoft terminal based engine created for implementing complex algorithms and demonstrate how they work.
 
-	class Example : public def::ConsoleGameEngine
+## Version
+
+It's the second version of this engine (2.0)
+
+## Documentation
+
+### Example
+
+Let's go through simple example:
+
+```c++
+#define DEF_CP_APP
+#include "ConsolaProd.hpp"
+
+class Example : public def::ConsolaProd
+{
+public:
+	Example()
 	{
-	public:
-		Example()
-		{
-			sAppName = L"Example";
-		}
-
-	protected:
-		virtual bool OnUserCreate() override
-		{
-			return true;
-		}
-
-		virtual bool OnUserUpdate(float fDeltaTime) override
-		{
-			return true;
-		}	
-	};
-
-	int main()
-	{
-		Example demo;
-		if (demo.Construct(256, 240, 4, 4))
-			demo.Start();
-		else
-			std::wcerr << "Could not construct console!" << std::endl;
-		return 0;
+		sAppName = L"Example";
 	}
-	```
-	
-2. Commands:
-- `Clear(COLOUR);` -- clears screen
-- `Draw(pos1, PIXEL_TYPE, COLOUR);` -- draws simple point
-- `DrawSprite(pos, sprite);` -- draws sprite
-- `DrawPartialSprite(pos, file_pos, sprite);` -- takes sprite from file and draws it
-- `DrawLine(pos1, pos2, PIXEL_TYPE, COLOUR);` -- draw line
-- `DrawTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR);` -- draw triangle
-- `FillTriangle(pos1, pos2, pos3, PIXEL_TYPE, COLOUR);` -- draws and fills triangle
-- `DrawRectangle(pos1, pos2, PIXEL_TYPE, COLOUR);` -- draws rectangle
-- `DrawRectangle(x1, y1, x2, y2, PIXEL_TYPE, COLOUR);` -- draws rectangle
-- `DrawRectangle(pos, size, PIXEL_TYPE, COLOUR);` -- draws rectangle (using size)
-- `DrawRectangle(x, y, size_x, size_y, PIXEL_TYPE, COLOUR);` -- draws rectangle (using size)
-- `FillRectangle(pos1, pos2, PIXEL_TYPE, COLOUR);` -- draws and fills rectangle
-- `FillRectangle(x1, y1, x2, y2, PIXEL_TYPE, COLOUR);` -- draws and fills rectangle
-- `FillRectangle(pos, size, PIXEL_TYPE, COLOUR);` -- draws and fills rectangle (using size)
-- `FillRectangle(x, y, size_x, size_y, PIXEL_TYPE, COLOUR);` -- draws and fills rectangle (using size)
-- `DrawCircle(pos, radius, PIXEL_TYPE, COLOUR);` -- draws circle
-- `FillCircle(pos, radius, PIXEL_TYPE, COLOUR);` -- draws and fills circle
-- `DrawString(pos, text, PIXEL_TYPE, COLOUR);` -- draws string (notice that one character is one pixel)
-- `Clear(COLOUR);` -- clears screen with colour
-- `IsFocused();` -- returns true if console window is focused
-- `GetMouseX();` -- returns position of mouse by X offset
-- `GetMouseY();` -- returns position of mouse by Y offset
-- `GetWidth();` -- returns width of screen
-- `GetHeight();` -- returns height of screen
-- `GetScreenSize();` -- returns size of screen
-- `InitObject(filename);` -- uses in OnUserCreate() function, takes as argument .obj file
-- `DrawObject(rotate, speed);` -- uses in OnUserCreate() function, takes as first argument boolean value to rotate object or not, as second value takes float argument of rotatable speed.
-
-2. Keys buffer:
-This buffer contains 256 keys and each key has 3 states:
-- Held
-- Pressed
-- Released.
-To select key from this buffer you need to use [Virtual Keys](https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes).
-Example of usage:
-	```cpp 
-	if (keys[VK_UP].bHeld)
+protected:
+	virtual bool OnUserCreate() override
 	{
-		// do something
+		return true;
 	}
-
-	if (keys[VK_LEFT].bPressed)
+	virtual bool OnUserUpdate(float dt) override
 	{
-		// do something
+		return true;
 	}
-	```
-	
-3. Mouse buttons buffer:
-This buffer contains 5 keys on mouse and each key has 3 states as keys in keys buffer:
-- Held
-- Pressed
-- Released.
-To select key from this buffer use numbers between 0 and 4.
-Example of usage:
-	```cpp
-	if (mouse[0].bHeld)
-	{
-		// do something
-	}
+};
 
-	if (mouse[1].bPressed)
-	{
-		// do something
-	}
-	```
+int main()
+{
+	Example demo;
+	if (demo.Construct(256, 240, 4, 4))
+		demo.Start();
+	else
+		std::wcerr << "Could not construct console" << std::endl;
+	return 0;
+}
+```
 
-4. Structs:
-This engine contains different types of vectors:
-1. `vi2d` -- vector that contains two integer values
-2. `vf2d` -- vector that contains two float values
-3. `vi3d` -- vector that contains three integer values
-4. `vf3d`-- vector that contains three float values
-5. `KeyState` -- has three boolean values of state of button
-6. `mat4x4` -- simple 4x4 matrix
-7. `mesh` -- contains function that loads .obj file in memory
+Firstly, we need to define ```DEF_CP_APP ``` because engine needs to know if you are using only it and protect you from unexpected errors with function overloading.
 
-# License
+Then, we need to include ```ConsoleProd.hpp``` file. 
+
+After including file you need to create a class that publicly inherits from ```ConsoleProd``` class from namespace `def`. In this class firstly we need to override a constructor and set title of a window and then two pure functions: `OnUserCreate` and `OnUserUpdate`, second function gets as argument delta time value (`dt`) . All these functions return `true` by default, but when you return false in some of them, the application stops. Notice that `OnUserCreate` is called only once and `OnUserUpdate` every clock of your CPU.
+
+In `main` function we need to create an object of our class and check if there is enough memory for creating window and your monitor supports this resolution. Function `Construct` takes as arguments 4 values: width of window, height of window, width of one pixel and height of one pixel. If function returns positive value we start our application with `Start` function, else we give a error message.
+
+### Functions' descriptions
+
+Notice that `c` argument is a type of pixel which you can get from `def::Pixel` namespace and `col` argument is a color of pixel which you can get from `def::FG` or `def::BG` namespaces. 
+
+1. Draw 
+
+   - Draws one pixel on set coordinates on the screen.
+
+2. DrawLine
+
+   - Draws line using 2 points on the screen.
+
+3. DrawTriangle
+
+   - Draws triangle using 3 points on the screen.
+
+4. FillTriangle
+
+   - Draws filled triangle using 3 points on the screen.
+
+5. DrawRectangle
+
+   - Draws rectangle using 2 point on the screen (first point is in top left corner, second point is in bottom right corner).
+
+6. DrawRectangleS
+
+   - Draws rectangle using 2 points on the screen, but in this case first point is in top left corner and second value
+
+     means size of this rectangle.
+
+7. FillRectangle
+
+   - Draws filled rectangle using 2 point on the screen (first point is in top left corner, second point is in bottom right corner).
+
+8. FillRectangleS
+
+   - Draws filled rectangle using 2 points on the screen, but in this case first point is in top left corner and second value means size of this rectangle.
+
+9. DrawCircle
+
+   - Draws circle using 1 point and radius, first argument is point that tell to engine where the center of circle is and second argument is a radius of this circle.
+
+10. FillCircle
+
+   - Draws filled circle using 1 point and radius, first argument is point that tell to engine where the center of circle is and second argument is a radius of this circle.
+
+11. DrawSprite
+
+    -  Draws sprite on the screen, first argument is position and second argument is a pointer to class `Sprite`.
+
+12. DrawPartialSprite
+
+    - Draws sprite on the screen, first argument is position on the screen, next 2 arguments are the position in the file, last argument is a pointer to class `Sprite`
+
+13. DrawPartialSpriteS
+
+    - Draws sprite on the screen, first argument is position on the screen, next 2 arguments are the position and size of sprite in the file, last argument is a pointer to class `Sprite`.
+
+14. DrawString
+
+    - One tip - takes as second argument UNICODE string, e.g. `L"Hello, World!"`.
+
+15. Clear
+
+    - Erase all data from the screen and fill it with passing color. 
+
+16. Focused
+
+    - Returns `true` value if you are focused on terminal, else returns `false`.
+
+17. GetMouse
+
+    - Returns position of mouse in terminal
+
+18. GetScreenSize
+
+    - Returns size of screen
+
+19. AnyKey...
+
+    - Returns `std::vector<int>` of ...  keys
+
+### Keyboard and mouse
+
+Consola Prod provides 256 keys and 5 mouse buttons, each key and button has 3 different states: `bReleased`(when button was released), `bPressed`(when button was pressed) and `bHeld`(when button was held).
+
+Example:
+
+```c++
+if (keys[L'A'].bHeld)
+{
+  vPlayer.x -= 30.0f * dt;
+}
+
+if (mouse[0].bPressed)
+{
+  Draw(GetMouse(), def::Pixel::SOLID, def::FG::RED);
+}
+```
+
+
+
+## License
+
 BSD 3-Clause License
 
 Copyright (c) 2021, Alex
@@ -151,6 +189,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Update date
-October 15th, 2021.
-# Sorry! I am very lazy for updating docs :(
+## Last Update
+
+5.12.2021 18:30 MOSCOW
+
