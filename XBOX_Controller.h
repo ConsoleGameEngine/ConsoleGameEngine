@@ -35,6 +35,8 @@
 #pragma endregion
 
 #include <Xinput.h>
+#include <Windows.h>
+
 #pragma comment(lib, "XInput.lib")
 
 namespace def
@@ -77,7 +79,7 @@ namespace def
 			XInputSetState(nControllerID, &m_Vibration);
 		}
 
-		BYTE GetButton(short key)
+		BYTE GetJoy(short key)
 		{
 			return GetState().Gamepad.wButtons & key;
 		}
