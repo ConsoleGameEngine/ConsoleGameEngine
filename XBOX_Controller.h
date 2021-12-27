@@ -65,7 +65,7 @@ namespace def
 			ZeroMemory(&this->m_ControllerState, sizeof(XINPUT_STATE));
 			DWORD dwConnection = XInputGetState(this->nControllerID, &this->m_ControllerState);
 
-			return (dwConnection == ERROR_SUCCESS) ? true : false;
+			return dwConnection == ERROR_SUCCESS;
 		}
 
 		void SetVibration(int nLeftValue, int nRightValue)
