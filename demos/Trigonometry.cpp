@@ -47,7 +47,7 @@ std::string Parser::parse_token()
 		return sNumber;
 	}
 
-	static const std::string Tokens[] = { "+", "-", "^", "*", "/", "%", "abs", "sin", "cos", "(", ")" };
+	static const std::string Tokens[] = { "+", "-", "^", "*", "/", "%", "abs", "sin", "cos", "tan", "(", ")", "sqrt"};
 
 	for (auto& t : Tokens) 
 		if (std::strncmp(input, t.c_str(), t.size()) == 0) 
@@ -155,6 +155,8 @@ double Parser::evaluate(const Expression& e)
 		if (e.token == "abs") return abs(a);
 		if (e.token == "sin") return sin(a);
 		if (e.token == "cos") return cos(a);
+		if (e.token == "tan") return tan(a);
+		if (e.token == "sqrt") return sqrt(a);
 
 		sState = "Unknown unary operator";
 	}
@@ -181,35 +183,67 @@ public:
 protected:
 	virtual bool OnUserCreate() override
 	{
+		if (sExpression.find("sin") != std::string::npos || 
+			sExpression.find("cos") != std::string::npos || 
+			sExpression.find("tan") != std::string::npos)
+			bHasFuncs = true;
+
 		return true;
 	}
 
 	virtual bool OnUserUpdate(float dt) override
 	{
-		Clear(def::Pixel::SOLID, def::FG::BLACK);
+		Clear(def::Pixel::SOLID, def::FG::WHITE | def::BG::WHITE);
+
+		DrawLine(nScreenWidth / 2, 0, nScreenWidth / 2, nScreenHeight, def::Pixel::SOLID, def::FG::GREY | def::BG::GREY);
+		DrawLine(0, nScreenHeight / 2, nScreenWidth, nScreenHeight / 2, def::Pixel::SOLID, def::FG::GREY | def::BG::GREY);
 
 		float fAngle = 0.0f;
 
 		for (int i = -1; i < nScreenWidth; i++)
 		{
-			int CurrentY[3];
+			int CurrentY;
 
 			std::string expression = sExpression;
 
 			size_t pos = expression.find("x");
 
-			while (pos != std::string::npos) 
+			auto change_str_x = [&](float fValue)
 			{
-				expression.replace(pos, 1, std::to_string(fAngle));
-				pos = expression.find("x", pos);
+				while (pos != std::string::npos)
+				{
+					expression.replace(pos, 1, std::to_string(fValue));
+					pos = expression.find("x", pos);
+				}
+			};
+
+			auto draw_and_connect = [&](int to_mul = 1, int to_add_x = 0, int to_add_y = 0)
+			{
+				CurrentY = int(to_mul * parser.Get(expression.c_str())) + to_add_y;
+				DrawLine(i + to_add_x - 1, PrevY, i + to_add_x, CurrentY, def::Pixel::SOLID, def::FG::BLACK);
+				PrevY = CurrentY;
+			};
+
+			if (bHasFuncs)
+			{
+				change_str_x(fAngle);
+				
+				draw_and_connect(nAmplitude, 0, nScreenHeight / 2);
+
+				fAngle += (2.0f * 3.1415926535f) / nAmplitude;
+
 			}
+			else
+			{
+				change_str_x(i);
 
-			CurrentY[0] = int(nAmplitude * parser.Get(expression.c_str())) + nScreenHeight / 2;
-			DrawLine(i - 1, PrevY[0], i, CurrentY[0], def::Pixel::SOLID, def::FG::RED);
-			PrevY[0] = CurrentY[0];
-
-			fAngle += (2.0f * 3.1415926535f) / nAmplitude;
+				draw_and_connect(1, nScreenWidth / 2);
+			}
+				
 		}
+
+		DrawLine(nScreenWidth / 2 - 1, 0, nScreenWidth / 2 - 1, nScreenHeight, def::Pixel::SOLID, def::FG::WHITE | def::BG::WHITE);
+		Draw(nScreenWidth / 2 - 1, nScreenHeight / 2, def::Pixel::SOLID, def::FG::GREY | def::BG::GREY);
 
 		if (GetKey(VK_UP).bHeld)
 			nAmplitude += 1;
@@ -224,17 +258,20 @@ protected:
 	}
 
 private:
+	// The highest point of a curve
 	int nAmplitude = 40;
-	int PrevY[3] = { 0, 0, 0 };
+	int PrevY = 0;
 
+	// Simple math parser
 	Parser parser;
 	std::string sExpression;
-	double dResult;
+
+	bool bHasFuncs = false;
 	
 };
 
 int main()
 {
-	Graphs demo("sin(x * 10) * cos(x)");
+	Graphs demo("tan(x*5)");
 	demo.Run(256, 240, 4, 4);
 }
