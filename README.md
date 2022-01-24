@@ -2,17 +2,15 @@
 
 ## Description
 
-Consola Prod is a simple Microsoft terminal based engine created for implementing complex algorithms and demonstrate how they work.
+Consola Prod - это простой игровой движок сделанный в командной строке Windows для создания сложных алгоритмов и их демонстрации.
 
-## Version
-
-It's the second version of this engine (2.0)
+## Version 2.0
 
 ## Documentation
 
 ### Example
 
-Let's go through simple example:
+Давайте рассмотрим простой пример:
 
 ```c++
 #define DEF_CP_APP
@@ -47,101 +45,99 @@ int main()
 }
 ```
 
-Firstly, we need to define ```DEF_CP_APP ``` because engine needs to know if you are using only it and protect you from unexpected errors with function overloading.
+Сначала, нам нужно объявить ```DEF_CP_APP ```, потому что движок должен знать, что ты используешь только его, и чтобы защитить вас от непредвиденных перегрузок функций.
 
-Then, we need to include ```ConsoleProd.hpp``` file. 
+Затем нам нужно подключить файл ```ConsoleProd.hpp```. 
 
-After including file you need to create a class that publicly inherits from ```ConsoleProd``` class from namespace `def`. In this class firstly we need to override a constructor and set title of a window and then two pure functions: `OnUserCreate` and `OnUserUpdate`, second function gets as argument delta time value (`dt`) . All these functions return `true` by default, but when you return false in some of them, the application stops. Notice that `OnUserCreate` is called only once and `OnUserUpdate` every clock of your CPU.
+После нам нужно создать класс, который публично наследует от ```ConsoleProd``` класса из пространства имен `def`. В этом случае нам сначала нужно переопределить конструктор, чтобы задать название нашего приложения и затем проделать тоже самое с функциями: `OnUserCreate` и `OnUserUpdate`, вторая функция получает параметром аргумент дельта-время. По умолчанию эти функцию возвращают true, но когда ты пытаешься указать false приложение останавливается. Заметьте, что `OnUserCreate` вызывается только один раз, а `OnUserUpdate` на каждом обновлении вашего процессора.
 
-In `main` function we need to create an object of our class and check if there is enough memory for creating window and your monitor supports this resolution. Function `Construct` takes as arguments 4 values: width of window, height of window, width of one pixel and height of one pixel. If function returns positive value we start our application with `Start` function, else we give a error message.
+В `main` функции создаем объект нашего класса и проверяем достаточно ли памяти для создания окна, поддерживает ли ваш монитор такое разрешение. Функция `Construct` принимает 4 аргумента: ширину окна, высоту окна, ширину пикселя, высоту пикселя. Если функция возвращает положительное значение то мы запускаем наше приложение с помощью метода `Start`, а иначе мы выводим сообщение об ошибке.
 
 ### Functions' descriptions
 
-Notice that `c` argument is a type of pixel which you can get from `def::Pixel` namespace and `col` argument is a color of pixel which you can get from `def::FG` or `def::BG` namespaces. 
+Заметьте, что `c` - это тип пикселя, который вы можете получить из `def::Pixel` и аргумент `col` - это цвет пикселя, который можно получить из `def::FG` или из `def::BG`. 
 
 1. Draw 
 
-   - Draws one pixel on set coordinates on the screen.
+   - Меняет цвет пикселя по заданным координатам.
 
 2. DrawLine
 
-   - Draws line using 2 points on the screen.
+   - Рисует линию по 2 точки.
 
 3. DrawTriangle
 
-   - Draws triangle using 3 points on the screen.
+   - Рисует треугольник по 3 точкам.
 
 4. FillTriangle
 
-   - Draws filled triangle using 3 points on the screen.
+   - Рисует закрашенный треугольник по 3 точкам.
 
 5. DrawRectangle
 
-   - Draws rectangle using 2 point on the screen (first point is in top left corner, second point is in bottom right corner).
+   - Рисует прямоугольник по 2 точкам (первая - левый верхний угол, вторая - правый нижний угол).
 
 6. DrawRectangleS
 
-   - Draws rectangle using 2 points on the screen, but in this case first point is in top left corner and second value
-
-     means size of this rectangle.
+   - В данном случае рисует прямоугольник по двум точкам, но уже по размеру.
 
 7. FillRectangle
 
-   - Draws filled rectangle using 2 point on the screen (first point is in top left corner, second point is in bottom right corner).
+   - Рисует закрашенный прямоугольник по 2 точкам (первая - левый верхний угол, вторая - правый нижний угол).
 
 8. FillRectangleS
 
-   - Draws filled rectangle using 2 points on the screen, but in this case first point is in top left corner and second value means size of this rectangle.
+   - В данном случае рисует закрашенный прямоугольник по двум точкам, но уже по размеру.
 
 9. DrawCircle
 
-   - Draws circle using 1 point and radius, first argument is point that tell to engine where the center of circle is and second argument is a radius of this circle.
+   - Рисует круг по одной точке (центру окружности) и радиусу.
 
 10. FillCircle
 
-   - Draws filled circle using 1 point and radius, first argument is point that tell to engine where the center of circle is and second argument is a radius of this circle.
+   - Рисует закрашенный круг по одной точке (центру окружности) и радиусу.
 
 11. DrawSprite
 
-    -  Draws sprite on the screen, first argument is position and second argument is a pointer to class `Sprite`.
+    - Рисует спрайт, используя объект класса Sprite.
 
 12. DrawPartialSprite
 
-    - Draws sprite on the screen, first argument is position on the screen, next 2 arguments are the position in the file, last argument is a pointer to class `Sprite`
+    - Рисует спрайт, используя объект класса Sprite, первый аргумент - это позиция на экране, а другие два аргумента - позиция и размер в файле. Используются координаты.
 
 13. DrawPartialSpriteS
 
-    - Draws sprite on the screen, first argument is position on the screen, next 2 arguments are the position and size of sprite in the file, last argument is a pointer to class `Sprite`.
+    - Рисует спрайт, используя объект класса Sprite, первый аргумент - это позиция на экране, а другие два аргумента - позиция и размер в файле. Используется размер.
 
 14. DrawString
 
-    - One tip - takes as second argument UNICODE string, e.g. `L"Hello, World!"`.
+    - Одна фишка - принимает параметром UNICODE строку, например `L"Hello, World!"`.
 
 15. Clear
 
-    - Erase all data from the screen and fill it with passing color. 
+    - Очищает экран. 
 
 16. Focused
 
-    - Returns `true` value if you are focused on terminal, else returns `false`.
+    - Возвращает `true`, если командная строка в фокусе, иначе `false`.
 
 17. GetMouse
 
-    - Returns position of mouse in terminal
+    - Возвращает позицию курсора в командной строке.
 
 18. GetScreenSize
 
-    - Returns size of screen
+    - Возвращает размер экрана.
 
 19. AnyKey...
 
-    - Returns `std::vector<int>` of ...  keys
+    - Возвращает `std::vector<int>` ... клавиш.
 
 ### Keyboard and mouse
 
-Consola Prod provides 256 keys and 5 mouse buttons, each key and button has 3 different states: `bReleased`(when button was released), `bPressed`(when button was pressed) and `bHeld`(when button was held).
+Consola Prod предоставляет 256 клавиш и 5 кнопок на мыше, у каждой клавиши или кнопки 3 состояния: `bReleased`(когда кнопка была опущена), `bPressed`(когда кнопка была поднята) и `bHeld`(когда кнопка была зажата).
 
-Example:
+Пример:
 
 ```c++
 if (keys[L'A'].bHeld)
@@ -154,8 +150,6 @@ if (mouse[0].bPressed)
   Draw(GetMouse(), def::Pixel::SOLID, def::FG::RED);
 }
 ```
-
-
 
 ## License
 
@@ -191,5 +185,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## Last Update
 
-5.12.2021 18:30 MOSCOW
+24.01.2022 18:15 MOSCOW
 
