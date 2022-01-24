@@ -1,14 +1,14 @@
 # **Consola Prod**
 
-## Description
+## Описание
 
 Consola Prod - это простой игровой движок сделанный в командной строке Windows для создания сложных алгоритмов и их демонстрации.
 
-## Version 2.0
+## Версия 2.0
 
-## Documentation
+## Документация
 
-### Example
+### Пример
 
 Давайте рассмотрим простой пример:
 
@@ -133,7 +133,7 @@ int main()
 
     - Возвращает `std::vector<int>` ... клавиш.
 
-### Keyboard and mouse
+### Клавиатура и мышь
 
 Consola Prod предоставляет 256 клавиш и 5 кнопок на мыше, у каждой клавиши или кнопки 3 состояния: `bReleased`(когда кнопка была опущена), `bPressed`(когда кнопка была поднята) и `bHeld`(когда кнопка была зажата).
 
@@ -151,7 +151,7 @@ if (mouse[0].bPressed)
 }
 ```
 
-## License
+## Лицензия
 
 BSD 3-Clause License
 
@@ -183,7 +183,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-## Last Update
+## Последнее обновление
 
 24.01.2022 18:15 MOSCOW
 
