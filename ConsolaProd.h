@@ -449,10 +449,6 @@ namespace def
 		vi2d GetScreenSize();
 		vf2d GetScreenSizeF();
 
-		std::vector<int> AnyKeyHeld();
-		std::vector<int> AnyKeyPressed();
-		std::vector<int> AnyKeyReleased();
-
 	private:
 		void AppThread()
 		{
@@ -1104,39 +1100,6 @@ namespace def
 	vf2d ConsolaProd::GetScreenSizeF()
 	{
 		return { (float)nScreenWidth, (float)nScreenHeight };
-	}
-
-	std::vector<int> ConsolaProd::AnyKeyHeld()
-	{
-		std::vector<int> output;
-		for (int i = 0; i < keys.size(); i++)
-		{
-			if (keys[i].bHeld)
-				output.push_back(i);
-		}
-		return output;
-	}
-
-	std::vector<int> ConsolaProd::AnyKeyPressed()
-	{
-		std::vector<int> output;
-		for (int i = 0; i < keys.size(); i++)
-		{
-			if (keys[i].bPressed)
-				output.push_back(i);
-		}
-		return output;
-	}
-
-	std::vector<int> ConsolaProd::AnyKeyReleased()
-	{
-		std::vector<int> output;
-		for (int i = 0; i < keys.size(); i++)
-		{
-			if (keys[i].bReleased)
-				output.push_back(i);
-		}
-		return output;
 	}
 }
 
