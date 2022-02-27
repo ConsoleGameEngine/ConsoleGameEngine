@@ -40,7 +40,9 @@
 #pragma region EXAMPLE
 /**
 * Example (engine only supports .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
-	#include "ConsolaProd.hpp"
+	#define DEF_CP_APP
+	#include <cassert>
+	#include "ConsolaProd.h"
 
 	class Example : public def::ConsolaProd
 	{
@@ -51,12 +53,12 @@
 		}
 
 	protected:
-		virtual bool OnUserCreate() override
+		bool OnUserCreate() override
 		{
 			return true;
 		}
 
-		virtual bool OnUserUpdate(float dt) override
+		bool OnUserUpdate(float fDeltaTime) override
 		{
 			return true;
 		}
@@ -65,10 +67,7 @@
 	int main()
 	{
 		Example demo;
-		if (demo.Construct(256, 240, 4, 4))
-			demo.Start();
-		else
-			std::wcerr << "Could not construct console" << std::endl;
+		assert(demo.Run() && "Could not construct console");
 
 		return 0;
 	}
@@ -80,9 +79,6 @@
 #endif
 
 #define _CRT_SECURE_NOWARNINGS
-#define _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
-#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
-#define _SILENCE_CXX17_CODECVT_DEPRECATION_WARNINGS
 
 #include <iostream>
 #include <Windows.h>
@@ -436,18 +432,16 @@ namespace def
 		void Clear(short c, short col = 0x000F);
 		bool Focused();
 
-		vi2d GetMouse();
-		int GetMouseX();
-		int GetMouseY();
-		vf2d GetMouseF();
+		inline vi2d GetMouse() const;
+		inline int GetMouseX() const;
+		inline int GetMouseY() const;
 
-		KeyState GetMouse(short button);
-		KeyState GetKey(short key);
-
-		int GetScreenWidth();
-		int GetScreenHeight();
-		vi2d GetScreenSize();
-		vf2d GetScreenSizeF();
+		inline KeyState GetMouseBtn(short button) const;
+		inline KeyState GetKey(short key) const;
+ 
+		inline int GetScreenWidth() const;
+		inline int GetScreenHeight() const;
+		inline vi2d GetScreenSize() const;
 
 	private:
 		void AppThread()
@@ -476,7 +470,7 @@ namespace def
 				fDeltaTime = elapsedTime.count();
 
 				wchar_t buffer_title[256];
-				swprintf_s(buffer_title, 256, L"github.com/defini7 - Console Game Engine - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / fDeltaTime);
+				swprintf_s(buffer_title, 256, L"github.com/defini7 - Consola Prod - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / fDeltaTime);
 				SetConsoleTitleW(buffer_title);
 
 				if (!OnUserUpdate(fDeltaTime))
@@ -1052,54 +1046,44 @@ namespace def
 		FillRectangle({ 0, 0 }, { nScreenWidth, nScreenHeight }, c, col);
 	}
 
-	vi2d ConsolaProd::GetMouse()
+	inline vi2d ConsolaProd::GetMouse() const
 	{
 		return { nMousePosX, nMousePosY };
 	}
 
-	int ConsolaProd::GetMouseX()
+	inline int ConsolaProd::GetMouseX() const
 	{
 		return nMousePosX;
 	}
 
-	int ConsolaProd::GetMouseY()
+	inline int ConsolaProd::GetMouseY() const
 	{
 		return nMousePosY;
 	}
 
-	vf2d ConsolaProd::GetMouseF()
-	{
-		return { (float)nMousePosX, (float)nMousePosY };
-	}
-
-	KeyState ConsolaProd::GetMouse(short button)
+	inline KeyState ConsolaProd::GetMouseBtn(short button) const
 	{
 		return mouse[button];
 	}
 
-	KeyState ConsolaProd::GetKey(short key)
+	inline KeyState ConsolaProd::GetKey(short key) const
 	{
 		return keys[key];
 	}
 
-	int ConsolaProd::GetScreenWidth()
+	inline int ConsolaProd::GetScreenWidth() const
 	{
 		return nScreenWidth;
 	}
 
-	int ConsolaProd::GetScreenHeight()
+	inline int ConsolaProd::GetScreenHeight() const
 	{
 		return nScreenHeight;
 	}
 
-	vi2d ConsolaProd::GetScreenSize()
+	inline vi2d ConsolaProd::GetScreenSize() const
 	{
 		return { nScreenWidth, nScreenHeight };
-	}
-
-	vf2d ConsolaProd::GetScreenSizeF()
-	{
-		return { (float)nScreenWidth, (float)nScreenHeight };
 	}
 }
 
