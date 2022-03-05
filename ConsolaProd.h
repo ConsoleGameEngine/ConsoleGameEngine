@@ -1,7 +1,4 @@
-#ifdef DEF_CP_APP
-
 #pragma once
-#pragma comment(lib, "winmm.lib")
 
 #pragma region LICENSE
 /***
@@ -40,8 +37,6 @@
 #pragma region EXAMPLE
 /**
 * Example (engine only supports .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
-	#define DEF_CP_APP
-	#include <cassert>
 	#include "ConsolaProd.h"
 
 	class Example : public def::ConsolaProd
@@ -67,7 +62,8 @@
 	int main()
 	{
 		Example demo;
-		assert(demo.Run() && "Could not construct console");
+		if (!demo.Run())
+			return 1;
 
 		return 0;
 	}
@@ -78,7 +74,7 @@
 #error Enable Unicode in settings
 #endif
 
-#define _CRT_SECURE_NOWARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
 #include <Windows.h>
@@ -89,10 +85,15 @@
 #include <strstream>
 #include <algorithm>
 #include <locale>
-#include <codecvt>
 #include <thread>
-#include <atomic>
 #include <string>
+
+#pragma comment(lib, "winmm.lib")
+
+#ifdef XBOX_CONTROLLER
+#include <Xinput.h>
+#pragma comment(lib, "XInput.lib")
+#endif
 
 namespace def
 {
@@ -174,6 +175,53 @@ namespace def
 	};
 
 	const double PI = 2.0f * acos(0.0f);
+
+#ifdef XBOX_CONTROLLER
+	class XBOX_Controller
+	{
+	public:
+		XINPUT_STATE m_ControllerState;
+		int nControllerID;
+
+		XBOX_Controller(int nPlayer)
+		{
+			this->nControllerID = nPlayer - 1;
+		}
+
+		XINPUT_STATE GetState()
+		{
+			ZeroMemory(&this->m_ControllerState, sizeof(XINPUT_STATE));
+			XInputGetState(this->nControllerID, &this->m_ControllerState);
+
+			return this->m_ControllerState;
+		}
+
+		bool IsConnected()
+		{
+			ZeroMemory(&this->m_ControllerState, sizeof(XINPUT_STATE));
+			DWORD dwConnection = XInputGetState(this->nControllerID, &this->m_ControllerState);
+
+			return dwConnection == ERROR_SUCCESS;
+		}
+
+		void SetVibration(int nLeftValue, int nRightValue)
+		{
+			XINPUT_VIBRATION m_Vibration;
+			ZeroMemory(&m_Vibration, sizeof(XINPUT_VIBRATION));
+
+			m_Vibration.wLeftMotorSpeed = nLeftValue;
+			m_Vibration.wRightMotorSpeed = nRightValue;
+
+			XInputSetState(nControllerID, &m_Vibration);
+		}
+
+		BYTE GetJoy(short key)
+		{
+			return GetState().Gamepad.wButtons & key;
+		}
+	};
+
+#endif
 
 	class Sprite
 	{
@@ -318,7 +366,7 @@ namespace def
 		virtual bool OnUserCreate() = 0;
 		virtual bool OnUserUpdate(float fDeltaTime) = 0;
 
-		bool Run(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
+		std::string Run(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
 		{
 			if (width <= 0 || height <= 0 || fontw <= 0 || fonth <= 0)
 				return false;
@@ -332,17 +380,17 @@ namespace def
 			hConsoleOut = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
 			if (hConsoleOut == INVALID_HANDLE_VALUE)
-				return false;
+				return "INVALID_HANDLE_VALUE";
 
 			rectWindow = { 0, 0, 1, 1 };
 			SetConsoleWindowInfo(hConsoleOut, TRUE, &rectWindow);
 
 			COORD coord = { (short)nScreenWidth, (short)nScreenHeight };
 			if (!SetConsoleScreenBufferSize(hConsoleOut, coord))
-				return false;
+				return "Could not set console screen buffer";
 
 			if (!SetConsoleActiveScreenBuffer(hConsoleOut))
-				return false;
+				return "Could not set console active screen buffer";
 
 			CONSOLE_FONT_INFOEX cfi;
 			cfi.cbSize = sizeof(cfi);
@@ -354,18 +402,20 @@ namespace def
 
 			wcscpy_s(cfi.FaceName, sFont.c_str());
 			if (!SetCurrentConsoleFontEx(hConsoleOut, false, &cfi))
-				return false;
+				return "Could not set current console font";
 
 			if (!SetConsoleMode(hConsoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
-				return false;
+				return "Could not set console mode (ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT)";
 
 			CONSOLE_SCREEN_BUFFER_INFO csbi;
 			if (!GetConsoleScreenBufferInfo(hConsoleOut, &csbi))
-				return false;
+				return "Could not get console screen buffer info";
+
 			if (nScreenHeight > csbi.dwMaximumWindowSize.Y)
-				return false;
+				return "Specified screen height larger than maximum window height";
+
 			if (nScreenWidth > csbi.dwMaximumWindowSize.X)
-				return false;
+				return "Specified screen width larger than maximum window width";
 
 			rectWindow = { 0, 0, short(nScreenWidth - 1), short(nScreenHeight - 1) };
 			SetConsoleWindowInfo(hConsoleOut, TRUE, &rectWindow);
@@ -376,14 +426,7 @@ namespace def
 			std::thread t = std::thread(&def::ConsolaProd::AppThread, this);
 			t.join();
 
-			return true;
-		}
-
-		void Stop(std::wstring reason = L"GAME WAS STOPED", int code = 0)
-		{
-			bGameThreadActive = false;
-			std::wcout << reason << std::endl;
-			exit(code);
+			return "OK";
 		}
 
 	public:
@@ -438,7 +481,7 @@ namespace def
 
 		inline KeyState GetMouseBtn(short button) const;
 		inline KeyState GetKey(short key) const;
- 
+
 		inline int GetScreenWidth() const;
 		inline int GetScreenHeight() const;
 		inline vi2d GetScreenSize() const;
@@ -579,6 +622,7 @@ namespace def
 		SMALL_RECT rectWindow;
 		HWND hwnd;
 		HDC hDC;
+		
 		std::wstring sAppName;
 		std::wstring sFont;
 
@@ -1086,5 +1130,3 @@ namespace def
 		return { nScreenWidth, nScreenHeight };
 	}
 }
-
-#endif
