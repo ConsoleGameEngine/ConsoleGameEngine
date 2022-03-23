@@ -24,7 +24,6 @@ protected:
 	{
 		Clear(def::FG::BLACK);
 
-		def::vf2d vLinearPrev = vFirst;
 		def::vf2d vQuadPrev = vFirst;
 		
 		for (float t = 0.0f; t < 1.0f; t += 0.01f)
@@ -37,11 +36,11 @@ protected:
 
 			def::vf2d vQuad =
 			{
-				vFactor.x * (1 - t) * vLinearPrev.x + t * vLinear.x,
-				vFactor.y * (1 - t) * vLinearPrev.y + t * vLinear.y
+				vFactor.x * (1 - t) * vLinear.x + t * vLinear.x,
+				vFactor.y * (1 - t) * vLinear.y + t * vLinear.y
 			};
 
-			if (vQuadPrev.x != vQuad.x && vQuadPrev.y != vQuad.y && vLinearPrev.x != vLinear.x && vLinearPrev.y != vLinear.y)
+			if (vQuadPrev.x != vQuad.x && vQuadPrev.y != vQuad.y && vFirst.x != vLinear.x && vFirst.y != vLinear.y)
 				DrawLine(vQuadPrev.x, vQuadPrev.y, vQuad.x, vQuad.y, def::Pixel::SOLID, def::FG::WHITE);
 
 			vQuadPrev = vQuad;
