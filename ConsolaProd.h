@@ -82,9 +82,7 @@
 #include <chrono>
 #include <cmath>
 #include <fstream>
-#include <strstream>
 #include <algorithm>
-#include <locale>
 #include <thread>
 #include <string>
 
@@ -155,17 +153,69 @@ namespace def
 		std::wstring SIMSUM_EXTB = L"SimSun-ExtB";
 	}
 
-	struct vi2d
+	template <class T>
+	class vec2d
 	{
-		int x;
-		int y;
+	public:
+		T x;
+		T y;
+
+		friend vec2d<T> operator+(const vec2d<T>& v1, const vec2d<T>& v2)
+		{
+			return { v1.x + v2.x, v1.y + v2.y };
+		}
+
+		friend vec2d<T> operator-(const vec2d<T> v1, const vec2d<T>& v2)
+		{
+			return { v1.x - v2.x, v1.y - v2.y };
+		}
+
+		friend vec2d<T> operator*(const vec2d<T> v1, const vec2d<T>& v2)
+		{
+			return { v1.x * v2.x, v1.y * v2.y };
+		}
+
+		friend vec2d<T> operator/(const vec2d<T> v1, const vec2d<T>& v2)
+		{
+			return { v1.x / v2.x, v1.y / v2.y };
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////
+
+		friend vec2d<T> operator+(const vec2d<T> v1, const T v)
+		{
+			return { v1.x + v, v1.y + v };
+		}
+
+		friend vec2d<T> operator-(const vec2d<T> v1, const T v)
+		{
+			return { v1.x - v, v1.y - v };
+		}
+
+		friend vec2d<T> operator*(const vec2d<T> v1, const T v)
+		{
+			return { v1.x * v, v1.y * v };
+		}
+
+		friend vec2d<T> operator/(const vec2d<T> v1, const T v)
+		{
+			return { v1.x / v, v1.y / v };
+		}
+
+		float mag()
+		{
+			return sqrtf(x * x + y * y);
+		}
+
+		vec2d<T> norm()
+		{
+			return { x / mag(), y / mag() };
+		}
 	};
 
-	struct vf2d
-	{
-		float x;
-		float y;
-	};
+	typedef vec2d<float> vf2d;
+	typedef vec2d<int> vi2d;
+	typedef vec2d<double> vd2d;
 
 	struct KeyState
 	{
@@ -369,7 +419,7 @@ namespace def
 		std::string Run(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
 		{
 			if (width <= 0 || height <= 0 || fontw <= 0 || fonth <= 0)
-				return false;
+				return "BAD";
 
 			nScreenWidth = width;
 			nScreenHeight = height;
@@ -622,7 +672,7 @@ namespace def
 		SMALL_RECT rectWindow;
 		HWND hwnd;
 		HDC hDC;
-		
+
 		std::wstring sAppName;
 		std::wstring sFont;
 
@@ -691,14 +741,14 @@ namespace def
 
 		while (y >= x)
 		{
-			Draw({ pos.x - x, pos.y - y }, c, col);//upper left left
-			Draw({ pos.x - y, pos.y - x }, c, col);//upper upper left
-			Draw({ pos.x + y, pos.y - x }, c, col);//upper upper right
-			Draw({ pos.x + x, pos.y - y }, c, col);//upper right right
-			Draw({ pos.x - x, pos.y + y }, c, col);//lower left left
-			Draw({ pos.x - y, pos.y + x }, c, col);//lower lower left
-			Draw({ pos.x + y, pos.y + x }, c, col);//lower lower right
-			Draw({ pos.x + x, pos.y + y }, c, col);//lower right right
+			Draw({ pos.x - x, pos.y - y }, c, col);	// upper left left
+			Draw({ pos.x - y, pos.y - x }, c, col);	// upper upper left
+			Draw({ pos.x + y, pos.y - x }, c, col);	// upper upper right
+			Draw({ pos.x + x, pos.y - y }, c, col);	// upper right right
+			Draw({ pos.x - x, pos.y + y }, c, col);	// lower left left
+			Draw({ pos.x - y, pos.y + x }, c, col);	// lower lower left
+			Draw({ pos.x + y, pos.y + x }, c, col);	// lower lower right
+			Draw({ pos.x + x, pos.y + y }, c, col);	// lower right right
 			if (p < 0) p += 4 * x++ + 6;
 			else p += 4 * (x++ - y--) + 10;
 		}
