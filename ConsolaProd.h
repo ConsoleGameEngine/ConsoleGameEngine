@@ -154,68 +154,84 @@ namespace def
 	}
 
 	template <class T>
-	class vec2d
+	class vec2d_basic
 	{
 	public:
+		vec2d_basic(T x, T y) : x(x) : y(y) {}
+		vec2d_basic() : x(0) : y(0) {}
+
 		T x;
 		T y;
 
-		friend vec2d<T> operator+(const vec2d<T>& v1, const vec2d<T>& v2)
+		friend vec2d_basic<T> operator+(const vec2d_basic<T>& v1, const vec2d_basic<T>& v2)
 		{
 			return { v1.x + v2.x, v1.y + v2.y };
 		}
 
-		friend vec2d<T> operator-(const vec2d<T> v1, const vec2d<T>& v2)
+		friend vec2d_basic<T> operator-(const vec2d_basic<T> v1, const vec2d_basic<T>& v2)
 		{
 			return { v1.x - v2.x, v1.y - v2.y };
 		}
 
-		friend vec2d<T> operator*(const vec2d<T> v1, const vec2d<T>& v2)
+		friend vec2d_basic<T> operator*(const vec2d_basic<T> v1, const vec2d_basic<T>& v2)
 		{
 			return { v1.x * v2.x, v1.y * v2.y };
 		}
 
-		friend vec2d<T> operator/(const vec2d<T> v1, const vec2d<T>& v2)
+		friend vec2d_basic<T> operator/(const vec2d_basic<T> v1, const vec2d_basic<T>& v2)
 		{
 			return { v1.x / v2.x, v1.y / v2.y };
 		}
 
-		//////////////////////////////////////////////////////////////////////////////////
-
-		friend vec2d<T> operator+(const vec2d<T> v1, const T v)
+		friend vec2d_basic<T> operator+(const vec2d_basic<T> v1, const T v)
 		{
 			return { v1.x + v, v1.y + v };
 		}
 
-		friend vec2d<T> operator-(const vec2d<T> v1, const T v)
+		friend vec2d_basic<T> operator-(const vec2d_basic<T> v1, const T v)
 		{
 			return { v1.x - v, v1.y - v };
 		}
 
-		friend vec2d<T> operator*(const vec2d<T> v1, const T v)
+		friend vec2d_basic<T> operator*(const vec2d_basic<T> v1, const T v)
 		{
 			return { v1.x * v, v1.y * v };
 		}
 
-		friend vec2d<T> operator/(const vec2d<T> v1, const T v)
+		friend vec2d_basic<T> operator/(const vec2d_basic<T> v1, const T v)
 		{
 			return { v1.x / v, v1.y / v };
 		}
 
 		float mag()
 		{
-			return sqrtf(x * x + y * y);
+			return sqrtf(this.x * this.x + this.y * this.y);
 		}
 
-		vec2d<T> norm()
+		vec2d_basic<T> norm()
 		{
-			return { x / mag(), y / mag() };
+			return { this.x / mag(), this.y / mag() };
+		}
+
+		float lerp(float x, float t)
+		{
+			return (1 - t) * this.x + t * x;
+		}
+
+		float dot(vec2d_basic<T> v, float angle)
+		{
+			return (this.x * v.x + this..y * v.y) * cosf(angle);
+		}
+
+		float cross(vec2d_basic<T> v, float angle)
+		{
+			return (this.x * v.x + this..y * v.y) * sinf(angle);
 		}
 	};
 
-	typedef vec2d<float> vf2d;
-	typedef vec2d<int> vi2d;
-	typedef vec2d<double> vd2d;
+	typedef vec2d_basic<float> vf2d;
+	typedef vec2d_basic<int> vi2d;
+	typedef vec2d_basic<double> vd2d;
 
 	struct KeyState
 	{
