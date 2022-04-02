@@ -157,8 +157,18 @@ namespace def
 	class vec2d_basic
 	{
 	public:
-		vec2d_basic(T x, T y) : x(x) : y(y) {}
-		vec2d_basic() : x(0) : y(0) {}
+		vec2d_basic() 
+		{
+			this->x = 0;
+			this->y = 0;
+		}
+
+		vec2d_basic(T x, T y) 
+		{
+			this->x = x;
+			this->y = y;
+		}
+
 
 		T x;
 		T y;
@@ -220,12 +230,12 @@ namespace def
 
 		float dot(vec2d_basic<T> v, float angle)
 		{
-			return (this.x * v.x + this..y * v.y) * cosf(angle);
+			return (this.x * v.x + this.y * v.y) * cosf(angle);
 		}
 
 		float cross(vec2d_basic<T> v, float angle)
 		{
-			return (this.x * v.x + this..y * v.y) * sinf(angle);
+			return (this.x * v.x + this.y * v.y) * sinf(angle);
 		}
 	};
 
