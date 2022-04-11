@@ -157,18 +157,17 @@ namespace def
 	class vec2d_basic
 	{
 	public:
-		vec2d_basic() 
+		vec2d_basic()
 		{
 			this->x = 0;
 			this->y = 0;
 		}
 
-		vec2d_basic(T x, T y) 
+		vec2d_basic(T x, T y)
 		{
 			this->x = x;
 			this->y = y;
 		}
-
 
 		T x;
 		T y;
@@ -215,27 +214,33 @@ namespace def
 
 		float mag()
 		{
-			return sqrtf(this.x * this.x + this.y * this.y);
+			return sqrtf(this->x * this->x + this->y * this->y);
 		}
 
 		vec2d_basic<T> norm()
 		{
-			return { this.x / mag(), this.y / mag() };
+			return { this->x / mag(), this->y / mag() };
 		}
 
-		float lerp(float x, float t)
+		// linear interpolation
+		vec2d_basic<T> lerp(float x, float y, float t)
 		{
-			return (1 - t) * this.x + t * x;
+			return { this->x + t * (x - this->x), this->y + t * (y - this->y) };
 		}
 
 		float dot(vec2d_basic<T> v, float angle)
 		{
-			return (this.x * v.x + this.y * v.y) * cosf(angle);
+			return (this->x * v.x + this->y * v.y);
 		}
 
-		float cross(vec2d_basic<T> v, float angle)
+		vec2d_basic<T> reflect()
 		{
-			return (this.x * v.x + this.y * v.y) * sinf(angle);
+			return vec2d_basic<T>(-this->x, -this->y);
+		}
+
+		float distance()
+		{
+			return sqrtf(this->x * this->x + this->y * this->y);
 		}
 	};
 
