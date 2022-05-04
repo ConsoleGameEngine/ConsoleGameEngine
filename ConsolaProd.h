@@ -255,7 +255,7 @@ namespace def
 		bool bPressed;
 	};
 
-	const double PI = 2.0f * acos(0.0f);
+	const float PI = 2.0f * acos(0.0f);
 
 #ifdef XBOX_CONTROLLER
 	class XBOX_Controller
