@@ -65,15 +65,15 @@
 
 	int main()
 	{
-		Example demo;
-		def::rcode err = demo.ConstructConsole(120, 40, 12, 12);
+			Example demo;
+			def::rcode err = demo.ConstructConsole(120, 40, 12, 12);
 
-		if (err.ok)
-			demo.Run();
-		else
-			std::cerr << err.info << "\n";
+			if (err.ok)
+				demo.Run();
+			else
+				std::cerr << err.info << "\n";
 
-		return 0;
+			return 0;
 	}
 **/
 #pragma endregion
@@ -490,7 +490,7 @@ namespace def
 			COORD coord = { (short)nScreenWidth, (short)nScreenHeight };
 			if (!SetConsoleScreenBufferSize(hConsoleOut, coord))
 			{
-				rc.info = "Too large screen width or height";
+				rc.info = "Too large or to small screen width or height";
 				return rc;
 			}
 
