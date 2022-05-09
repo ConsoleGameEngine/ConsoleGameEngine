@@ -1,5 +1,3 @@
-#define DEF_CP_APP
-#include <cassert>
 #include "ConsolaProd.h"
 
 struct sLine
@@ -8,10 +6,10 @@ struct sLine
 	def::vf2d pos;
 };
 
-class Example : public def::ConsolaProd
+class Matrix : public def::ConsolaProd
 {
 public:
-	Example()
+	Matrix()
 	{
 		sAppName = L"Matrix";
 	}
@@ -28,7 +26,6 @@ protected:
 
 		for (int i = 0; i < GetScreenWidth(); i++)
 		{
-			// random position of new line
 			if (rand() % 1000 == 0)
 				vecLines.push_back({ rand() % 10, { (float)i, 0.0f } });
 		}
@@ -54,10 +51,13 @@ private:
 
 int main()
 {
-	srand(time(NULL));
+	Matrix demo;
+	def::rcode err = demo.ConstructConsole(120, 30, 8, 16);
 
-	Example demo;
-	assert(demo.Run(120, 30, 8, 16) && "Could not construct console");
+	if (err.ok)
+		demo.Run();
+	else
+		std::cerr << err.info << "\n";
 
 	return 0;
 }
