@@ -1,6 +1,6 @@
 #pragma once
 
-#pragma region LICENSE
+#pragma region consolaprod_license
 /***
 *	BSD 3-Clause License
 
@@ -34,7 +34,7 @@
 ***/
 #pragma endregion
 
-#pragma region EXAMPLE
+#pragma region consolaprod_sample
 /**
 * Example (engine only supports .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
 	#include "ConsolaProd.h"
@@ -141,6 +141,12 @@ namespace def
 			HALF = 0x2592,
 			QUARTER = 0x2591;
 	}
+
+	struct rcode
+	{
+		bool ok;
+		std::string info;
+	};
 
 	namespace Font
 	{
@@ -328,12 +334,10 @@ namespace def
 		short* m_Colours = nullptr;
 
 	public:
-
 		int nWidth = 0;
 		int nHeight = 0;
 
 	private:
-
 		void Create(int w, int h)
 		{
 			nWidth = w;
@@ -447,10 +451,16 @@ namespace def
 		virtual bool OnUserCreate() = 0;
 		virtual bool OnUserUpdate(float fDeltaTime) = 0;
 
-		std::string Run(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
+		rcode ConstructConsole(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
 		{
+			rcode rc;
+			rc.ok = false;
+
 			if (width <= 0 || height <= 0 || fontw <= 0 || fonth <= 0)
-				return "BAD";
+			{
+				rc.info = "Invalid width or height";
+				return rc;
+			}
 
 			nScreenWidth = width;
 			nScreenHeight = height;
@@ -461,17 +471,26 @@ namespace def
 			hConsoleOut = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
 			if (hConsoleOut == INVALID_HANDLE_VALUE)
-				return "INVALID_HANDLE_VALUE";
+			{
+				rc.info = "Can't create console screen buffer for output";
+				return rc;
+			}
 
 			rectWindow = { 0, 0, 1, 1 };
 			SetConsoleWindowInfo(hConsoleOut, TRUE, &rectWindow);
 
 			COORD coord = { (short)nScreenWidth, (short)nScreenHeight };
 			if (!SetConsoleScreenBufferSize(hConsoleOut, coord))
-				return "Could not set console screen buffer";
+			{
+				rc.info = "Too large screen width or height";
+				return rc;
+			}
 
 			if (!SetConsoleActiveScreenBuffer(hConsoleOut))
-				return "Could not set console active screen buffer";
+			{
+				rc.info = "Can't set console screen buffer";
+				return rc;
+			}
 
 			CONSOLE_FONT_INFOEX cfi;
 			cfi.cbSize = sizeof(cfi);
@@ -483,31 +502,52 @@ namespace def
 
 			wcscpy_s(cfi.FaceName, sFont.c_str());
 			if (!SetCurrentConsoleFontEx(hConsoleOut, false, &cfi))
-				return "Could not set current console font";
+			{
+				rc.info = "Can't set font";
+				return rc;
+			}
 
 			if (!SetConsoleMode(hConsoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
-				return "Could not set console mode (ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT)";
+			{
+				rc.info = "Could not set console mode (ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT)";
+				return rc;
+			}
 
 			CONSOLE_SCREEN_BUFFER_INFO csbi;
 			if (!GetConsoleScreenBufferInfo(hConsoleOut, &csbi))
-				return "Could not get console screen buffer info";
+			{
+				rc.info = "Could not get console screen buffer info";
+				return rc;
+			}
 
 			if (nScreenHeight > csbi.dwMaximumWindowSize.Y)
-				return "Specified screen height larger than maximum window height";
+			{
+				rc.info = "Specified screen height larger than maximum window height";
+				return rc;
+			}
 
 			if (nScreenWidth > csbi.dwMaximumWindowSize.X)
-				return "Specified screen width larger than maximum window width";
+			{
+				rc.info = "Specified screen width larger than maximum window width";
+				return rc;
+			}
 
 			rectWindow = { 0, 0, short(nScreenWidth - 1), short(nScreenHeight - 1) };
 			SetConsoleWindowInfo(hConsoleOut, TRUE, &rectWindow);
 			screen = new CHAR_INFO[nScreenWidth * nScreenHeight];
 			memset(screen, 0, sizeof(CHAR_INFO) * nScreenWidth * nScreenHeight);
 
+			rc.ok = true;
+			rc.info = "Ok";
+			return rc;
+		}
+
+		void Run()
+		{
 			bGameThreadActive = true;
+
 			std::thread t = std::thread(&def::ConsolaProd::AppThread, this);
 			t.join();
-
-			return "OK";
 		}
 
 	public:
@@ -570,68 +610,69 @@ namespace def
 	private:
 		void AppThread()
 		{
-			auto tp1 = std::chrono::system_clock::now();
-			auto tp2 = std::chrono::system_clock::now();
-
-			tp2 = std::chrono::system_clock::now();
-			std::chrono::duration<float> elapsedTime = tp2 - tp1;
-			tp1 = tp2;
-
 			if (!OnUserCreate())
 				bGameThreadActive = false;
 
-			for (int i = 0; i < 256; i++)
-				keys.push_back({ false, false, false });
-
-			for (int i = 0; i < 5; i++)
-				mouse.push_back({ false, false, false });
-
-			while (bGameThreadActive)
+			if (bGameThreadActive)
 			{
-				tp2 = std::chrono::system_clock::now();
-				std::chrono::duration<float> elapsedTime = tp2 - tp1;
-				tp1 = tp2;
-				fDeltaTime = elapsedTime.count();
+				auto tp1 = std::chrono::system_clock::now();
+				auto tp2 = std::chrono::system_clock::now();
 
-				wchar_t buffer_title[256];
-				swprintf_s(buffer_title, 256, L"github.com/defini7 - Consola Prod - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / fDeltaTime);
-				SetConsoleTitleW(buffer_title);
+				for (int i = 0; i < 256; i++)
+					keys.push_back({ false, false, false });
 
-				if (!OnUserUpdate(fDeltaTime))
-					bGameThreadActive = false;
+				for (int i = 0; i < 5; i++)
+					mouse.push_back({ false, false, false });
 
-				// Handle Mouse Input - Check for window events
-				INPUT_RECORD inBuf[32];
-				DWORD events = 0;
-				GetNumberOfConsoleInputEvents(hConsoleIn, &events);
-				if (events > 0)
-					ReadConsoleInputW(hConsoleIn, inBuf, events, &events);
-
-				// Handle events - we only care about mouse clicks and movement
-				// for now
-				for (DWORD i = 0; i < events; i++)
+				while (bGameThreadActive)
 				{
-					switch (inBuf[i].EventType)
-					{
-					case FOCUS_EVENT:
-						bFocused = inBuf[i].Event.FocusEvent.bSetFocus;
-						break;
+					tp2 = std::chrono::system_clock::now();
+					std::chrono::duration<float> elapsedTime = tp2 - tp1;
+					tp1 = tp2;
+					fDeltaTime = elapsedTime.count();
 
-					case MOUSE_EVENT:
-					{
-						switch (inBuf[i].Event.MouseEvent.dwEventFlags)
-						{
-						case MOUSE_MOVED:
-						{
-							nMousePosX = inBuf[i].Event.MouseEvent.dwMousePosition.X;
-							nMousePosY = inBuf[i].Event.MouseEvent.dwMousePosition.Y;
-						}
-						break;
+					wchar_t buffer_title[256];
+					swprintf_s(buffer_title, 256, L"github.com/defini7 - Consola Prod - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / fDeltaTime);
+					SetConsoleTitleW(buffer_title);
 
-						case 0:
+					if (!OnUserUpdate(fDeltaTime))
+						bGameThreadActive = false;
+
+					INPUT_RECORD inBuf[32];
+					DWORD events = 0;
+					GetNumberOfConsoleInputEvents(hConsoleIn, &events);
+					if (events > 0)
+						ReadConsoleInputW(hConsoleIn, inBuf, events, &events);
+
+					for (DWORD i = 0; i < events; i++)
+					{
+						switch (inBuf[i].EventType)
 						{
-							for (int m = 0; m < 5; m++)
-								mouseNewState[m] = (inBuf[i].Event.MouseEvent.dwButtonState & (1 << m)) > 0;
+						case FOCUS_EVENT:
+							bFocused = inBuf[i].Event.FocusEvent.bSetFocus;
+							break;
+
+						case MOUSE_EVENT:
+						{
+							switch (inBuf[i].Event.MouseEvent.dwEventFlags)
+							{
+							case MOUSE_MOVED:
+							{
+								nMousePosX = inBuf[i].Event.MouseEvent.dwMousePosition.X;
+								nMousePosY = inBuf[i].Event.MouseEvent.dwMousePosition.Y;
+							}
+							break;
+
+							case 0:
+							{
+								for (int m = 0; m < 5; m++)
+									mouseNewState[m] = (inBuf[i].Event.MouseEvent.dwButtonState & (1 << m)) > 0;
+							}
+							break;
+
+							default:
+								break;
+							}
 						}
 						break;
 
@@ -639,73 +680,69 @@ namespace def
 							break;
 						}
 					}
-					break;
 
-					default:
-						break;
-					}
-				}
-
-				for (int i = 0; i < 256; i++)
-				{
-					keyNewState[i] = GetAsyncKeyState(i);
-
-					keys[i].bPressed = false;
-					keys[i].bReleased = false;
-
-					if (keyNewState[i] != keyOldState[i])
+					for (int i = 0; i < 256; i++)
 					{
-						if (keyNewState[i] & 0x8000)
+						keyNewState[i] = GetAsyncKeyState(i);
+
+						keys[i].bPressed = false;
+						keys[i].bReleased = false;
+
+						if (keyNewState[i] != keyOldState[i])
 						{
-							keys[i].bPressed = !keys[i].bHeld;
-							keys[i].bHeld = true;
+							if (keyNewState[i] & 0x8000)
+							{
+								keys[i].bPressed = !keys[i].bHeld;
+								keys[i].bHeld = true;
+							}
+							else
+							{
+								keys[i].bReleased = true;
+								keys[i].bHeld = false;
+							}
 						}
-						else
-						{
-							keys[i].bReleased = true;
-							keys[i].bHeld = false;
-						}
+
+						keyOldState[i] = keyNewState[i];
 					}
 
-					keyOldState[i] = keyNewState[i];
-				}
-
-				for (int m = 0; m < 5; m++)
-				{
-					mouse[m].bPressed = false;
-					mouse[m].bReleased = false;
-
-					if (mouseNewState[m] != mouseOldState[m])
+					for (int m = 0; m < 5; m++)
 					{
-						if (mouseNewState[m])
+						mouse[m].bPressed = false;
+						mouse[m].bReleased = false;
+
+						if (mouseNewState[m] != mouseOldState[m])
 						{
-							mouse[m].bPressed = true;
-							mouse[m].bHeld = true;
+							if (mouseNewState[m])
+							{
+								mouse[m].bPressed = true;
+								mouse[m].bHeld = true;
+							}
+							else
+							{
+								mouse[m].bReleased = true;
+								mouse[m].bHeld = false;
+							}
 						}
-						else
-						{
-							mouse[m].bReleased = true;
-							mouse[m].bHeld = false;
-						}
+
+						mouseOldState[m] = mouseNewState[m];
 					}
 
-					mouseOldState[m] = mouseNewState[m];
+					WriteConsoleOutputW(hConsoleOut, screen, { (short)nScreenWidth, (short)nScreenHeight }, { 0,0 }, &rectWindow);
 				}
-
-				WriteConsoleOutputW(hConsoleOut, screen, { (short)nScreenWidth, (short)nScreenHeight }, { 0,0 }, &rectWindow);
 			}
 		}
 
 	protected:
+		std::wstring sAppName;
+		std::wstring sFont;
+
+	private:
 		CHAR_INFO* screen = nullptr;
 		HANDLE hConsoleOut;
 		HANDLE hConsoleIn;
 		SMALL_RECT rectWindow;
 		HWND hwnd;
 		HDC hDC;
-
-		std::wstring sAppName;
-		std::wstring sFont;
 
 		std::vector<KeyState> keys;
 		std::vector<KeyState> mouse;
@@ -721,6 +758,7 @@ namespace def
 
 		int nScreenWidth;
 		int nScreenHeight;
+
 		int nFontW;
 		int nFontH;
 
@@ -765,10 +803,11 @@ namespace def
 
 	void ConsolaProd::DrawCircle(vi2d pos, int radius, short c, short col)
 	{
+		if (!radius) return;
+
 		int x = 0;
 		int y = radius;
 		int p = 3 - 2 * radius;
-		if (!radius) return;
 
 		while (y >= x)
 		{
@@ -792,9 +831,26 @@ namespace def
 
 	void ConsolaProd::FillCircle(vi2d pos, int radius, short c, short col)
 	{
-		for (int i = radius; i != 0; i--)
+		if (!radius) return;
+
+		int x = 0;
+		int y = radius;
+		int p = 3 - 2 * radius;
+
+		auto drawline = [&](int sx, int ex, int ny)
 		{
-			DrawCircle(pos, i, c, col);
+			for (int i = sx; i <= ex; i++)
+				Draw(i, ny, c, col);
+		};
+
+		while (y >= x)
+		{
+			drawline(pos.x - x, pos.x + x, pos.y - y);
+			drawline(pos.x - y, pos.x + y, pos.y - x);
+			drawline(pos.x - x, pos.x + x, pos.y + y);
+			drawline(pos.x - y, pos.x + y, pos.y + x);
+			if (p < 0) p += 4 * x++ + 6;
+			else p += 4 * (x++ - y--) + 10;
 		}
 	}
 
