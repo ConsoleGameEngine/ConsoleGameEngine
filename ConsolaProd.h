@@ -36,7 +36,7 @@
 
 #pragma region consolaprod_sample
 /**
-* Example (engine only supports .spr files, check [this](https://github.com/defini7/lab/tree/main/Sprite_Editor) for editing .spr files):
+* Example (engine only supports .spr files, check [this](https://github.com/defini7/SpriteEditor) for editing .spr files):
 	#include "ConsolaProd.h"
 
 	class Example : public def::ConsolaProd
@@ -55,6 +55,10 @@
 
 		bool OnUserUpdate(float fDeltaTime) override
 		{
+			for (int i = 0; i < GetScreenWidth(); i++)
+				for (int j = 0; j < GetScreenHeight(); j++)
+					Draw(i, j, def::Pixel::SOLID, rand() % 15);
+
 			return true;
 		}
 	};
@@ -62,8 +66,12 @@
 	int main()
 	{
 		Example demo;
-		if (!demo.Run())
-			return 1;
+		def::rcode err = demo.ConstructConsole(120, 40, 12, 12);
+
+		if (err.ok)
+			demo.Run();
+		else
+			std::cerr << err.info << "\n";
 
 		return 0;
 	}
