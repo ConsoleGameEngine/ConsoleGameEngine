@@ -602,6 +602,8 @@ namespace def
 		void DrawString(int x, int y, std::wstring text, short c = 0x2588, short col = 0x000F);
 
 		void Clear(short c, short col = 0x000F);
+
+		bool MakeSound(std::wstring filename);
 		bool Focused();
 
 		inline vi2d GetMouse() const;
@@ -775,6 +777,11 @@ namespace def
 		bool bGameThreadActive;
 		bool bFocused;
 	};
+
+	bool ConsolaProd::MakeSound(std::wstring filename)
+	{
+		return PlaySoundW(filename.c_str(), nullptr, SND_ASYNC | SND_FILENAME);
+	}
 
 	bool ConsolaProd::Focused()
 	{
