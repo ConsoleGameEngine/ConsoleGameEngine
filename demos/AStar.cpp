@@ -2,12 +2,12 @@
 
 #include <list>
 
-class Example : public def::ConsolaProd
+class AStar : public def::ConsolaProd
 {
 public:
-	Example()
+	AStar()
 	{
-		sAppName = L"Example";
+		sAppName = L"AStar algorithm";
 	}
 
 private:
@@ -211,7 +211,7 @@ protected:
 
 int main()
 {
-	Example demo;
+	AStar demo;
 	def::rcode err = demo.ConstructConsole(256, 240, 4, 4);
 
 	if (err.ok)
