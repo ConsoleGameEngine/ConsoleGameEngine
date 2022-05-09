@@ -1,11 +1,11 @@
 #include "ConsolaProd.h"
 
-class Galaxy : public def::ConsolaProd
+class PanAndZoom : public def::ConsolaProd
 {
 public:
-	Galaxy()
+	PanAndZoom()
 	{
-		sAppName = L"Galaxy";
+		sAppName = L"Pan And Zoom";
 	}
 
 private:
@@ -78,11 +78,13 @@ protected:
 
 int main()
 {
-	Galaxy galaxy;
-	std::string state = galaxy.Run(256, 240, 4, 4);
+	PanAndZoom demo;
+	def::rcode err = demo.ConstructConsole(256, 240, 4, 4);
 
-	if (state != "OK")
-		std::cerr << state << "\n";
+	if (err.ok)
+		demo.Run();
+	else
+		std::cerr << err.info << "\n";
 
 	return 0;
 }
