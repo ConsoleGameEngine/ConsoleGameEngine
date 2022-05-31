@@ -47,9 +47,9 @@ namespace def
 		XINPUT_STATE m_ControllerState;
 		int nControllerID;
 
-		XBOX_Controller(int nPlayer)
+		XBOX_Controller(int id)
 		{
-			this->nControllerID = nPlayer - 1;
+			this->nControllerID = id;
 		}
 
 		XINPUT_STATE GetState()
