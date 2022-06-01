@@ -57,7 +57,7 @@
 		{
 			for (int i = 0; i < GetScreenWidth(); i++)
 				for (int j = 0; j < GetScreenHeight(); j++)
-					Draw(i, j, def::Pixel::SOLID, rand() % 15);
+					Draw(i, j, def::PIXEL_SOLID, rand() % 15);
 
 			return true;
 		}
@@ -103,52 +103,53 @@
 
 namespace def
 {
-	namespace FG
+	enum FG_COLORS
 	{
-		int BLACK = 0x0000,
-			DARK_BLUE = 0x0001,
-			DARK_GREEN = 0x0002,
-			DARK_CYAN = 0x0003,
-			DARK_RED = 0x0004,
-			DARK_MAGENTA = 0x0005,
-			DARK_YELLOW = 0x0006,
-			GREY = 0x0007,
-			DARK_GREY = 0x0008,
-			BLUE = 0x0009,
-			GREEN = 0x000A,
-			CYAN = 0x000B,
-			RED = 0x000C,
-			MAGENTA = 0x000D,
-			YELLOW = 0x000E,
-			WHITE = 0x000F;
-	}
-	namespace BG
-	{
-		int BLACK = 0x0000,
-			DARK_BLUE = 0x0010,
-			DARK_GREEN = 0x0020,
-			DARK_CYAN = 0x0030,
-			DARK_RED = 0x0040,
-			DARK_MAGENTA = 0x0050,
-			DARK_YELLOW = 0x0060,
-			GREY = 0x0070,
-			DARK_GREY = 0x0080,
-			BLUE = 0x0090,
-			GREEN = 0x00A0,
-			CYAN = 0x00B0,
-			RED = 0x00C0,
-			MAGENTA = 0x00D0,
-			YELLOW = 0x00E0,
-			WHITE = 0x00F0;
-	}
+		FG_BLACK,
+		FG_DARK_BLUE,
+		FG_DARK_GREEN,
+		FG_DARK_CYAN,
+		FG_DARK_RED,
+		FG_DARK_MAGENTA,
+		FG_DARK_YELLOW,
+		FG_GREY,
+		FG_DARK_GREY,
+		FG_BLUE,
+		FG_GREEN,
+		FG_CYAN,
+		FG_RED,
+		FG_MAGENTA,
+		FG_YELLOW,
+		FG_WHITE
+	};
 
-	namespace Pixel
+	enum BG_COLORS
 	{
-		int SOLID = 0x2588,
-			THREEQUARTERS = 0x2593,
-			HALF = 0x2592,
-			QUARTER = 0x2591;
-	}
+		BG_BLACK = 0x0000,
+		BG_DARK_BLUE = 0x0010,
+		BG_DARK_GREEN = 0x0020,
+		BG_DARK_CYAN = 0x0030,
+		BG_DARK_RED = 0x0040,
+		BG_DARK_MAGENTA = 0x0050,
+		BG_DARK_YELLOW = 0x0060,
+		BG_GREY = 0x0070,
+		BG_DARK_GREY = 0x0080,
+		BG_BLUE = 0x0090,
+		BG_GREEN = 0x00A0,
+		BG_CYAN = 0x00B0,
+		BG_RED = 0x00C0,
+		BG_MAGENTA = 0x00D0,
+		BG_YELLOW = 0x00E0,
+		BG_WHITE = 0x00F0
+	};
+
+	enum PIXEL_TYPE
+	{
+		PIXEL_SOLID = 0x2588,
+		PIXEL_THREEQUARTERS = 0x2593,
+		PIXEL_HALF = 0x2592,
+		PIXEL_QUARTER = 0x2591
+	};
 
 	struct rcode
 	{
@@ -350,57 +351,58 @@ namespace def
 		{
 			nWidth = w;
 			nHeight = h;
+
 			m_Glyphs = new short[w * h];
 			m_Colours = new short[w * h];
+
 			for (int i = 0; i < w * h; i++)
 			{
 				m_Glyphs[i] = L' ';
-				m_Colours[i] = FG::BLACK;
+				m_Colours[i] = FG_BLACK;
 			}
 		}
 
 	public:
 		void SetGlyph(vi2d pos, short c)
 		{
-			if (pos.x < 0 || pos.x >= nWidth || pos.y < 0 || pos.y >= nHeight)
-				return;
-			else
+			if (pos.x > 0 || pos.x < nWidth || pos.y > 0 || pos.y < nHeight)
 				m_Glyphs[pos.y * nWidth + pos.x] = c;
 		}
 
 		void SetColour(vi2d pos, short c)
 		{
-			if (pos.x < 0 || pos.x >= nWidth || pos.y < 0 || pos.y >= nHeight)
-				return;
-			else
+			if (pos.x > 0 || pos.x < nWidth || pos.y > 0 || pos.y < nHeight)
 				m_Colours[pos.y * nWidth + pos.x] = c;
 		}
 
 		short GetGlyph(vi2d pos)
 		{
-			if (pos.x < 0 || pos.x >= nWidth || pos.y < 0 || pos.y >= nHeight)
-				return L' ';
-			else
+			if (pos.x > 0 || pos.x < nWidth || pos.y > 0 || pos.y < nHeight)
 				return m_Glyphs[pos.y * nWidth + pos.x];
+			
+			return L' ';
 		}
 
 		short GetColour(vi2d pos)
 		{
-			if (pos.x < 0 || pos.x >= nWidth || pos.y < 0 || pos.y >= nHeight)
-				return FG::BLACK;
-			else
+			if (pos.x > 0 || pos.x < nWidth || pos.y > 0 || pos.y < nHeight)
 				return m_Colours[pos.y * nWidth + pos.x];
+
+			return FG_BLACK;
 		}
 
 		bool Save(std::wstring sFile)
 		{
 			FILE* f = nullptr;
+
 			_wfopen_s(&f, sFile.c_str(), L"wb");
+
 			if (f == nullptr)
 				return false;
 
 			fwrite(&nWidth, sizeof(int), 1, f);
 			fwrite(&nHeight, sizeof(int), 1, f);
+
 			fwrite(m_Colours, sizeof(short), nWidth * nHeight, f);
 			fwrite(m_Glyphs, sizeof(short), nWidth * nHeight, f);
 
@@ -413,11 +415,14 @@ namespace def
 		{
 			delete[] m_Glyphs;
 			delete[] m_Colours;
+
 			nWidth = 0;
 			nHeight = 0;
 
 			FILE* f = nullptr;
+
 			_wfopen_s(&f, sFile.c_str(), L"rb");
+
 			if (f == nullptr)
 				return false;
 
@@ -430,6 +435,7 @@ namespace def
 			std::fread(m_Glyphs, sizeof(short), nWidth * nHeight, f);
 
 			std::fclose(f);
+
 			return true;
 		}
 	};
@@ -596,7 +602,7 @@ namespace def
 		void DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
 		void DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
 
-		void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, short c = Pixel::SOLID, short col = FG::WHITE);
+		void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, short c = 0x2588, short col = 0x000F);
 
 		void DrawString(vi2d pos, std::wstring text, short c = 0x2588, short col = 0x000F);
 		void DrawString(int x, int y, std::wstring text, short c = 0x2588, short col = 0x000F);
@@ -610,7 +616,7 @@ namespace def
 		inline int GetMouseX() const;
 		inline int GetMouseY() const;
 
-		inline KeyState GetMouseBtn(short button) const;
+		inline KeyState GetMouse(short button) const;
 		inline KeyState GetKey(short key) const;
 
 		inline int GetScreenWidth() const;
@@ -1257,7 +1263,7 @@ namespace def
 		return nMousePosY;
 	}
 
-	inline KeyState ConsolaProd::GetMouseBtn(short button) const
+	inline KeyState ConsolaProd::GetMouse(short button) const
 	{
 		return mouse[button];
 	}
