@@ -565,50 +565,50 @@ namespace def
 		}
 
 	public:
-		void Draw(vi2d pos, short c = 0x2588, short col = 0x000F);
-		void Draw(int x, int y, short c = 0x2588, short col = 0x000F);
+		virtual void Draw(vi2d pos, short c = 0x2588, short col = 0x000F);
+		virtual void Draw(int x, int y, short c = 0x2588, short col = 0x000F);
 
-		void DrawLine(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
-		void DrawLine(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
+		virtual void DrawLine(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
+		virtual void DrawLine(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
 
-		void DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c = 0x2588, short col = 0x000F);
-		void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
+		virtual void DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c = 0x2588, short col = 0x000F);
+		virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
 
-		void FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c = 0x2588, short col = 0x000F);
-		void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
+		virtual void FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c = 0x2588, short col = 0x000F);
+		virtual void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
 
-		void DrawRectangle(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
-		void DrawRectangle(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
-		void DrawRectangleS(vi2d pos, vi2d size, short c = 0x2588, short col = 0x000F);
-		void DrawRectangleS(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
+		virtual void DrawRectangle(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
+		virtual void DrawRectangle(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
+		virtual void DrawRectangleS(vi2d pos, vi2d size, short c = 0x2588, short col = 0x000F);
+		virtual void DrawRectangleS(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
 
-		void FillRectangle(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
-		void FillRectangle(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
-		void FillRectangleS(vi2d pos, vi2d size, short c = 0x2588, short col = 0x000F);
-		void FillRectangleS(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
+		virtual void FillRectangle(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
+		virtual void FillRectangle(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
+		virtual void FillRectangleS(vi2d pos, vi2d size, short c = 0x2588, short col = 0x000F);
+		virtual void FillRectangleS(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
 
-		void DrawCircle(vi2d pos, int radius, short c = 0x2588, short col = 0x000F);
-		void DrawCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
+		virtual void DrawCircle(vi2d pos, int radius, short c = 0x2588, short col = 0x000F);
+		virtual void DrawCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
 
-		void FillCircle(vi2d pos, int radius, short c = 0x2588, short col = 0x000F);
-		void FillCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
+		virtual void FillCircle(vi2d pos, int radius, short c = 0x2588, short col = 0x000F);
+		virtual void FillCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
 
-		void DrawSprite(vi2d pos, Sprite* sprite);
-		void DrawSprite(int x, int y, Sprite* sprite);
+		virtual void DrawSprite(vi2d pos, Sprite* sprite);
+		virtual void DrawSprite(int x, int y, Sprite* sprite);
 
-		void DrawPartialSprite(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
-		void DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
+		virtual void DrawPartialSprite(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
+		virtual void DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
 
-		void DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
-		void DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
+		virtual void DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
+		virtual void DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
 
-		void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, short c = 0x2588, short col = 0x000F);
+		virtual void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, short c = 0x2588, short col = 0x000F);
 
-		void DrawString(vi2d pos, std::wstring text, short c = 0x2588, short col = 0x000F);
-		void DrawString(int x, int y, std::wstring text, short c = 0x2588, short col = 0x000F);
+		virtual void DrawString(vi2d pos, std::wstring text, short c = 0x2588, short col = 0x000F);
+		virtual void DrawString(int x, int y, std::wstring text, short c = 0x2588, short col = 0x000F);
 
-		void Clear(short c, short col = 0x000F);
-
+		void Clear(short c = 0x2588, short col = 0x000F);
+		
 		bool MakeSound(std::wstring filename);
 		bool Focused();
 
@@ -786,7 +786,7 @@ namespace def
 
 	bool ConsolaProd::MakeSound(std::wstring filename)
 	{
-		return PlaySoundW(filename.c_str(), nullptr, SND_ASYNC | SND_FILENAME);
+		return (bool)PlaySoundW(filename.c_str(), nullptr, SND_ASYNC | SND_FILENAME);
 	}
 
 	bool ConsolaProd::Focused()
