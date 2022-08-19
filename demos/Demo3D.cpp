@@ -1,6 +1,8 @@
 #include "ConsolaProd.h"
 
-struct vf3d
+using namespace def;
+
+struct vec3d
 {
 	float x;
 	float y;
@@ -9,7 +11,7 @@ struct vf3d
 
 struct triangle
 {
-	vf3d p[3];
+	vec3d p[3];
 };
 
 struct mat4x4
@@ -38,11 +40,10 @@ private:
 	float fNear = 0.1f;
 	float fFOV = 0.0f;
 	float fAspectRatio = 0.0f;
-	float fQ = 0.0f;
 	float fTheta = 0.0f;
 
 protected:
-	void MultiplyVecMat(mat4x4& mat, vf3d& vec, vf3d& res)
+	void MultiplyVecMat(mat4x4& mat, vec3d& vec, vec3d& res)
 	{
 		res.x = vec.x * mat.m[0][0] + vec.y * mat.m[1][0] + vec.z * mat.m[2][0] + mat.m[3][0];
 		res.y = vec.x * mat.m[0][1] + vec.y * mat.m[1][1] + vec.z * mat.m[2][1] + mat.m[3][1];
@@ -112,12 +113,11 @@ protected:
 
 		fAspectRatio = GetScreenWidth() / GetScreenHeight();
 		fFOV = 1 / tanf(90 * 0.5f / 180.0f * 3.14159f); // in radians
-		fQ = fFar / (fFar - fNear);
 
 		matProj.m[0][0] = fAspectRatio * fFOV;
 		matProj.m[1][1] = fFOV;
-		matProj.m[2][2] = fQ;
-		matProj.m[3][2] = -(fNear * fQ);
+		matProj.m[2][2] = fFar / (fFar - fNear);
+		matProj.m[3][2] = -(fNear * (fFar / (fFar - fNear)));
 		matProj.m[2][3] = 1.0f;
 		matProj.m[3][3] = 0.0f;
 
@@ -126,10 +126,10 @@ protected:
 
 	bool OnUserUpdate(float dt) override
 	{
-		Clear(def::Pixel::SOLID, def::FG::BLACK);
+		Clear(PIXEL_SOLID, FG_BLACK);
 
 		mat4x4 matRotX, matRotY, matRotZ;
-		fTheta += 1.0f * dt;
+		fTheta += dt;
 
 		RotateX(matRotX, fTheta);
 		RotateZ(matRotZ, fTheta);
@@ -170,7 +170,7 @@ protected:
 			DrawTriangle(triProjected.p[0].x, triProjected.p[0].y,
 				triProjected.p[1].x, triProjected.p[1].y,
 				triProjected.p[2].x, triProjected.p[2].y,
-				def::Pixel::SOLID, def::FG::WHITE
+				PIXEL_SOLID, FG_WHITE
 			);
 		}
 
@@ -181,7 +181,7 @@ protected:
 int main()
 {
 	Engine3D demo;
-	def::rcode err = demo.ConstructConsole(256, 240, 4, 4);
+	rcode err = demo.ConstructConsole(256, 240, 4, 4);
 
 	if (err.ok)
 		demo.Run();
