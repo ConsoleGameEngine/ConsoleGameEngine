@@ -623,6 +623,8 @@ namespace def
 		inline int GetScreenHeight() const;
 		inline vi2d GetScreenSize() const;
 
+		inline float GetDeltaTime() const;
+
 	private:
 		void AppThread()
 		{
@@ -1286,5 +1288,10 @@ namespace def
 	inline vi2d ConsolaProd::GetScreenSize() const
 	{
 		return { nScreenWidth, nScreenHeight };
+	}
+
+	inline float ConsolaProd::GetDeltaTime() const
+	{
+		return fDeltaTime;
 	}
 }
