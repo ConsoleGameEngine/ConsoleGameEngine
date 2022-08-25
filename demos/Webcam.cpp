@@ -30,7 +30,7 @@ protected:
 		return true;
 	}
 
-	void ClassifyPixel(float r, float g, float b, wchar_t& sym, short& fg_col, short& bg_col)
+	void ClassifyPixel_Cmd(float r, float g, float b, wchar_t& sym, short& fg_col, short& bg_col)
 	{
 		// Is pixel coloured (i.e. RGB values exhibit significant variance)
 		float fMean = (r + g + b) / 3.0f;
@@ -116,6 +116,31 @@ protected:
 			compare(fBVar, fYVar, b, y, FG_BLUE, FG_DARK_BLUE, BG_YELLOW, BG_DARK_YELLOW);
 	}
 
+	void ClassifyPixel_Grey(float r, float g, float b, wchar_t& sym, short& fg_col, short& bg_col)
+	{
+		float luminance = 0.2987f * r + 0.5870f * g + 0.1140f * b;
+		int pixel_bw = (int)(luminance * 13.0f);
+		switch (pixel_bw)
+		{
+		case 0: bg_col = BG_BLACK; fg_col = FG_BLACK; sym = PIXEL_SOLID; break;
+
+		case 1: bg_col = BG_BLACK; fg_col = FG_DARK_GREY; sym = PIXEL_QUARTER; break;
+		case 2: bg_col = BG_BLACK; fg_col = FG_DARK_GREY; sym = PIXEL_HALF; break;
+		case 3: bg_col = BG_BLACK; fg_col = FG_DARK_GREY; sym = PIXEL_THREEQUARTERS; break;
+		case 4: bg_col = BG_BLACK; fg_col = FG_DARK_GREY; sym = PIXEL_SOLID; break;
+
+		case 5: bg_col = BG_DARK_GREY; fg_col = FG_GREY; sym = PIXEL_QUARTER; break;
+		case 6: bg_col = BG_DARK_GREY; fg_col = FG_GREY; sym = PIXEL_HALF; break;
+		case 7: bg_col = BG_DARK_GREY; fg_col = FG_GREY; sym = PIXEL_THREEQUARTERS; break;
+		case 8: bg_col = BG_DARK_GREY; fg_col = FG_GREY; sym = PIXEL_SOLID; break;
+
+		case 9:  bg_col = BG_GREY; fg_col = FG_WHITE; sym = PIXEL_QUARTER; break;
+		case 10: bg_col = BG_GREY; fg_col = FG_WHITE; sym = PIXEL_HALF; break;
+		case 11: bg_col = BG_GREY; fg_col = FG_WHITE; sym = PIXEL_THREEQUARTERS; break;
+		case 12: bg_col = BG_GREY; fg_col = FG_WHITE; sym = PIXEL_SOLID; break;
+		}
+	}
+
 	bool OnUserUpdate(float fDeltaTime) override
 	{
 		doCapture(0);
@@ -140,7 +165,8 @@ protected:
 				float g = col.c[1] / 255.0f;
 				float b = col.c[0] / 255.0f;
 
-				ClassifyPixel(r, g, b, sym, fg_col, bg_col);
+				ClassifyPixel_Cmd(r, g, b, sym, fg_col, bg_col);
+				//ClassifyPixel_Grey(r, g, b, sym, fg_col, bg_col);
 
 				Draw(x, y, sym, fg_col | bg_col);
 			}
