@@ -93,6 +93,7 @@
 #include <algorithm>
 #include <thread>
 #include <string>
+#include <list>
 
 #pragma comment(lib, "winmm.lib")
 
@@ -604,12 +605,12 @@ namespace def
 
 		virtual void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, short c = 0x2588, short col = 0x000F);
 
-		virtual void DrawString(vi2d pos, std::wstring text, short c = 0x2588, short col = 0x000F);
-		virtual void DrawString(int x, int y, std::wstring text, short c = 0x2588, short col = 0x000F);
+		virtual void DrawString(vi2d pos, std::wstring text, short col = 0x000F);
+		virtual void DrawString(int x, int y, std::wstring text, short col = 0x000F);
 
 		void Clear(short c = 0x2588, short col = 0x000F);
 		
-		bool MakeSound(std::wstring filename);
+		bool MakeSound(std::wstring sFilename, bool bLoop = false);
 		bool Focused();
 
 		inline vi2d GetMouse() const;
@@ -618,6 +619,8 @@ namespace def
 
 		inline KeyState GetMouse(short button) const;
 		inline KeyState GetKey(short key) const;
+
+		inline int GetCharacter(bool bHeld = true, bool bPressed = false, bool bReleased = false);
 
 		inline int GetScreenWidth() const;
 		inline int GetScreenHeight() const;
@@ -786,9 +789,14 @@ namespace def
 		bool bFocused;
 	};
 
-	bool ConsolaProd::MakeSound(std::wstring filename)
+	bool ConsolaProd::MakeSound(std::wstring sFilename, bool bLoop)
 	{
-		return (bool)PlaySoundW(filename.c_str(), nullptr, SND_ASYNC | SND_FILENAME);
+		DWORD f = SND_ASYNC | SND_FILENAME;
+
+		if (bLoop)
+			f |= SND_LOOP;
+
+		return (bool)PlaySoundW(sFilename.c_str(), nullptr, SND_ASYNC | SND_FILENAME);
 	}
 
 	bool ConsolaProd::Focused()
@@ -798,15 +806,12 @@ namespace def
 
 	void ConsolaProd::FillRectangle(vi2d pos1, vi2d pos2, short c, short col)
 	{
-		if (pos1.x >= 0 && pos1.x < nScreenWidth && pos1.y >= 0 && pos1.y < nScreenHeight)
-		{
-			for (int i = pos1.x; i < pos2.x; i++)
-				for (int j = pos1.y; j < pos2.y; j++)
-				{
-					screen[j * nScreenWidth + i].Char.UnicodeChar = c;
-					screen[j * nScreenWidth + i].Attributes = col;
-				}
-		}
+		for (int i = pos1.x; i < pos2.x; i++)
+			for (int j = pos1.y; j < pos2.y; j++)
+			{
+				screen[j * nScreenWidth + i].Char.UnicodeChar = c;
+				screen[j * nScreenWidth + i].Attributes = col;
+			}
 	}
 
 	void ConsolaProd::FillRectangle(int x1, int y1, int x2, int y2, short c, short col)
@@ -884,7 +889,7 @@ namespace def
 
 	void ConsolaProd::Draw(vi2d pos, short c, short col)
 	{
-		if (pos.x >= 0 && pos.x < nScreenWidth && pos.y >= 0 && pos.y < nScreenHeight)
+		if (pos.x >= 0 && pos.x <= nScreenWidth && pos.y >= 0 && pos.y <= nScreenHeight)
 		{
 			screen[pos.y * nScreenWidth + pos.x].Char.UnicodeChar = c;
 			screen[pos.y * nScreenWidth + pos.x].Attributes = col;
@@ -1117,10 +1122,17 @@ namespace def
 
 	void ConsolaProd::DrawRectangle(vi2d pos1, vi2d pos2, short c, short col)
 	{
-		DrawLine(pos1, { pos2.x, pos1.y });
-		DrawLine({ pos2.x, pos1.y }, pos2);
-		DrawLine(pos2, { pos1.x, pos2.y });
-		DrawLine({ pos1.x, pos2.y }, pos1);
+		for (int x = pos1.x; x <= pos2.x; x++)
+		{
+			Draw(pos1.x + x, pos1.y, c, col);
+			Draw(pos1.x + x, pos2.y, c, col);
+		}
+
+		for (int y = pos1.y; y <= pos2.y; y++)
+		{
+			Draw(pos1.x, pos1.y + y, c, col);
+			Draw(pos2.x, pos1.y + y, c, col);
+		}
 	}
 
 	void ConsolaProd::DrawRectangle(int x1, int y1, int x2, int y2, short c, short col)
@@ -1228,21 +1240,18 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawString(vi2d pos, std::wstring text, short c, short col)
+	void ConsolaProd::DrawString(vi2d pos, std::wstring text, short col)
 	{
-		if (pos.x > 0 && pos.y > 0 && pos.x <= nScreenWidth && pos.y <= nScreenHeight)
+		for (size_t i = 0; i < text.size(); i++)
 		{
-			for (size_t i = 0; i < text.size(); i++)
-			{
-				screen[pos.y * nScreenWidth + pos.x + i].Char.UnicodeChar = text[i];
-				screen[pos.y * nScreenWidth + pos.x + i].Attributes = col;
-			}
+			screen[pos.y * nScreenWidth + pos.x + i].Char.UnicodeChar = text[i];
+			screen[pos.y * nScreenWidth + pos.x + i].Attributes = col;
 		}
 	}
 
-	void ConsolaProd::DrawString(int x, int y, std::wstring text, short c, short col)
+	void ConsolaProd::DrawString(int x, int y, std::wstring text, short col)
 	{
-		DrawString({ x, y }, text, c, col);
+		DrawString({ x, y }, text, col);
 	}
 
 	void ConsolaProd::Clear(short c, short col)
@@ -1283,6 +1292,31 @@ namespace def
 	inline int ConsolaProd::GetScreenHeight() const
 	{
 		return nScreenHeight;
+	}
+
+	inline int ConsolaProd::GetCharacter(bool bHeld, bool bPressed, bool bReleased)
+	{
+		for (int i = ' '; i <= '~'; i++)
+		{
+			if (bHeld)
+			{
+				if (keys[i].bHeld)
+					return i;
+			}
+			else if (bPressed)
+			{
+				if (keys[i].bPressed)
+					return i;
+			}
+			else if (bReleased)
+			{
+				if (keys[i].bReleased)
+					return i;
+			}
+				
+		}
+
+		return -1;
 	}
 
 	inline vi2d ConsolaProd::GetScreenSize() const
