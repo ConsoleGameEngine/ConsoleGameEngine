@@ -161,7 +161,7 @@ if (GetKey(L'A').bHeld)
   vPlayer.x -= 30.0f * dt;
 }
 
-if (GetMouseBtn(0).bPressed)
+if (GetMouse(0).bPressed)
 {
   Draw(GetMouse(), def::Pixel::SOLID, def::FG::RED);
 }
@@ -201,5 +201,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## Последнее обновление
 
-09.04.2022 9:04 MOSCOW
+25.08.2022 13:45 MOSCOW
 
