@@ -1,5 +1,7 @@
 #include "ConsolaProd.h"
 
+using namespace def;
+
 class CellularAutomata : public def::ConsolaProd
 {
 public:
@@ -48,14 +50,14 @@ protected:
 		if (GetKey(VK_SPACE).bHeld)
 			return true;
 
-		Clear(def::Pixel::SOLID, def::FG::BLACK);
+		Clear(PIXEL_SOLID, FG_BLACK);
 
-		DrawRectangle(0, 0, GetScreenWidth() - 1, GetScreenHeight() - 1, def::Pixel::SOLID, def::FG::RED);
+		DrawRectangle(0, 0, GetScreenWidth() - 1, GetScreenHeight() - 1, PIXEL_SOLID, FG_RED);
 
 		// Make a delay to see work of algorithm
 		using namespace std::chrono_literals;
 		std::this_thread::sleep_for(75ms);
-		
+
 		for (int i = 0; i < GetScreenWidth() * GetScreenHeight(); i++)
 			output[i] = state[i];
 
@@ -63,24 +65,18 @@ protected:
 			for (int y = 1; y < GetScreenHeight() - 1; y++)
 			{
 				int nCount = GetNeighboursCount(x, y);
-				
+
 				if (output[y * GetScreenWidth() + x] == 1)
 					state[y * GetScreenWidth() + x] = (nCount == 2 || nCount == 3);
 				else
 					state[y * GetScreenWidth() + x] = (nCount == 3);
 
 				if (output[y * GetScreenWidth() + x] == 1)
-					Draw(x, y, def::Pixel::SOLID, def::FG::WHITE);
+					Draw(x, y, PIXEL_SOLID, FG_WHITE);
 
 			}
 
 		return true;
-	}
-
-	void OnUserDestroy() override
-	{
-		delete output;
-		delete state;
 	}
 };
 
