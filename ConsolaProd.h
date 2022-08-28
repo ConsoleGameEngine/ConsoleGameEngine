@@ -380,7 +380,7 @@ namespace def
 		{
 			if (pos.x > 0 || pos.x < nWidth || pos.y > 0 || pos.y < nHeight)
 				return m_Glyphs[pos.y * nWidth + pos.x];
-			
+
 			return L' ';
 		}
 
@@ -609,7 +609,7 @@ namespace def
 		virtual void DrawString(int x, int y, std::wstring text, short col = 0x000F);
 
 		void Clear(short c = 0x2588, short col = 0x000F);
-		
+
 		bool MakeSound(std::wstring sFilename, bool bLoop = false);
 		bool Focused();
 
@@ -796,7 +796,7 @@ namespace def
 		if (bLoop)
 			f |= SND_LOOP;
 
-		return (bool)PlaySoundW(sFilename.c_str(), nullptr, SND_ASYNC | SND_FILENAME);
+		return (bool)PlaySoundW(sFilename.c_str(), nullptr, f);
 	}
 
 	bool ConsolaProd::Focused()
@@ -1313,7 +1313,7 @@ namespace def
 				if (keys[i].bReleased)
 					return i;
 			}
-				
+
 		}
 
 		return -1;
