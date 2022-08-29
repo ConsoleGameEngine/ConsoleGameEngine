@@ -2,13 +2,18 @@
 #include <cstdint>
 #include <algorithm>
 
+// Disabling warning about fopen function
 #pragma warning(disable : 4996)
 
+// Undefined macros to use std::min and std::max functions
 #undef min
 #undef max
 
+// Including stb_image library
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+// Some usefull constants from Consola Prod game engine header file
 
 enum FG_COLORS
 {
@@ -58,126 +63,7 @@ enum PIXEL_TYPE
 	PIXEL_QUARTER = 0x2591
 };
 
-class Sprite
-{
-public:
-	Sprite()
-	{
-		Create(8, 8);
-	}
-
-	Sprite(int w, int h)
-	{
-		Create(w, h);
-	}
-
-	Sprite(std::wstring sFileName)
-	{
-		if (!Load(sFileName))
-			Create(8, 8);
-	}
-
-private:
-	short* m_Glyphs = nullptr;
-	short* m_Colours = nullptr;
-
-public:
-	int nWidth = 0;
-	int nHeight = 0;
-
-public:
-	void Create(int w, int h)
-	{
-		nWidth = w;
-		nHeight = h;
-
-		m_Glyphs = new short[w * h];
-		m_Colours = new short[w * h];
-
-		for (int i = 0; i < w * h; i++)
-		{
-			m_Glyphs[i] = L' ';
-			m_Colours[i] = FG_BLACK;
-		}
-	}
-
-	void SetGlyph(int x, int y, short c)
-	{
-		if (x > 0 || x < nWidth || y > 0 || y < nHeight)
-			m_Glyphs[y * nWidth + x] = c;
-	}
-
-	void SetColour(int x, int y, short c)
-	{
-		if (x > 0 || x < nWidth || y > 0 || y < nHeight)
-			m_Colours[y * nWidth + x] = c;
-	}
-
-	short GetGlyph(int x, int y)
-	{
-		if (x > 0 || x < nWidth || y > 0 || y < nHeight)
-			return m_Glyphs[y * nWidth + x];
-
-		return L' ';
-	}
-
-	short GetColour(int x, int y)
-	{
-		if (x > 0 || x < nWidth || y > 0 || y < nHeight)
-			return m_Colours[y * nWidth + x];
-
-		return FG_BLACK;
-	}
-
-	bool Save(std::wstring sFile)
-	{
-		FILE* f = nullptr;
-
-		_wfopen_s(&f, sFile.c_str(), L"wb");
-
-		if (f == nullptr)
-			return false;
-
-		fwrite(&nWidth, sizeof(int), 1, f);
-		fwrite(&nHeight, sizeof(int), 1, f);
-
-		fwrite(m_Colours, sizeof(short), nWidth * nHeight, f);
-		fwrite(m_Glyphs, sizeof(short), nWidth * nHeight, f);
-
-		fclose(f);
-
-		return true;
-	}
-
-	bool Load(std::wstring sFile)
-	{
-		delete[] m_Glyphs;
-		delete[] m_Colours;
-
-		nWidth = 0;
-		nHeight = 0;
-
-		FILE* f = nullptr;
-
-		_wfopen_s(&f, sFile.c_str(), L"rb");
-
-		if (f == nullptr)
-			return false;
-
-		std::fread(&nWidth, sizeof(int), 1, f);
-		std::fread(&nHeight, sizeof(int), 1, f);
-
-		Create(nWidth, nHeight);
-
-		std::fread(m_Colours, sizeof(short), nWidth * nHeight, f);
-		std::fread(m_Glyphs, sizeof(short), nWidth * nHeight, f);
-
-		std::fclose(f);
-
-		return true;
-	}
-};
-
+// Function that converts RGB value to colours and glyphs that Consola Prod game engine uses
 void ClassifyPixel_Cmd(float r, float g, float b, wchar_t& sym, short& fg_col, short& bg_col)
 {
 	// Is pixel coloured (i.e. RGB values exhibit significant variance)
@@ -220,11 +106,10 @@ void ClassifyPixel_Cmd(float r, float g, float b, wchar_t& sym, short& fg_col, s
 			}
 			else
 			{
-				// Secondary is varient, Use in background
+				// Secondary is varient, use in background
 				bg_col = fC2 > 0.5f ? BG_LIGHT : BG_DARK;
 			}
 
-			// Shade dostd::minant over background (100% -> 0%)
 			fShading = ((fC1 - fC2) / 2.0f) + 0.5f;
 		}
 
@@ -263,25 +148,38 @@ void ClassifyPixel_Cmd(float r, float g, float b, wchar_t& sym, short& fg_col, s
 		compare(fBVar, fYVar, b, y, FG_BLUE, FG_DARK_BLUE, BG_YELLOW, BG_DARK_YELLOW);
 }
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
-  if (argc < 2)
-  {
-    std::cerr << "Please provide filename" << '\n';
-    return 1;
-  }
-  
+	// User should provide name of file with image that should be converted to .spr file
+	if (argc < 2)
+	{
+		std::cerr << "Please provide filename!\n";
+		return 1;
+	}
+
 	std::string sFilename = argv[1];
 
 	uint8_t* pBuffer;
 	int nWidth, nHeight, nFormat;
 
+	// Open image file to read
 	FILE* f;
 	f = fopen(sFilename.c_str(), "rb");
 
+	// If could not open file
+	if (!f)
+	{
+		std::cerr << "Could not open " << sFilename << '\n';
+		return 1;
+	}
+
+	// Load pixels to the buffer using stb_image library
 	pBuffer = stbi_load_from_file(f, &nWidth, &nHeight, &nFormat, 0);
 
-	// If could not load file
+	// Close file and free memory
+	fclose(f);
+
+	// If could not load pixels in buffer
 	if (!pBuffer)
 	{
 		std::cerr << stbi_failure_reason() << '\n';
@@ -295,23 +193,29 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	Sprite spr;
+	// Buffers for glyphs and colours
+	short* m_nGlyphs = new short[nWidth * nHeight];
+	short* m_nColours = new short[nWidth * nHeight];
 
-	spr.Create(nWidth, nHeight);
-
+	// Converting RGB or RGBA pixels to fill glyphs and colours buffer
 	for (int i = 0; i < nWidth; i++)
 		for (int j = 0; j < nHeight; j++)
 		{
+			// Getting pixels from buffer
 			uint8_t* offset = pBuffer + (j * nWidth + i) * nFormat;
+
+			// Converting it to float point numbers (0 - 1)
 			float r = offset[0] / 255.0f;
 			float g = offset[1] / 255.0f;
 			float b = offset[2] / 255.0f;
 			float a = offset[3] / 255.0f;
 
+			// If it has transparency then we mark it as blank cell
+			// else we convert RGB pixel to glyph and colour values
 			if (a < 1.0f)
 			{
-				spr.SetColour(i, j, FG_BLACK);
-				spr.SetGlyph(i, j, L' ');
+				m_nColours[j * nWidth + i] = FG_BLACK;
+				m_nGlyphs[j * nWidth + i] = L' ';
 			}
 			else
 			{
@@ -321,16 +225,39 @@ int main(int argc, char** argv)
 
 				ClassifyPixel_Cmd(r, g, b, sym, fg_col, bg_col);
 
-				spr.SetColour(i, j, fg_col | bg_col);
-				spr.SetGlyph(i, j, sym);
+				m_nColours[j * nWidth + i] = fg_col | bg_col;
+				m_nGlyphs[j * nWidth + i] = sym;
 			}
 		}
 
-
+	// Extracting filename without format...
 	sFilename.erase(sFilename.begin() + sFilename.find_last_of('.'), sFilename.end());
 
-	std::wstring name = std::wstring(sFilename.begin(), sFilename.end());
-	spr.Save(name + L".spr");
+	// ...and setting name of new output file
+	std::wstring name = std::wstring(sFilename.begin(), sFilename.end()) + L".spr";
+
+	// Open a file to write data
+	_wfopen_s(&f, name.c_str(), L"wb");
+
+	// If we can't create a file, then probably we don't have permission to do that
+	if (!f)
+	{
+		std::cerr << "Has no permission to create a new file!\n";
+		return 1;
+	}
+
+	// Constructing .spr file
+
+	// Writing width and height of sprite
+	fwrite(&nWidth, sizeof(int), 1, f);
+	fwrite(&nHeight, sizeof(int), 1, f);
+
+	// Writing colours and glyphs of sprite
+	fwrite(m_nColours, sizeof(short), nWidth * nHeight, f);
+	fwrite(m_nGlyphs, sizeof(short), nWidth * nHeight, f);
+
+	// Close file and free memory
+	fclose(f);
 
 	return 0;
 }
