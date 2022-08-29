@@ -204,10 +204,7 @@ int main(int argc, char* argv[])
 			// Getting pixels from buffer
 			uint8_t* offset = pBuffer + (j * nWidth + i) * nFormat;
 
-			// Converting it to float point numbers (0 - 1)
-			float r = offset[0] / 255.0f;
-			float g = offset[1] / 255.0f;
-			float b = offset[2] / 255.0f;
+			// Getting alpha value of pixel and convert it to floating point number (0 - 1)
 			float a = offset[3] / 255.0f;
 
 			// If it has transparency then we mark it as blank cell
@@ -219,6 +216,11 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
+				// Now converting RGB values to floating point numbers (0 - 1)
+				float r = offset[0] / 255.0f;
+				float g = offset[1] / 255.0f;
+				float b = offset[2] / 255.0f;
+				
 				wchar_t sym;
 				short fg_col;
 				short bg_col;
