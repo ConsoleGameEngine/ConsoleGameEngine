@@ -472,9 +472,9 @@ namespace def
 			hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
 			hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
 
-			hwnd = GetConsoleWindow();
+			hWnd = GetConsoleWindow();
 
-			hDC = GetDC(hwnd);
+			hDC = GetDC(hWnd);
 
 			sAppName = L"Undefined";
 			sFont = L"Consolas";
@@ -590,46 +590,46 @@ namespace def
 
 	public:
 		virtual void Draw(vi2d pos, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void Draw(int x, int y, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void Draw(int32_t x, int32_t y, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		virtual void DrawLine(vi2d pos1, vi2d pos2, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawLine(int x1, int y1, int x2, int y2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		virtual void DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		virtual void FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		virtual void DrawRectangle(vi2d pos1, vi2d pos2, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawRectangle(int x1, int y1, int x2, int y2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
 		virtual void DrawRectangleS(vi2d pos, vi2d size, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawRectangleS(int x, int y, int size_x, int size_y, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		virtual void FillRectangle(vi2d pos1, vi2d pos2, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void FillRectangle(int x1, int y1, int x2, int y2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
 		virtual void FillRectangleS(vi2d pos, vi2d size, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void FillRectangleS(int x, int y, int size_x, int size_y, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawCircle(vi2d pos, int radius, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawCircle(int x, int y, int radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawCircle(vi2d pos, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void FillCircle(vi2d pos, int radius, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void FillCircle(int x, int y, int radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillCircle(vi2d pos, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		virtual void DrawSprite(vi2d pos, Sprite* sprite);
-		virtual void DrawSprite(int x, int y, Sprite* sprite);
+		virtual void DrawSprite(int32_t x, int32_t y, Sprite* sprite);
 
 		virtual void DrawPartialSprite(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
-		virtual void DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
+		virtual void DrawPartialSprite(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite);
 
 		virtual void DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
-		virtual void DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
+		virtual void DrawPartialSpriteS(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite);
 
 		virtual void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		virtual void DrawString(vi2d pos, std::wstring text, int16_t col = 0x000F);
-		virtual void DrawString(int x, int y, std::wstring text, int16_t col = 0x000F);
+		virtual void DrawString(int32_t x, int32_t y, std::wstring text, int16_t col = 0x000F);
 
 		void Clear(int16_t c = 0x2588, int16_t col = 0x000F);
 
@@ -637,16 +637,16 @@ namespace def
 		bool Focused();
 
 		inline vi2d GetMouse() const;
-		inline int GetMouseX() const;
-		inline int GetMouseY() const;
+		inline int32_t GetMouseX() const;
+		inline int32_t GetMouseY() const;
 
 		inline KeyState GetMouse(int16_t button) const;
 		inline KeyState GetKey(int16_t key) const;
 
-		inline int GetCharacter(bool bHeld = true, bool bPressed = false, bool bReleased = false);
+		inline int32_t GetCharacter(bool bHeld = true, bool bPressed = false, bool bReleased = false);
 
-		inline int GetScreenWidth() const;
-		inline int GetScreenHeight() const;
+		inline int32_t GetScreenWidth() const;
+		inline int32_t GetScreenHeight() const;
 		inline vi2d GetScreenSize() const;
 
 		inline float GetDeltaTime() const;
@@ -785,7 +785,7 @@ namespace def
 		HANDLE hConsoleOut;
 		HANDLE hConsoleIn;
 		SMALL_RECT rectWindow;
-		HWND hwnd;
+		HWND hWnd;
 		HDC hDC;
 
 		std::vector<KeyState> keys;
@@ -797,14 +797,14 @@ namespace def
 		bool mouseOldState[5] = { 0 };
 		bool mouseNewState[5] = { 0 };
 
-		int nMousePosX;
-		int nMousePosY;
+		int32_t nMousePosX;
+		int32_t nMousePosY;
 
-		int nScreenWidth;
-		int nScreenHeight;
+		int32_t nScreenWidth;
+		int32_t nScreenHeight;
 
-		int nFontW;
-		int nFontH;
+		int32_t nFontW;
+		int32_t nFontH;
 
 		float fDeltaTime;
 
@@ -837,7 +837,7 @@ namespace def
 			}
 	}
 
-	void ConsolaProd::FillRectangle(int x1, int y1, int x2, int y2, int16_t c, int16_t col)
+	void ConsolaProd::FillRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
 	{
 		FillRectangle({ x1, y1 }, { x2, y2 }, c, col);
 	}
@@ -847,48 +847,60 @@ namespace def
 		FillRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
 	}
 
-	void ConsolaProd::FillRectangleS(int x, int y, int size_x, int size_y, int16_t c, int16_t col)
+	void ConsolaProd::FillRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c, int16_t col)
 	{
 		FillRectangle({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
 
-	void ConsolaProd::DrawCircle(vi2d pos, int radius, int16_t c, int16_t col)
+	void ConsolaProd::DrawCircle(vi2d pos, int32_t radius, int16_t c, int16_t col)
 	{
 		if (!radius) return;
 
-		int x = 0;
-		int y = radius;
-		int p = 3 - 2 * radius;
+		int32_t x = 0;
+		int32_t y = radius;
+		int32_t p = 3 - 2 * radius;
 
 		while (y >= x)
 		{
-			Draw({ pos.x - x, pos.y - y }, c, col);	// upper left left
-			Draw({ pos.x - y, pos.y - x }, c, col);	// upper upper left
-			Draw({ pos.x + y, pos.y - x }, c, col);	// upper upper right
-			Draw({ pos.x + x, pos.y - y }, c, col);	// upper right right
-			Draw({ pos.x - x, pos.y + y }, c, col);	// lower left left
-			Draw({ pos.x - y, pos.y + x }, c, col);	// lower lower left
-			Draw({ pos.x + y, pos.y + x }, c, col);	// lower lower right
-			Draw({ pos.x + x, pos.y + y }, c, col);	// lower right right
-			if (p < 0) p += 4 * x++ + 6;
-			else p += 4 * (x++ - y--) + 10;
+			Draw(pos.x - x, pos.y - y, c, col);	// upper left left
+			Draw(pos.x - y, pos.y - x, c, col);	// upper upper left
+			Draw(pos.x + y, pos.y - x, c, col);	// upper upper right
+			Draw(pos.x + x, pos.y - y, c, col);	// upper right right
+			Draw(pos.x - x, pos.y + y, c, col);	// lower left left
+			Draw(pos.x - y, pos.y + x, c, col);	// lower lower left
+			Draw(pos.x + y, pos.y + x, c, col);	// lower lower right
+			Draw(pos.x + x, pos.y + y, c, col);	// lower right right
+
+			if (p < 0)
+			{
+				p += 4 * x + 6;
+				
+				x++;
+			}
+			else
+			{
+				p += 4 * (x - y) + 10;
+
+				x++;
+				y--;
+			}
 		}
 	}
 
-	void ConsolaProd::DrawCircle(int x, int y, int radius, int16_t c, int16_t col)
+	void ConsolaProd::DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c, int16_t col)
 	{
 		DrawCircle({ x, y }, radius, c, col);
 	}
 
-	void ConsolaProd::FillCircle(vi2d pos, int radius, int16_t c, int16_t col)
+	void ConsolaProd::FillCircle(vi2d pos, int32_t radius, int16_t c, int16_t col)
 	{
 		if (!radius) return;
 
-		int x = 0;
-		int y = radius;
-		int p = 3 - 2 * radius;
+		int32_t x = 0;
+		int32_t y = radius;
+		int32_t p = 3 - 2 * radius;
 
-		auto drawline = [&](int sx, int ex, int ny)
+		auto drawline = [&](int32_t sx, int32_t ex, int32_t ny)
 		{
 			for (int i = sx; i <= ex; i++)
 				Draw(i, ny, c, col);
@@ -905,86 +917,112 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::FillCircle(int x, int y, int radius, int16_t c, int16_t col)
+	void ConsolaProd::FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c, int16_t col)
 	{
 		FillCircle({ x, y }, radius, c, col);
 	}
 
 	void ConsolaProd::Draw(vi2d pos, int16_t c, int16_t col)
 	{
-		if (pos.x >= 0 && pos.x <= nScreenWidth && pos.y >= 0 && pos.y <= nScreenHeight)
+		if (pos.x >= 0 && pos.x < nScreenWidth && pos.y >= 0 && pos.y < nScreenHeight)
 		{
 			screen[pos.y * nScreenWidth + pos.x].Char.UnicodeChar = c;
 			screen[pos.y * nScreenWidth + pos.x].Attributes = col;
 		}
 	}
 
-	void ConsolaProd::Draw(int x, int y, int16_t c, int16_t col)
+	void ConsolaProd::Draw(int32_t x, int32_t y, int16_t c, int16_t col)
 	{
 		Draw({ x, y }, c, col);
 	}
 
 	void ConsolaProd::DrawLine(vi2d pos1, vi2d pos2, int16_t c, int16_t col)
 	{
-		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
-		dx = pos2.x - pos1.x; dy = pos2.y - pos1.y;
-		dx1 = abs(dx); dy1 = abs(dy);
-		px = 2 * dy1 - dx1;	py = 2 * dx1 - dy1;
+		int32_t x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
+
+		dx = pos2.x - pos1.x;
+		dy = pos2.y - pos1.y;
+
+		dx1 = abs(dx);
+		dy1 = abs(dy);
+
+		px = 2 * dy1 - dx1;
+		py = 2 * dx1 - dy1;
+
 		if (dy1 <= dx1)
 		{
 			if (dx >= 0)
 			{
-				x = pos1.x; y = pos1.y; xe = pos2.x;
+				x = pos1.x;
+				y = pos1.y;
+				xe = pos2.x;
 			}
 			else
 			{
-				x = pos2.x; y = pos2.y; xe = pos1.x;
+				x = pos2.x;
+				y = pos2.y;
+				xe = pos1.x;
 			}
 
-			Draw({ x, y }, c, col);
+			Draw(x, y, c, col);
 
 			for (i = 0; x < xe; i++)
 			{
-				x = x + 1;
+				x++;
+
 				if (px < 0)
 					px = px + 2 * dy1;
 				else
 				{
-					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y = y + 1; else y = y - 1;
+					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
+						y = y + 1;
+					else
+						y = y - 1;
+
 					px = px + 2 * (dy1 - dx1);
 				}
-				Draw({ x, y }, c, col);
+				Draw(x, y, c, col);
 			}
 		}
 		else
 		{
 			if (dy >= 0)
 			{
-				x = pos1.x; y = pos1.y; ye = pos2.y;
+				x = pos1.x;
+				y = pos1.y;
+				ye = pos2.y;
 			}
 			else
 			{
-				x = pos2.x; y = pos2.y; ye = pos1.y;
+				x = pos2.x;
+				y = pos2.y;
+				ye = pos1.y;
 			}
 
-			Draw({ x, y }, c, col);
+			Draw(x, y, c, col);
 
 			for (i = 0; y < ye; i++)
 			{
 				y = y + 1;
+
 				if (py <= 0)
 					py = py + 2 * dx1;
 				else
 				{
-					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x = x + 1; else x = x - 1;
+					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
+						x = x + 1;
+					else
+						x = x - 1;
+
 					py = py + 2 * (dx1 - dy1);
 				}
+
 				Draw({ x, y }, c, col);
 			}
 		}
 	}
 
-	void ConsolaProd::DrawLine(int x1, int y1, int x2, int y2, int16_t c, int16_t col)
+	void ConsolaProd::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
 	{
 		DrawLine({ x1, y1 }, { x2, y2 }, c, col);
 	}
@@ -1266,7 +1304,7 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int16_t c, int16_t col)
+	void ConsolaProd::FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c, int16_t col)
 	{
 		FillTriangle({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
 	}
@@ -1286,7 +1324,7 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawRectangle(int x1, int y1, int x2, int y2, int16_t c, int16_t col)
+	void ConsolaProd::DrawRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
 	{
 		DrawRectangle({ x1, y1 }, { x2, y2 }, c, col);
 	}
@@ -1296,7 +1334,7 @@ namespace def
 		DrawRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
 	}
 
-	void ConsolaProd::DrawRectangleS(int x, int y, int size_x, int size_y, int16_t c, int16_t col)
+	void ConsolaProd::DrawRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c, int16_t col)
 	{
 		DrawRectangle({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
@@ -1316,7 +1354,7 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawSprite(int x, int y, Sprite* sprite)
+	void ConsolaProd::DrawSprite(int32_t x, int32_t y, Sprite* sprite)
 	{
 		DrawSprite({ x, y }, sprite);
 	}
@@ -1336,7 +1374,7 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite)
+	void ConsolaProd::DrawPartialSprite(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite)
 	{
 		DrawPartialSprite({ x, y }, { fx1, fy1 }, { fx2, fy2 }, sprite);
 	}
@@ -1346,7 +1384,7 @@ namespace def
 		DrawPartialSprite({ pos.x, pos.y }, { fpos1.x, fpos1.y }, { fpos1.x + fpos2.x, fpos1.y + fpos2.y }, sprite);
 	}
 
-	void ConsolaProd::DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite)
+	void ConsolaProd::DrawPartialSpriteS(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite)
 	{
 		DrawPartialSprite({ x, y }, { fx1, fy1 }, { fx1 + fx2, fy1 + fy2 }, sprite);
 	}
@@ -1358,7 +1396,7 @@ namespace def
 
 		// Create translated model vector of coordinate pairs
 		std::vector<std::pair<float, float>> vecTransformedCoordinates;
-		int verts = vecModelCoordinates.size();
+		int32_t verts = vecModelCoordinates.size();
 		vecTransformedCoordinates.resize(verts);
 
 		// Rotate
@@ -1385,9 +1423,9 @@ namespace def
 		// Draw Closed Polygon
 		for (int i = 0; i < verts + 1; i++)
 		{
-			int j = (i + 1);
-			DrawLine((int)vecTransformedCoordinates[i % verts].first, (int)vecTransformedCoordinates[i % verts].second,
-				(int)vecTransformedCoordinates[j % verts].first, (int)vecTransformedCoordinates[j % verts].second, c, col);
+			int32_t j = (i + 1);
+			DrawLine((int32_t)vecTransformedCoordinates[i % verts].first, (int32_t)vecTransformedCoordinates[i % verts].second,
+				(int32_t)vecTransformedCoordinates[j % verts].first, (int32_t)vecTransformedCoordinates[j % verts].second, c, col);
 		}
 	}
 
@@ -1400,7 +1438,7 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawString(int x, int y, std::wstring text, int16_t col)
+	void ConsolaProd::DrawString(int32_t x, int32_t y, std::wstring text, int16_t col)
 	{
 		DrawString({ x, y }, text, col);
 	}
@@ -1415,12 +1453,12 @@ namespace def
 		return { nMousePosX, nMousePosY };
 	}
 
-	inline int ConsolaProd::GetMouseX() const
+	inline int32_t ConsolaProd::GetMouseX() const
 	{
 		return nMousePosX;
 	}
 
-	inline int ConsolaProd::GetMouseY() const
+	inline int32_t ConsolaProd::GetMouseY() const
 	{
 		return nMousePosY;
 	}
@@ -1435,17 +1473,17 @@ namespace def
 		return keys[key];
 	}
 
-	inline int ConsolaProd::GetScreenWidth() const
+	inline int32_t ConsolaProd::GetScreenWidth() const
 	{
 		return nScreenWidth;
 	}
 
-	inline int ConsolaProd::GetScreenHeight() const
+	inline int32_t ConsolaProd::GetScreenHeight() const
 	{
 		return nScreenHeight;
 	}
 
-	inline int ConsolaProd::GetCharacter(bool bHeld, bool bPressed, bool bReleased)
+	inline int32_t ConsolaProd::GetCharacter(bool bHeld, bool bPressed, bool bReleased)
 	{
 		for (int i = ' '; i <= '~'; i++)
 		{
