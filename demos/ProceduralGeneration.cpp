@@ -26,23 +26,15 @@ private:
 		return m2;
 	}
 
+	void Clamp(uint32_t& n, uint32_t min, uint32_t max)
+	{
+		n = (n % (max - min)) + min;
+	}
+
 	bool bPanStarted = false;
 
 	def::vi2d vStartPan = { 0, 0 };
 	def::vi2d vOffset = { 0, 0 };
-
-	void DrawStars()
-	{
-		for (int i = 0; i < GetScreenWidth(); i++)
-			for (int j = 0; j < GetScreenHeight(); j++)
-			{
-				uint32_t nSeed = (j + vOffset.y) << 16 | (i + vOffset.x);
-
-				bool bIsWhite = Lehmer(nSeed) % 256 < 32;
-
-				Draw(i, j, PIXEL_SOLID, bIsWhite ? FG_WHITE : FG_BLACK);
-			}
-	}
 
 protected:
 	bool OnUserCreate() override
@@ -60,25 +52,44 @@ protected:
 			bPanStarted = true;
 		}
 
+		if (GetMouse(0).bReleased)
+			bPanStarted = false;
+
 		if (bPanStarted)
 		{
-			float fMouseX = GetMouseX();
-			float fMouseY = GetMouseY();
+			int32_t nMouseX = GetMouseX();
+			int32_t nMouseY = GetMouseY();
 
-			vOffset.x += vStartPan.x - fMouseX;
-			vOffset.y += vStartPan.y - fMouseY;
+			vOffset.x += vStartPan.x - nMouseX;
+			vOffset.y += vStartPan.y - nMouseY;
 
 			if (vOffset.x < 0)
 				vOffset.x = 0;
 
-			vStartPan.x = fMouseX;
-			vStartPan.y = fMouseY;
-
-			DrawStars();
+			vStartPan.x = nMouseX;
+			vStartPan.y = nMouseY;
 		}
 
-		if (GetMouse(0).bReleased)
-			bPanStarted = false;
+		Clear(PIXEL_SOLID, FG_BLACK);
+
+		for (int i = 0; i < GetScreenWidth(); i++)
+			for (int j = 0; j < GetScreenHeight(); j++)
+			{
+				uint32_t nSeed = (j + vOffset.y) << 16 | (i + vOffset.x);
+
+				uint32_t nRand = Lehmer(nSeed);
+
+				bool bIsPlanet = nRand % 2048 < 4;
+
+				uint32_t nRadius = nRand;
+				Clamp(nRadius, 3, 8);
+
+				uint32_t nCol = nRand;
+				Clamp(nCol, 1, 15);
+
+				if (bIsPlanet)
+					FillCircle(i, j, nRadius, PIXEL_SOLID, (int16_t)nCol);
+			}
 
 		return true;
 	}
