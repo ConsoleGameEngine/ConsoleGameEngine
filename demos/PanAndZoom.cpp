@@ -60,8 +60,8 @@ protected:
 			float fMouseX = GetMouseX();
 			float fMouseY = GetMouseY();
 
-			fOffsetX -= fStartPanX - fMouseX;
-			fOffsetY -= fStartPanY - fMouseY;
+			fOffsetX += fStartPanX - fMouseX;
+			fOffsetY += fStartPanY - fMouseY;
 
 			fStartPanX = fMouseX;
 			fStartPanY = fMouseY;
