@@ -170,15 +170,9 @@ namespace def
 	}
 
 	template <class T>
-	class vec2d_basic
+	struct vec2d_basic
 	{
-	public:
-		vec2d_basic()
-		{
-			this->x = 0;
-			this->y = 0;
-		}
-
+		vec2d_basic() = default;
 		vec2d_basic(T x, T y)
 		{
 			this->x = x;
@@ -188,76 +182,104 @@ namespace def
 		T x;
 		T y;
 
-		friend vec2d_basic<T> operator+(const vec2d_basic<T>& v1, const vec2d_basic<T>& v2)
+		friend vec2d_basic<T> operator+(const vec2d_basic<T>& v1, const vec2d_basic<T>& v2) { return { v1.x + v2.x, v1.y + v2.y }; }
+		friend vec2d_basic<T> operator-(const vec2d_basic<T>& v1, const vec2d_basic<T>& v2) { return { v1.x - v2.x, v1.y - v2.y }; }
+		friend vec2d_basic<T> operator*(const vec2d_basic<T>& v1, const vec2d_basic<T>& v2) { return { v1.x * v2.x, v1.y * v2.y }; }
+		friend vec2d_basic<T> operator/(const vec2d_basic<T>& v1, const vec2d_basic<T>& v2) { return { v1.x / v2.x, v1.y / v2.y }; }
+		friend vec2d_basic<T> operator+(const vec2d_basic<T>& v1, const T& v) { return { v1.x + v, v1.y + v }; }
+		friend vec2d_basic<T> operator-(const vec2d_basic<T>& v1, const T& v) { return { v1.x - v, v1.y - v }; }
+		friend vec2d_basic<T> operator*(const vec2d_basic<T>& v1, const T& v) { return { v1.x * v, v1.y * v }; }
+		friend vec2d_basic<T> operator/(vec2d_basic<T>& v1, const T& v) { return { v1.x / v, v1.y / v }; }
+
+		friend vec2d_basic<T> operator+=(vec2d_basic<T>& v1, const vec2d_basic<T>& v2)
 		{
-			return { v1.x + v2.x, v1.y + v2.y };
+			v1.x += v2.x;
+			v1.y += v2.y;
+			return v1;
 		}
 
-		friend vec2d_basic<T> operator-(const vec2d_basic<T> v1, const vec2d_basic<T>& v2)
+		friend vec2d_basic<T> operator-=(vec2d_basic<T>& v1, const vec2d_basic<T>& v2)
 		{
-			return { v1.x - v2.x, v1.y - v2.y };
+			v1.x -= v2.x;
+			v1.y -= v2.y;
+			return v1;
 		}
 
-		friend vec2d_basic<T> operator*(const vec2d_basic<T> v1, const vec2d_basic<T>& v2)
+		friend vec2d_basic<T> operator*=(vec2d_basic<T>& v1, const vec2d_basic<T>& v2)
 		{
-			return { v1.x * v2.x, v1.y * v2.y };
+			v1.x *= v2.x;
+			v1.y *= v2.y;
+			return v1;
 		}
 
-		friend vec2d_basic<T> operator/(const vec2d_basic<T> v1, const vec2d_basic<T>& v2)
+		friend vec2d_basic<T> operator/=(vec2d_basic<T>& v1, const vec2d_basic<T>& v2)
 		{
-			return { v1.x / v2.x, v1.y / v2.y };
+			v1.x /= v2.x;
+			v1.y /= v2.y;
+			return v1;
 		}
 
-		friend vec2d_basic<T> operator+(const vec2d_basic<T> v1, const T v)
+		friend vec2d_basic<T> operator+=(vec2d_basic<T>& v1, const T& v)
 		{
-			return { v1.x + v, v1.y + v };
+			v1.x += v;
+			v1.y += v;
+			return v1;
 		}
 
-		friend vec2d_basic<T> operator-(const vec2d_basic<T> v1, const T v)
+		friend vec2d_basic<T> operator-=(vec2d_basic<T>& v1, const T& v)
 		{
-			return { v1.x - v, v1.y - v };
+			v1.x -= v;
+			v1.y -= v;
+			return v1;
 		}
 
-		friend vec2d_basic<T> operator*(const vec2d_basic<T> v1, const T v)
+		friend vec2d_basic<T> operator*=(vec2d_basic<T>& v1, const T& v)
 		{
-			return { v1.x * v, v1.y * v };
+			v1.x *= v;
+			v1.y *= v;
+			return v1;
 		}
 
-		friend vec2d_basic<T> operator/(const vec2d_basic<T> v1, const T v)
+		friend vec2d_basic<T> operator/=(vec2d_basic<T>& v1, const T& v)
 		{
-			return { v1.x / v, v1.y / v };
+			v1.x /= v;
+			v1.y /= v;
+			return v1;
 		}
 
-		float mag()
+		friend bool operator<(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x < v.x&& v1.y < v.y; }
+		friend bool operator>(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x > v.x && v1.y > v.y; }
+		friend bool operator<=(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x <= v.x && v1.y <= v.y; }
+		friend bool operator>=(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x >= v.x && v1.y >= v.y; }
+		friend bool operator!=(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x != v.x || v1.y != v.y; }
+
+		float dot(vec2d_basic<T>& v)
 		{
-			return sqrtf(this->x * this->x + this->y * this->y);
+			return this->x * v.x + this->y * v.y;
+		}
+
+		float length()
+		{
+			return sqrtf(dot(this));
 		}
 
 		vec2d_basic<T> norm()
 		{
-			return { this->x / mag(), this->y / mag() };
+			float l = length();
+			return vec2d_basic<T>(this->x / l, this->y / l);
 		}
 
-		// linear interpolation
-		vec2d_basic<T> lerp(float x, float y, float t)
-		{
-			return { this->x + t * (x - this->x), this->y + t * (y - this->y) };
-		}
+		T mag() { return T(sqrtf(this->x * this->x + this->y * this->y)); }
+		T mag2() { return T(this->x * this->x + this->y * this->y); }
 
-		float dot(vec2d_basic<T> v, float angle)
-		{
-			return (this->x * v.x + this->y * v.y);
-		}
+		vec2d_basic<T> abs() { return vec2d_basic<T>(abs(this->x), abs(this->y)); }
+		vec2d_basic<T> perp() { return vec2d_basic<T>(-this->y, this->x); }
+		vec2d_basic<T> floor() { return vec2d_basic<T>(std::floor(this->x), std::floor(this->y)); }
+		vec2d_basic<T> ceil() { return vec2d_basic<T>(std::ceil(this->x), std::ceil(this->y)); }
+		vec2d_basic<T> cart() { return vec2d_basic<T>(cos(this->y) * x, sin(this->y) * this->x); }
+		vec2d_basic<T> polar() { return vec2d_basic<T>(mag(), atan2(this->y, this->x)); }
+		vec2d_basic<T>& ref() { return *this; }
 
-		vec2d_basic<T> reflect()
-		{
-			return vec2d_basic<T>(-this->x, -this->y);
-		}
-
-		float distance()
-		{
-			return sqrtf(this->x * this->x + this->y * this->y);
-		}
 	};
 
 	typedef vec2d_basic<float> vf2d;
