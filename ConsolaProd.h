@@ -94,6 +94,7 @@
 #include <thread>
 #include <string>
 #include <list>
+#include <cstdint>
 
 #pragma comment(lib, "winmm.lib")
 
@@ -104,7 +105,7 @@
 
 namespace def
 {
-	enum FG_COLORS
+	enum FG_COLORS : int16_t
 	{
 		FG_BLACK,
 		FG_DARK_BLUE,
@@ -124,7 +125,7 @@ namespace def
 		FG_WHITE
 	};
 
-	enum BG_COLORS
+	enum BG_COLORS : int16_t
 	{
 		BG_BLACK = 0x0000,
 		BG_DARK_BLUE = 0x0010,
@@ -144,7 +145,7 @@ namespace def
 		BG_WHITE = 0x00F0
 	};
 
-	enum PIXEL_TYPE
+	enum PIXEL_TYPE : int16_t
 	{
 		PIXEL_SOLID = 0x2588,
 		PIXEL_THREEQUARTERS = 0x2593,
@@ -293,16 +294,16 @@ namespace def
 		bool bPressed;
 	};
 
-	const float PI = 2.0f * acos(0.0f);
+	const float PI = 2.0f * acosf(0.0f);
 
 #ifdef XBOX_CONTROLLER
 	class XBOX_Controller
 	{
 	public:
 		XINPUT_STATE m_ControllerState;
-		int nControllerID;
+		int32_t nControllerID;
 
-		XBOX_Controller(int nPlayer)
+		XBOX_Controller(int32_t nPlayer)
 		{
 			this->nControllerID = nPlayer - 1;
 		}
@@ -323,7 +324,7 @@ namespace def
 			return dwConnection == ERROR_SUCCESS;
 		}
 
-		void SetVibration(int nLeftValue, int nRightValue)
+		void SetVibration(int32_t nLeftValue, int32_t nRightValue)
 		{
 			XINPUT_VIBRATION m_Vibration;
 			ZeroMemory(&m_Vibration, sizeof(XINPUT_VIBRATION));
@@ -334,7 +335,7 @@ namespace def
 			XInputSetState(nControllerID, &m_Vibration);
 		}
 
-		BYTE GetJoy(short key)
+		BYTE GetJoy(int16_t key)
 		{
 			return GetState().Gamepad.wButtons & key;
 		}
@@ -350,7 +351,7 @@ namespace def
 			Create(8, 8);
 		}
 
-		Sprite(int w, int h)
+		Sprite(int32_t w, int32_t h)
 		{
 			Create(w, h);
 		}
@@ -362,12 +363,12 @@ namespace def
 		}
 
 	private:
-		short* m_Glyphs = nullptr;
-		short* m_Colours = nullptr;
+		int16_t* m_Glyphs = nullptr;
+		int16_t* m_Colours = nullptr;
 
 	public:
-		int nWidth = 0;
-		int nHeight = 0;
+		int32_t nWidth = 0;
+		int32_t nHeight = 0;
 
 	private:
 		void Create(int w, int h)
@@ -375,8 +376,8 @@ namespace def
 			nWidth = w;
 			nHeight = h;
 
-			m_Glyphs = new short[w * h];
-			m_Colours = new short[w * h];
+			m_Glyphs = new int16_t[w * h];
+			m_Colours = new int16_t[w * h];
 
 			for (int i = 0; i < w * h; i++)
 			{
@@ -386,30 +387,30 @@ namespace def
 		}
 
 	public:
-		void SetGlyph(vi2d pos, short c)
+		void SetGlyph(int32_t x, int32_t y, int16_t c)
 		{
-			if (pos.x > 0 || pos.x < nWidth || pos.y > 0 || pos.y < nHeight)
-				m_Glyphs[pos.y * nWidth + pos.x] = c;
+			if (x > 0 || x < nWidth || y > 0 || y < nHeight)
+				m_Glyphs[y * nWidth + x] = c;
 		}
 
-		void SetColour(vi2d pos, short c)
+		void SetColour(int32_t x, int32_t y, int16_t c)
 		{
-			if (pos.x > 0 || pos.x < nWidth || pos.y > 0 || pos.y < nHeight)
-				m_Colours[pos.y * nWidth + pos.x] = c;
+			if (x > 0 || x < nWidth || y > 0 || y < nHeight)
+				m_Colours[y * nWidth + x] = c;
 		}
 
-		short GetGlyph(vi2d pos)
+		int16_t GetGlyph(int32_t x, int32_t y)
 		{
-			if (pos.x > 0 || pos.x < nWidth || pos.y > 0 || pos.y < nHeight)
-				return m_Glyphs[pos.y * nWidth + pos.x];
+			if (x > 0 || x < nWidth || y > 0 || y < nHeight)
+				return m_Glyphs[y * nWidth + x];
 
 			return L' ';
 		}
 
-		short GetColour(vi2d pos)
+		int16_t GetColour(int32_t x, int32_t y)
 		{
-			if (pos.x > 0 || pos.x < nWidth || pos.y > 0 || pos.y < nHeight)
-				return m_Colours[pos.y * nWidth + pos.x];
+			if (x > 0 || x < nWidth || y > 0 || y < nHeight)
+				return m_Colours[y * nWidth + x];
 
 			return FG_BLACK;
 		}
@@ -423,11 +424,11 @@ namespace def
 			if (f == nullptr)
 				return false;
 
-			fwrite(&nWidth, sizeof(int), 1, f);
-			fwrite(&nHeight, sizeof(int), 1, f);
+			fwrite(&nWidth, sizeof(int32_t), 1, f);
+			fwrite(&nHeight, sizeof(int32_t), 1, f);
 
-			fwrite(m_Colours, sizeof(short), nWidth * nHeight, f);
-			fwrite(m_Glyphs, sizeof(short), nWidth * nHeight, f);
+			fwrite(m_Colours, sizeof(int16_t), nWidth * nHeight, f);
+			fwrite(m_Glyphs, sizeof(int16_t), nWidth * nHeight, f);
 
 			fclose(f);
 
@@ -449,13 +450,13 @@ namespace def
 			if (f == nullptr)
 				return false;
 
-			std::fread(&nWidth, sizeof(int), 1, f);
-			std::fread(&nHeight, sizeof(int), 1, f);
+			std::fread(&nWidth, sizeof(int32_t), 1, f);
+			std::fread(&nHeight, sizeof(int32_t), 1, f);
 
 			Create(nWidth, nHeight);
 
-			std::fread(m_Colours, sizeof(short), nWidth * nHeight, f);
-			std::fread(m_Glyphs, sizeof(short), nWidth * nHeight, f);
+			std::fread(m_Colours, sizeof(int16_t), nWidth * nHeight, f);
+			std::fread(m_Glyphs, sizeof(int16_t), nWidth * nHeight, f);
 
 			std::fclose(f);
 
@@ -516,7 +517,7 @@ namespace def
 			rectWindow = { 0, 0, 1, 1 };
 			SetConsoleWindowInfo(hConsoleOut, TRUE, &rectWindow);
 
-			COORD coord = { (short)nScreenWidth, (short)nScreenHeight };
+			COORD coord = { (int16_t)nScreenWidth, (int16_t)nScreenHeight };
 			if (!SetConsoleScreenBufferSize(hConsoleOut, coord))
 			{
 				rc.info = "Too large or to small screen width or height";
@@ -569,7 +570,7 @@ namespace def
 				return rc;
 			}
 
-			rectWindow = { 0, 0, short(nScreenWidth - 1), short(nScreenHeight - 1) };
+			rectWindow = { 0, 0, int16_t(nScreenWidth - 1), int16_t(nScreenHeight - 1) };
 			SetConsoleWindowInfo(hConsoleOut, TRUE, &rectWindow);
 			screen = new CHAR_INFO[nScreenWidth * nScreenHeight];
 			memset(screen, 0, sizeof(CHAR_INFO) * nScreenWidth * nScreenHeight);
@@ -588,33 +589,33 @@ namespace def
 		}
 
 	public:
-		virtual void Draw(vi2d pos, short c = 0x2588, short col = 0x000F);
-		virtual void Draw(int x, int y, short c = 0x2588, short col = 0x000F);
+		virtual void Draw(vi2d pos, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void Draw(int x, int y, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawLine(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
-		virtual void DrawLine(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
+		virtual void DrawLine(vi2d pos1, vi2d pos2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawLine(int x1, int y1, int x2, int y2, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c = 0x2588, short col = 0x000F);
-		virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
+		virtual void DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c = 0x2588, short col = 0x000F);
-		virtual void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
+		virtual void FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawRectangle(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
-		virtual void DrawRectangle(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
-		virtual void DrawRectangleS(vi2d pos, vi2d size, short c = 0x2588, short col = 0x000F);
-		virtual void DrawRectangleS(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
+		virtual void DrawRectangle(vi2d pos1, vi2d pos2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawRectangle(int x1, int y1, int x2, int y2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawRectangleS(vi2d pos, vi2d size, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawRectangleS(int x, int y, int size_x, int size_y, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void FillRectangle(vi2d pos1, vi2d pos2, short c = 0x2588, short col = 0x000F);
-		virtual void FillRectangle(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
-		virtual void FillRectangleS(vi2d pos, vi2d size, short c = 0x2588, short col = 0x000F);
-		virtual void FillRectangleS(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
+		virtual void FillRectangle(vi2d pos1, vi2d pos2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillRectangle(int x1, int y1, int x2, int y2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillRectangleS(vi2d pos, vi2d size, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillRectangleS(int x, int y, int size_x, int size_y, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawCircle(vi2d pos, int radius, short c = 0x2588, short col = 0x000F);
-		virtual void DrawCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
+		virtual void DrawCircle(vi2d pos, int radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawCircle(int x, int y, int radius, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void FillCircle(vi2d pos, int radius, short c = 0x2588, short col = 0x000F);
-		virtual void FillCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
+		virtual void FillCircle(vi2d pos, int radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillCircle(int x, int y, int radius, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		virtual void DrawSprite(vi2d pos, Sprite* sprite);
 		virtual void DrawSprite(int x, int y, Sprite* sprite);
@@ -625,12 +626,12 @@ namespace def
 		virtual void DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
 		virtual void DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
 
-		virtual void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, short c = 0x2588, short col = 0x000F);
+		virtual void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawString(vi2d pos, std::wstring text, short col = 0x000F);
-		virtual void DrawString(int x, int y, std::wstring text, short col = 0x000F);
+		virtual void DrawString(vi2d pos, std::wstring text, int16_t col = 0x000F);
+		virtual void DrawString(int x, int y, std::wstring text, int16_t col = 0x000F);
 
-		void Clear(short c = 0x2588, short col = 0x000F);
+		void Clear(int16_t c = 0x2588, int16_t col = 0x000F);
 
 		bool MakeSound(std::wstring sFilename, bool bLoop = false);
 		bool Focused();
@@ -639,8 +640,8 @@ namespace def
 		inline int GetMouseX() const;
 		inline int GetMouseY() const;
 
-		inline KeyState GetMouse(short button) const;
-		inline KeyState GetKey(short key) const;
+		inline KeyState GetMouse(int16_t button) const;
+		inline KeyState GetKey(int16_t key) const;
 
 		inline int GetCharacter(bool bHeld = true, bool bPressed = false, bool bReleased = false);
 
@@ -770,7 +771,7 @@ namespace def
 						mouseOldState[m] = mouseNewState[m];
 					}
 
-					WriteConsoleOutputW(hConsoleOut, screen, { (short)nScreenWidth, (short)nScreenHeight }, { 0,0 }, &rectWindow);
+					WriteConsoleOutputW(hConsoleOut, screen, { (int16_t)nScreenWidth, (int16_t)nScreenHeight }, { 0,0 }, &rectWindow);
 				}
 			}
 		}
@@ -790,8 +791,8 @@ namespace def
 		std::vector<KeyState> keys;
 		std::vector<KeyState> mouse;
 
-		short keyOldState[256]{ 0 };
-		short keyNewState[256]{ 0 };
+		int16_t keyOldState[256]{ 0 };
+		int16_t keyNewState[256]{ 0 };
 
 		bool mouseOldState[5] = { 0 };
 		bool mouseNewState[5] = { 0 };
@@ -826,7 +827,7 @@ namespace def
 		return bFocused;
 	}
 
-	void ConsolaProd::FillRectangle(vi2d pos1, vi2d pos2, short c, short col)
+	void ConsolaProd::FillRectangle(vi2d pos1, vi2d pos2, int16_t c, int16_t col)
 	{
 		for (int i = pos1.x; i < pos2.x; i++)
 			for (int j = pos1.y; j < pos2.y; j++)
@@ -836,22 +837,22 @@ namespace def
 			}
 	}
 
-	void ConsolaProd::FillRectangle(int x1, int y1, int x2, int y2, short c, short col)
+	void ConsolaProd::FillRectangle(int x1, int y1, int x2, int y2, int16_t c, int16_t col)
 	{
 		FillRectangle({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
-	void ConsolaProd::FillRectangleS(vi2d pos, vi2d size, short c, short col)
+	void ConsolaProd::FillRectangleS(vi2d pos, vi2d size, int16_t c, int16_t col)
 	{
 		FillRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
 	}
 
-	void ConsolaProd::FillRectangleS(int x, int y, int size_x, int size_y, short c, short col)
+	void ConsolaProd::FillRectangleS(int x, int y, int size_x, int size_y, int16_t c, int16_t col)
 	{
 		FillRectangle({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
 
-	void ConsolaProd::DrawCircle(vi2d pos, int radius, short c, short col)
+	void ConsolaProd::DrawCircle(vi2d pos, int radius, int16_t c, int16_t col)
 	{
 		if (!radius) return;
 
@@ -874,12 +875,12 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawCircle(int x, int y, int radius, short c, short col)
+	void ConsolaProd::DrawCircle(int x, int y, int radius, int16_t c, int16_t col)
 	{
 		DrawCircle({ x, y }, radius, c, col);
 	}
 
-	void ConsolaProd::FillCircle(vi2d pos, int radius, short c, short col)
+	void ConsolaProd::FillCircle(vi2d pos, int radius, int16_t c, int16_t col)
 	{
 		if (!radius) return;
 
@@ -904,12 +905,12 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::FillCircle(int x, int y, int radius, short c, short col)
+	void ConsolaProd::FillCircle(int x, int y, int radius, int16_t c, int16_t col)
 	{
 		FillCircle({ x, y }, radius, c, col);
 	}
 
-	void ConsolaProd::Draw(vi2d pos, short c, short col)
+	void ConsolaProd::Draw(vi2d pos, int16_t c, int16_t col)
 	{
 		if (pos.x >= 0 && pos.x <= nScreenWidth && pos.y >= 0 && pos.y <= nScreenHeight)
 		{
@@ -918,12 +919,12 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::Draw(int x, int y, short c, short col)
+	void ConsolaProd::Draw(int x, int y, int16_t c, int16_t col)
 	{
 		Draw({ x, y }, c, col);
 	}
 
-	void ConsolaProd::DrawLine(vi2d pos1, vi2d pos2, short c, short col)
+	void ConsolaProd::DrawLine(vi2d pos1, vi2d pos2, int16_t c, int16_t col)
 	{
 		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
 		dx = pos2.x - pos1.x; dy = pos2.y - pos1.y;
@@ -983,166 +984,294 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawLine(int x1, int y1, int x2, int y2, short c, short col)
+	void ConsolaProd::DrawLine(int x1, int y1, int x2, int y2, int16_t c, int16_t col)
 	{
 		DrawLine({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
-	void ConsolaProd::DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c, short col)
+	void ConsolaProd::DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, int16_t c, int16_t col)
 	{
 		DrawLine(pos1, pos2, c, col);
 		DrawLine(pos2, pos3, c, col);
 		DrawLine(pos3, pos1, c, col);
 	}
 
-	void ConsolaProd::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
+	void ConsolaProd::DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c, int16_t col)
 	{
 		DrawTriangle({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
 	}
 
 	// https://www.avrfreaks.net/sites/default/files/triangles.c
-	void ConsolaProd::FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, short c, short col)
+	void ConsolaProd::FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, int16_t c, int16_t col)
 	{
-		auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw({ i, ny }, c, col); };
+		auto drawline = [&](int32_t sx, int32_t ex, int32_t ny) { for (int i = sx; i <= ex; i++) Draw({ i, ny }, c, col); };
 
-		int t1x, t2x, y, minx, maxx, t1xp, t2xp;
+		int32_t t1x, t2x, y, minx, maxx, t1xp, t2xp;
+
 		bool changed1 = false;
 		bool changed2 = false;
-		int signx1, signx2, dx1, dy1, dx2, dy2;
-		int e1, e2;
+
+		int32_t signx1, signx2, dx1, dy1, dx2, dy2;
+		int32_t e1, e2;
+
 		// Sort vertices
 		if (pos1.y > pos2.y) { std::swap(pos1.y, pos2.y); std::swap(pos1.x, pos2.x); }
 		if (pos1.y > pos3.y) { std::swap(pos1.y, pos3.y); std::swap(pos1.x, pos3.x); }
 		if (pos2.y > pos3.y) { std::swap(pos2.y, pos3.y); std::swap(pos2.x, pos3.x); }
 
 		t1x = t2x = pos1.x; y = pos1.y;   // Starting points
-		dx1 = (int)(pos2.x - pos1.x); if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
-		else signx1 = 1;
-		dy1 = (int)(pos2.y - pos1.y);
+		dx1 = (int32_t)(pos2.x - pos1.x);
 
-		dx2 = (int)(pos3.x - pos1.x); if (dx2 < 0) { dx2 = -dx2; signx2 = -1; }
-		else signx2 = 1;
-		dy2 = (int)(pos3.y - pos1.y);
+		if (dx1 < 0)
+		{
+			dx1 = -dx1;
+			signx1 = -1;
+		}
+		else
+			signx1 = 1;
 
-		if (dy1 > dx1) {   // swap values
+		dy1 = (int32_t)(pos2.y - pos1.y);
+
+		dx2 = (int32_t)(pos3.x - pos1.x);
+		
+		if (dx2 < 0)
+		{
+			dx2 = -dx2;
+			signx2 = -1;
+		}
+		else
+			signx2 = 1;
+
+		dy2 = (int32_t)(pos3.y - pos1.y);
+
+		if (dy1 > dx1)
+		{   // swap values
 			std::swap(dx1, dy1);
 			changed1 = true;
 		}
-		if (dy2 > dx2) {   // swap values
+		if (dy2 > dx2)
+		{   // swap values
 			std::swap(dy2, dx2);
 			changed2 = true;
 		}
 
-		e2 = (int)(dx2 >> 1);
-		// Flat top, just process the second half
-		if (pos1.y == pos2.y) goto next;
-		e1 = (int)(dx1 >> 1);
+		e2 = (int32_t)(dx2 >> 1);
 
-		for (int i = 0; i < dx1;) {
+		// Flat top, just process the second half
+		if (pos1.y == pos2.y)
+			goto next;
+
+		e1 = (int32_t)(dx1 >> 1);
+
+		for (int i = 0; i < dx1;) 
+		{
 			t1xp = 0; t2xp = 0;
-			if (t1x < t2x) { minx = t1x; maxx = t2x; }
-			else { minx = t2x; maxx = t1x; }
+			if (t1x < t2x) 
+			{ 
+				minx = t1x;
+				maxx = t2x;
+			}
+			else
+			{
+				minx = t2x;
+				maxx = t1x;
+			}
+
 			// process first line until y value is about to change
-			while (i < dx1) {
+			while (i < dx1) 
+			{
 				i++;
 				e1 += dy1;
-				while (e1 >= dx1) {
+
+				while (e1 >= dx1) 
+				{
 					e1 -= dx1;
-					if (changed1) t1xp = signx1;//t1x += signx1;
-					else          goto next1;
+
+					if (changed1)
+						t1xp = signx1;
+					else
+						goto next1;
 				}
-				if (changed1) break;
-				else t1x += signx1;
+
+				if (changed1)
+					break;
+				else
+					t1x += signx1;
 			}
 			// Move line
 		next1:
 			// process second line until y value is about to change
-			while (1) {
+			while (1) 
+			{
 				e2 += dy2;
-				while (e2 >= dx2) {
+				while (e2 >= dx2)
+				{
 					e2 -= dx2;
-					if (changed2) t2xp = signx2;//t2x += signx2;
-					else          goto next2;
+					if (changed2)
+						t2xp = signx2;
+					else
+						goto next2;
 				}
-				if (changed2)     break;
-				else              t2x += signx2;
+				if (changed2)
+					break;
+				else
+					t2x += signx2;
 			}
 		next2:
-			if (minx > t1x) minx = t1x; if (minx > t2x) minx = t2x;
-			if (maxx < t1x) maxx = t1x; if (maxx < t2x) maxx = t2x;
+			if (minx > t1x)
+				minx = t1x;
+
+			if (minx > t2x)
+				minx = t2x;
+
+			if (maxx < t1x)
+				maxx = t1x;
+
+			if (maxx < t2x)
+				maxx = t2x;
+
 			drawline(minx, maxx, y);    // Draw line from min to max points found on the y
 											// Now increase y
-			if (!changed1) t1x += signx1;
+			if (!changed1)
+				t1x += signx1;
+
 			t1x += t1xp;
-			if (!changed2) t2x += signx2;
+
+			if (!changed2)
+				t2x += signx2;
+
 			t2x += t2xp;
 			y += 1;
-			if (y == pos2.y) break;
+
+			if (y == pos2.y)
+				break;
 
 		}
 	next:
 		// Second half
-		dx1 = (int)(pos3.x - pos2.x); if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
-		else signx1 = 1;
-		dy1 = (int)(pos3.y - pos2.y);
+		dx1 = (int32_t)(pos3.x - pos2.x);
+		
+		if (dx1 < 0)
+		{
+			dx1 = -dx1;
+			signx1 = -1;
+		}
+		else
+			signx1 = 1;
+
+		dy1 = (int32_t)(pos3.y - pos2.y);
 		t1x = pos2.x;
 
-		if (dy1 > dx1) {   // swap values
+		if (dy1 > dx1) 
+		{   // swap values
 			std::swap(dy1, dx1);
 			changed1 = true;
 		}
-		else changed1 = false;
+		else
+			changed1 = false;
 
-		e1 = (int)(dx1 >> 1);
+		e1 = (int32_t)(dx1 >> 1);
 
-		for (int i = 0; i <= dx1; i++) {
-			t1xp = 0; t2xp = 0;
-			if (t1x < t2x) { minx = t1x; maxx = t2x; }
-			else { minx = t2x; maxx = t1x; }
+		for (int i = 0; i <= dx1; i++)
+		{
+			t1xp = 0;
+			t2xp = 0;
+
+			if (t1x < t2x)
+			{
+				minx = t1x;
+				maxx = t2x;
+			}
+			else
+			{
+				minx = t2x;
+				maxx = t1x;
+			}
+
 			// process first line until y value is about to change
-			while (i < dx1) {
+			while (i < dx1)
+			{
 				e1 += dy1;
-				while (e1 >= dx1) {
+
+				while (e1 >= dx1)
+				{
 					e1 -= dx1;
-					if (changed1) { t1xp = signx1; break; }//t1x += signx1;
-					else          goto next3;
+					if (changed1)
+					{
+						t1xp = signx1;
+						break;
+					}
+					else
+						goto next3;
 				}
-				if (changed1) break;
-				else   	   	  t1x += signx1;
-				if (i < dx1) i++;
+
+				if (changed1)
+					break;
+				else
+					t1x += signx1;
+
+				if (i < dx1)
+					i++;
 			}
 		next3:
 			// process second line until y value is about to change
-			while (t2x != pos3.x) {
+			while (t2x != pos3.x)
+			{
 				e2 += dy2;
-				while (e2 >= dx2) {
+
+				while (e2 >= dx2)
+				{
 					e2 -= dx2;
-					if (changed2) t2xp = signx2;
-					else          goto next4;
+
+					if (changed2)
+						t2xp = signx2;
+					else
+						goto next4;
 				}
-				if (changed2)     break;
-				else              t2x += signx2;
+
+				if (changed2)
+					break;
+				else
+					t2x += signx2;
 			}
 		next4:
 
-			if (minx > t1x) minx = t1x; if (minx > t2x) minx = t2x;
-			if (maxx < t1x) maxx = t1x; if (maxx < t2x) maxx = t2x;
+			if (minx > t1x)
+				minx = t1x;
+
+			if (minx > t2x)
+				minx = t2x;
+
+			if (maxx < t1x)
+				maxx = t1x;
+
+			if (maxx < t2x)
+				maxx = t2x;
+
 			drawline(minx, maxx, y);
-			if (!changed1) t1x += signx1;
+
+			if (!changed1)
+				t1x += signx1;
+
 			t1x += t1xp;
-			if (!changed2) t2x += signx2;
+
+			if (!changed2)
+				t2x += signx2;
+
 			t2x += t2xp;
 			y += 1;
-			if (y > pos3.y) return;
+
+			if (y > pos3.y)
+				return;
 		}
 	}
 
-	void ConsolaProd::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
+	void ConsolaProd::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int16_t c, int16_t col)
 	{
 		FillTriangle({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
 	}
 
-	void ConsolaProd::DrawRectangle(vi2d pos1, vi2d pos2, short c, short col)
+	void ConsolaProd::DrawRectangle(vi2d pos1, vi2d pos2, int16_t c, int16_t col)
 	{
 		for (int x = pos1.x; x <= pos2.x; x++)
 		{
@@ -1157,17 +1286,17 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawRectangle(int x1, int y1, int x2, int y2, short c, short col)
+	void ConsolaProd::DrawRectangle(int x1, int y1, int x2, int y2, int16_t c, int16_t col)
 	{
 		DrawRectangle({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
-	void ConsolaProd::DrawRectangleS(vi2d pos, vi2d size, short c, short col)
+	void ConsolaProd::DrawRectangleS(vi2d pos, vi2d size, int16_t c, int16_t col)
 	{
 		DrawRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
 	}
 
-	void ConsolaProd::DrawRectangleS(int x, int y, int size_x, int size_y, short c, short col)
+	void ConsolaProd::DrawRectangleS(int x, int y, int size_x, int size_y, int16_t c, int16_t col)
 	{
 		DrawRectangle({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
@@ -1181,8 +1310,8 @@ namespace def
 		{
 			for (int j = 0; j < sprite->nHeight; j++)
 			{
-				if (sprite->GetGlyph({ i, j }) != L' ')
-					Draw({ pos.x + i, pos.y + j }, sprite->GetGlyph({ i, j }), sprite->GetColour({ i, j }));
+				if (sprite->GetGlyph(i, j) != L' ')
+					Draw({ pos.x + i, pos.y + j }, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
 			}
 		}
 	}
@@ -1201,8 +1330,8 @@ namespace def
 		{
 			for (int j = fpos1.y, y = 0; j < fpos2.y; j++, y++)
 			{
-				if (sprite->GetGlyph({ i, j }) != L' ')
-					Draw({ pos.x + x, pos.y + y }, sprite->GetGlyph({ i, j }), sprite->GetColour({ i, j }));
+				if (sprite->GetGlyph(i, j) != L' ')
+					Draw({ pos.x + x, pos.y + y }, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
 			}
 		}
 	}
@@ -1222,7 +1351,7 @@ namespace def
 		DrawPartialSprite({ x, y }, { fx1, fy1 }, { fx1 + fx2, fy1 + fy2 }, sprite);
 	}
 
-	void ConsolaProd::DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r, float s, short c, short col)
+	void ConsolaProd::DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r, float s, int16_t c, int16_t col)
 	{
 		// pair.first = x coordinate
 		// pair.second = y coordinate
@@ -1262,7 +1391,7 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawString(vi2d pos, std::wstring text, short col)
+	void ConsolaProd::DrawString(vi2d pos, std::wstring text, int16_t col)
 	{
 		for (size_t i = 0; i < text.size(); i++)
 		{
@@ -1271,12 +1400,12 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawString(int x, int y, std::wstring text, short col)
+	void ConsolaProd::DrawString(int x, int y, std::wstring text, int16_t col)
 	{
 		DrawString({ x, y }, text, col);
 	}
 
-	void ConsolaProd::Clear(short c, short col)
+	void ConsolaProd::Clear(int16_t c, int16_t col)
 	{
 		FillRectangle({ 0, 0 }, { nScreenWidth, nScreenHeight }, c, col);
 	}
@@ -1296,12 +1425,12 @@ namespace def
 		return nMousePosY;
 	}
 
-	inline KeyState ConsolaProd::GetMouse(short button) const
+	inline KeyState ConsolaProd::GetMouse(int16_t button) const
 	{
 		return mouse[button];
 	}
 
-	inline KeyState ConsolaProd::GetKey(short key) const
+	inline KeyState ConsolaProd::GetKey(int16_t key) const
 	{
 		return keys[key];
 	}
