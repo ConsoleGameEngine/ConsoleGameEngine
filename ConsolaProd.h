@@ -39,6 +39,8 @@
 * Example (engine only supports .spr files, check [this](https://github.com/defini7/SpriteEditor) for editing .spr files):
 	#include "ConsolaProd.h"
 
+	using namespace def;
+
 	class Example : public def::ConsolaProd
 	{
 	public:
@@ -248,7 +250,7 @@ namespace def
 			return v1;
 		}
 
-		friend bool operator<(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x < v.x&& v1.y < v.y; }
+		friend bool operator<(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x < v.x && v1.y < v.y; }
 		friend bool operator>(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x > v.x && v1.y > v.y; }
 		friend bool operator<=(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x <= v.x && v1.y <= v.y; }
 		friend bool operator>=(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x >= v.x && v1.y >= v.y; }
@@ -589,54 +591,72 @@ namespace def
 		}
 
 	public:
-		virtual void Draw(vi2d pos, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void Draw(int32_t x, int32_t y, int16_t c = 0x2588, int16_t col = 0x000F);
+		template <typename T>
+		void Draw(vec2d_basic<T> pos, int16_t c = 0x2588, int16_t col = 0x000F);
+		void Draw(int32_t x, int32_t y, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawLine(vi2d pos1, vi2d pos2, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
+		template <typename T>
+		void DrawLine(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c = 0x2588, int16_t col = 0x000F);
+		void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = 0x2588, int16_t col = 0x000F);
+		template <typename T>
+		void DrawTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, int16_t c = 0x2588, int16_t col = 0x000F);
+		void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = 0x2588, int16_t col = 0x000F);
+		template <typename T>
+		void FillTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, int16_t c = 0x2588, int16_t col = 0x000F);
+		void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawRectangle(vi2d pos1, vi2d pos2, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawRectangleS(vi2d pos, vi2d size, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c = 0x2588, int16_t col = 0x000F);
+		template <typename T>
+		void DrawRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c = 0x2588, int16_t col = 0x000F);
+		void DrawRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void FillRectangle(vi2d pos1, vi2d pos2, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void FillRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void FillRectangleS(vi2d pos, vi2d size, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void FillRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c = 0x2588, int16_t col = 0x000F);
+		template <typename T>
+		void DrawRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, int16_t c = 0x2588, int16_t col = 0x000F);
+		void DrawRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawCircle(vi2d pos, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		template <typename T>
+		void FillRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c = 0x2588, int16_t col = 0x000F);
+		void FillRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void FillCircle(vi2d pos, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
-		virtual void FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		template <typename T>
+		void FillRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, int16_t c = 0x2588, int16_t col = 0x000F);
+		void FillRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawSprite(vi2d pos, Sprite* sprite);
-		virtual void DrawSprite(int32_t x, int32_t y, Sprite* sprite);
+		template <typename T>
+		void DrawCircle(vec2d_basic<T> pos, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		void DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawPartialSprite(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
-		virtual void DrawPartialSprite(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite);
+		template <typename T>
+		void FillCircle(vec2d_basic<T> pos, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		void FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
 
-		virtual void DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite);
-		virtual void DrawPartialSpriteS(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite);
+		template <typename T>
+		void DrawSprite(vec2d_basic<T> pos, Sprite* sprite);
+		void DrawSprite(int32_t x, int32_t y, Sprite* sprite);
 
-		virtual void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, int16_t c = 0x2588, int16_t col = 0x000F);
+		template <typename T>
+		void DrawPartialSprite(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite);
+		void DrawPartialSprite(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite);
 
-		virtual void DrawString(vi2d pos, std::wstring text, int16_t col = 0x000F);
-		virtual void DrawString(int32_t x, int32_t y, std::wstring text, int16_t col = 0x000F);
+		template <typename T>
+		void DrawPartialSpriteS(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite);
+		void DrawPartialSpriteS(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite);
+
+		void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, int16_t c = 0x2588, int16_t col = 0x000F);
+
+		template <typename T>
+		void DrawString(vec2d_basic<T> pos, std::wstring text, int16_t col = 0x000F);
+		void DrawString(int32_t x, int32_t y, std::wstring text, int16_t col = 0x000F);
 
 		void Clear(int16_t c = 0x2588, int16_t col = 0x000F);
 
 		bool MakeSound(std::wstring sFilename, bool bLoop = false);
 		bool Focused();
 
-		inline vi2d GetMouse() const;
+		template <typename T>
+		inline vec2d_basic<T> GetMouse() const;
+
 		inline int32_t GetMouseX() const;
 		inline int32_t GetMouseY() const;
 
@@ -647,7 +667,9 @@ namespace def
 
 		inline int32_t GetScreenWidth() const;
 		inline int32_t GetScreenHeight() const;
-		inline vi2d GetScreenSize() const;
+		
+		template <typename T>
+		inline vec2d_basic<T> GetScreenSize() const;
 
 		inline float GetDeltaTime() const;
 
@@ -827,10 +849,11 @@ namespace def
 		return bFocused;
 	}
 
-	void ConsolaProd::FillRectangle(vi2d pos1, vi2d pos2, int16_t c, int16_t col)
+	template <typename T>
+	void ConsolaProd::FillRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c, int16_t col)
 	{
-		for (int i = pos1.x; i < pos2.x; i++)
-			for (int j = pos1.y; j < pos2.y; j++)
+		for (int i = pos1.x; i <= pos2.x; i++)
+			for (int j = pos1.y; j <= pos2.y; j++)
 			{
 				screen[j * nScreenWidth + i].Char.UnicodeChar = c;
 				screen[j * nScreenWidth + i].Attributes = col;
@@ -839,20 +862,22 @@ namespace def
 
 	void ConsolaProd::FillRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
 	{
-		FillRectangle({ x1, y1 }, { x2, y2 }, c, col);
+		FillRectangle<int32_t>({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
-	void ConsolaProd::FillRectangleS(vi2d pos, vi2d size, int16_t c, int16_t col)
+	template <typename T>
+	void ConsolaProd::FillRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, int16_t c, int16_t col)
 	{
 		FillRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
 	}
 
 	void ConsolaProd::FillRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c, int16_t col)
 	{
-		FillRectangle({ x, y }, { x + size_x, y + size_y }, c, col);
+		FillRectangle<int32_t>({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
 
-	void ConsolaProd::DrawCircle(vi2d pos, int32_t radius, int16_t c, int16_t col)
+	template <typename T>
+	void ConsolaProd::DrawCircle(vec2d_basic<T> pos, int32_t radius, int16_t c, int16_t col)
 	{
 		if (!radius) return;
 
@@ -889,10 +914,11 @@ namespace def
 
 	void ConsolaProd::DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c, int16_t col)
 	{
-		DrawCircle({ x, y }, radius, c, col);
+		DrawCircle<int32_t>({ x, y }, radius, c, col);
 	}
 
-	void ConsolaProd::FillCircle(vi2d pos, int32_t radius, int16_t c, int16_t col)
+	template <typename T>
+	void ConsolaProd::FillCircle(vec2d_basic<T> pos, int32_t radius, int16_t c, int16_t col)
 	{
 		if (!radius) return;
 
@@ -919,10 +945,11 @@ namespace def
 
 	void ConsolaProd::FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c, int16_t col)
 	{
-		FillCircle({ x, y }, radius, c, col);
+		FillCircle<int32_t>({ x, y }, radius, c, col);
 	}
 
-	void ConsolaProd::Draw(vi2d pos, int16_t c, int16_t col)
+	template <typename T>
+	void ConsolaProd::Draw(vec2d_basic<T> pos, int16_t c, int16_t col)
 	{
 		if (pos.x >= 0 && pos.x < nScreenWidth && pos.y >= 0 && pos.y < nScreenHeight)
 		{
@@ -930,13 +957,14 @@ namespace def
 			screen[pos.y * nScreenWidth + pos.x].Attributes = col;
 		}
 	}
-
+	
 	void ConsolaProd::Draw(int32_t x, int32_t y, int16_t c, int16_t col)
 	{
-		Draw({ x, y }, c, col);
+		Draw<int32_t>({ x, y }, c, col);
 	}
 
-	void ConsolaProd::DrawLine(vi2d pos1, vi2d pos2, int16_t c, int16_t col)
+	template <typename T>
+	void ConsolaProd::DrawLine(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c, int16_t col)
 	{
 		int32_t x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
 
@@ -1017,17 +1045,18 @@ namespace def
 					py = py + 2 * (dx1 - dy1);
 				}
 
-				Draw({ x, y }, c, col);
+				Draw(x, y, c, col);
 			}
 		}
 	}
 
 	void ConsolaProd::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
 	{
-		DrawLine({ x1, y1 }, { x2, y2 }, c, col);
+		DrawLine<int32_t>({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
-	void ConsolaProd::DrawTriangle(vi2d pos1, vi2d pos2, vi2d pos3, int16_t c, int16_t col)
+	template <typename T>
+	void ConsolaProd::DrawTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, int16_t c, int16_t col)
 	{
 		DrawLine(pos1, pos2, c, col);
 		DrawLine(pos2, pos3, c, col);
@@ -1036,13 +1065,14 @@ namespace def
 
 	void ConsolaProd::DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c, int16_t col)
 	{
-		DrawTriangle({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
+		DrawTriangle<int32_t>({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
 	}
 
 	// https://www.avrfreaks.net/sites/default/files/triangles.c
-	void ConsolaProd::FillTriangle(vi2d pos1, vi2d pos2, vi2d pos3, int16_t c, int16_t col)
+	template <typename T>
+	void ConsolaProd::FillTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, int16_t c, int16_t col)
 	{
-		auto drawline = [&](int32_t sx, int32_t ex, int32_t ny) { for (int i = sx; i <= ex; i++) Draw({ i, ny }, c, col); };
+		auto drawline = [&](int32_t sx, int32_t ex, int32_t ny) { for (int i = sx; i <= ex; i++) Draw(i, ny, c, col); };
 
 		int32_t t1x, t2x, y, minx, maxx, t1xp, t2xp;
 
@@ -1306,18 +1336,19 @@ namespace def
 
 	void ConsolaProd::FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c, int16_t col)
 	{
-		FillTriangle({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
+		FillTriangle<int32_t>({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
 	}
 
-	void ConsolaProd::DrawRectangle(vi2d pos1, vi2d pos2, int16_t c, int16_t col)
+	template <typename T>
+	void ConsolaProd::DrawRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c, int16_t col)
 	{
-		for (int x = pos1.x; x <= pos2.x; x++)
+		for (int x = 0; x <= pos2.x - pos1.x; x++)
 		{
 			Draw(pos1.x + x, pos1.y, c, col);
 			Draw(pos1.x + x, pos2.y, c, col);
 		}
 
-		for (int y = pos1.y; y <= pos2.y; y++)
+		for (int y = 0; y <= pos2.y - pos1.y; y++)
 		{
 			Draw(pos1.x, pos1.y + y, c, col);
 			Draw(pos2.x, pos1.y + y, c, col);
@@ -1326,20 +1357,22 @@ namespace def
 
 	void ConsolaProd::DrawRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
 	{
-		DrawRectangle({ x1, y1 }, { x2, y2 }, c, col);
+		DrawRectangle<int32_t>({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
-	void ConsolaProd::DrawRectangleS(vi2d pos, vi2d size, int16_t c, int16_t col)
+	template <typename T>
+	void ConsolaProd::DrawRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, int16_t c, int16_t col)
 	{
-		DrawRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
+		DrawRectangle<int32_t>(pos, { pos.x + size.x, pos.y + size.y }, c, col);
 	}
 
 	void ConsolaProd::DrawRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c, int16_t col)
 	{
-		DrawRectangle({ x, y }, { x + size_x, y + size_y }, c, col);
+		DrawRectangle<int32_t>({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
 
-	void ConsolaProd::DrawSprite(vi2d pos, Sprite* sprite)
+	template <typename T>
+	void ConsolaProd::DrawSprite(vec2d_basic<T> pos, Sprite* sprite)
 	{
 		if (sprite == nullptr)
 			return;
@@ -1349,17 +1382,18 @@ namespace def
 			for (int j = 0; j < sprite->nHeight; j++)
 			{
 				if (sprite->GetGlyph(i, j) != L' ')
-					Draw({ pos.x + i, pos.y + j }, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
+					Draw(pos.x + i, pos.y + j, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
 			}
 		}
 	}
 
 	void ConsolaProd::DrawSprite(int32_t x, int32_t y, Sprite* sprite)
 	{
-		DrawSprite({ x, y }, sprite);
+		DrawSprite<int32_t>({ x, y }, sprite);
 	}
 
-	void ConsolaProd::DrawPartialSprite(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite)
+	template <typename T>
+	void ConsolaProd::DrawPartialSprite(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite)
 	{
 		if (sprite == nullptr || fpos1.x < 0 || fpos1.y < 0 || fpos2.x > sprite->nWidth || fpos2.y > sprite->nHeight)
 			return;
@@ -1369,24 +1403,25 @@ namespace def
 			for (int j = fpos1.y, y = 0; j < fpos2.y; j++, y++)
 			{
 				if (sprite->GetGlyph(i, j) != L' ')
-					Draw({ pos.x + x, pos.y + y }, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
+					Draw(pos.x + x, pos.y + y, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
 			}
 		}
 	}
 
 	void ConsolaProd::DrawPartialSprite(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite)
 	{
-		DrawPartialSprite({ x, y }, { fx1, fy1 }, { fx2, fy2 }, sprite);
+		DrawPartialSprite<int32_t>({ x, y }, { fx1, fy1 }, { fx2, fy2 }, sprite);
 	}
 
-	void ConsolaProd::DrawPartialSpriteS(vi2d pos, vi2d fpos1, vi2d fpos2, Sprite* sprite)
+	template <typename T>
+	void ConsolaProd::DrawPartialSpriteS(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite)
 	{
-		DrawPartialSprite({ pos.x, pos.y }, { fpos1.x, fpos1.y }, { fpos1.x + fpos2.x, fpos1.y + fpos2.y }, sprite);
+		DrawPartialSprite<int32_t>({ pos.x, pos.y }, { fpos1.x, fpos1.y }, { fpos1.x + fpos2.x, fpos1.y + fpos2.y }, sprite);
 	}
 
 	void ConsolaProd::DrawPartialSpriteS(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite)
 	{
-		DrawPartialSprite({ x, y }, { fx1, fy1 }, { fx1 + fx2, fy1 + fy2 }, sprite);
+		DrawPartialSprite<int32_t>({ x, y }, { fx1, fy1 }, { fx1 + fx2, fy1 + fy2 }, sprite);
 	}
 
 	void ConsolaProd::DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r, float s, int16_t c, int16_t col)
@@ -1429,7 +1464,8 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawString(vi2d pos, std::wstring text, int16_t col)
+	template <typename T>
+	void ConsolaProd::DrawString(vec2d_basic<T> pos, std::wstring text, int16_t col)
 	{
 		for (size_t i = 0; i < text.size(); i++)
 		{
@@ -1440,15 +1476,16 @@ namespace def
 
 	void ConsolaProd::DrawString(int32_t x, int32_t y, std::wstring text, int16_t col)
 	{
-		DrawString({ x, y }, text, col);
+		DrawString<int32_t>({ x, y }, text, col);
 	}
 
 	void ConsolaProd::Clear(int16_t c, int16_t col)
 	{
-		FillRectangle({ 0, 0 }, { nScreenWidth, nScreenHeight }, c, col);
+		FillRectangle(0, 0, nScreenWidth - 1, nScreenHeight - 1, c, col);
 	}
 
-	inline vi2d ConsolaProd::GetMouse() const
+	template <typename T>
+	inline vec2d_basic<T> ConsolaProd::GetMouse() const
 	{
 		return { nMousePosX, nMousePosY };
 	}
@@ -1508,7 +1545,8 @@ namespace def
 		return -1;
 	}
 
-	inline vi2d ConsolaProd::GetScreenSize() const
+	template <typename T>
+	inline vec2d_basic<T> ConsolaProd::GetScreenSize() const
 	{
 		return { nScreenWidth, nScreenHeight };
 	}
