@@ -1,6 +1,6 @@
 #pragma once
 
-#pragma region consolaprod_license
+#pragma region consolegameengine_license
 /***
 *	BSD 3-Clause License
 
@@ -34,14 +34,14 @@
 ***/
 #pragma endregion
 
-#pragma region consolaprod_sample
+#pragma region consolegameengine_sample
 /**
 * Example (engine only supports .spr files, check [this](https://github.com/defini7/SpriteEditor) for editing .spr files):
-	#include "ConsolaProd.h"
+	#include "ConsoleGameEngine.h"
 
 	using namespace def;
 
-	class Example : public def::ConsolaProd
+	class Example : public def::ConsoleGameEngine
 	{
 	public:
 		Example()
@@ -250,7 +250,7 @@ namespace def
 			return v1;
 		}
 
-		friend bool operator<(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x < v.x && v1.y < v.y; }
+		friend bool operator<(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x < v.x&& v1.y < v.y; }
 		friend bool operator>(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x > v.x && v1.y > v.y; }
 		friend bool operator<=(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x <= v.x && v1.y <= v.y; }
 		friend bool operator>=(const vec2d_basic<T>& v1, const vec2d_basic<T>& v) { return v1.x >= v.x && v1.y >= v.y; }
@@ -297,53 +297,6 @@ namespace def
 	};
 
 	const float PI = 2.0f * acosf(0.0f);
-
-#ifdef XBOX_CONTROLLER
-	class XBOX_Controller
-	{
-	public:
-		XINPUT_STATE m_ControllerState;
-		int32_t nControllerID;
-
-		XBOX_Controller(int32_t nPlayer)
-		{
-			this->nControllerID = nPlayer - 1;
-		}
-
-		XINPUT_STATE GetState()
-		{
-			ZeroMemory(&this->m_ControllerState, sizeof(XINPUT_STATE));
-			XInputGetState(this->nControllerID, &this->m_ControllerState);
-
-			return this->m_ControllerState;
-		}
-
-		bool IsConnected()
-		{
-			ZeroMemory(&this->m_ControllerState, sizeof(XINPUT_STATE));
-			DWORD dwConnection = XInputGetState(this->nControllerID, &this->m_ControllerState);
-
-			return dwConnection == ERROR_SUCCESS;
-		}
-
-		void SetVibration(int32_t nLeftValue, int32_t nRightValue)
-		{
-			XINPUT_VIBRATION m_Vibration;
-			ZeroMemory(&m_Vibration, sizeof(XINPUT_VIBRATION));
-
-			m_Vibration.wLeftMotorSpeed = nLeftValue;
-			m_Vibration.wRightMotorSpeed = nRightValue;
-
-			XInputSetState(nControllerID, &m_Vibration);
-		}
-
-		BYTE GetJoy(int16_t key)
-		{
-			return GetState().Gamepad.wButtons & key;
-		}
-	};
-
-#endif
 
 	class Sprite
 	{
@@ -466,10 +419,10 @@ namespace def
 		}
 	};
 
-	class ConsolaProd
+	class ConsoleGameEngine
 	{
 	public:
-		ConsolaProd()
+		ConsoleGameEngine()
 		{
 			hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
 			hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
@@ -482,7 +435,7 @@ namespace def
 			sFont = L"Consolas";
 		}
 
-		virtual ~ConsolaProd()
+		virtual ~ConsoleGameEngine()
 		{
 			delete[] screen;
 		}
@@ -586,7 +539,7 @@ namespace def
 		{
 			bGameThreadActive = true;
 
-			std::thread t = std::thread(&def::ConsolaProd::AppThread, this);
+			std::thread t = std::thread(&def::ConsoleGameEngine::AppThread, this);
 			t.join();
 		}
 
@@ -667,7 +620,7 @@ namespace def
 
 		inline int32_t GetScreenWidth() const;
 		inline int32_t GetScreenHeight() const;
-		
+
 		template <typename T>
 		inline vec2d_basic<T> GetScreenSize() const;
 
@@ -834,7 +787,7 @@ namespace def
 		bool bFocused;
 	};
 
-	bool ConsolaProd::MakeSound(std::wstring sFilename, bool bLoop)
+	bool ConsoleGameEngine::MakeSound(std::wstring sFilename, bool bLoop)
 	{
 		DWORD f = SND_ASYNC | SND_FILENAME;
 
@@ -844,13 +797,13 @@ namespace def
 		return (bool)PlaySoundW(sFilename.c_str(), nullptr, f);
 	}
 
-	bool ConsolaProd::Focused()
+	bool ConsoleGameEngine::Focused()
 	{
 		return bFocused;
 	}
 
 	template <typename T>
-	void ConsolaProd::FillRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c, int16_t col)
+	void ConsoleGameEngine::FillRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c, int16_t col)
 	{
 		for (int i = pos1.x; i <= pos2.x; i++)
 			for (int j = pos1.y; j <= pos2.y; j++)
@@ -860,24 +813,24 @@ namespace def
 			}
 	}
 
-	void ConsolaProd::FillRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
+	void ConsoleGameEngine::FillRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
 	{
 		FillRectangle<int32_t>({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
 	template <typename T>
-	void ConsolaProd::FillRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, int16_t c, int16_t col)
+	void ConsoleGameEngine::FillRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, int16_t c, int16_t col)
 	{
 		FillRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
 	}
 
-	void ConsolaProd::FillRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c, int16_t col)
+	void ConsoleGameEngine::FillRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c, int16_t col)
 	{
 		FillRectangle<int32_t>({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
 
 	template <typename T>
-	void ConsolaProd::DrawCircle(vec2d_basic<T> pos, int32_t radius, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawCircle(vec2d_basic<T> pos, int32_t radius, int16_t c, int16_t col)
 	{
 		if (!radius) return;
 
@@ -899,7 +852,7 @@ namespace def
 			if (p < 0)
 			{
 				p += 4 * x + 6;
-				
+
 				x++;
 			}
 			else
@@ -912,13 +865,13 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c, int16_t col)
 	{
 		DrawCircle<int32_t>({ x, y }, radius, c, col);
 	}
 
 	template <typename T>
-	void ConsolaProd::FillCircle(vec2d_basic<T> pos, int32_t radius, int16_t c, int16_t col)
+	void ConsoleGameEngine::FillCircle(vec2d_basic<T> pos, int32_t radius, int16_t c, int16_t col)
 	{
 		if (!radius) return;
 
@@ -943,13 +896,13 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c, int16_t col)
+	void ConsoleGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c, int16_t col)
 	{
 		FillCircle<int32_t>({ x, y }, radius, c, col);
 	}
 
 	template <typename T>
-	void ConsolaProd::Draw(vec2d_basic<T> pos, int16_t c, int16_t col)
+	void ConsoleGameEngine::Draw(vec2d_basic<T> pos, int16_t c, int16_t col)
 	{
 		if (pos.x >= 0 && pos.x < nScreenWidth && pos.y >= 0 && pos.y < nScreenHeight)
 		{
@@ -957,14 +910,14 @@ namespace def
 			screen[pos.y * nScreenWidth + pos.x].Attributes = col;
 		}
 	}
-	
-	void ConsolaProd::Draw(int32_t x, int32_t y, int16_t c, int16_t col)
+
+	void ConsoleGameEngine::Draw(int32_t x, int32_t y, int16_t c, int16_t col)
 	{
 		Draw<int32_t>({ x, y }, c, col);
 	}
 
 	template <typename T>
-	void ConsolaProd::DrawLine(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawLine(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c, int16_t col)
 	{
 		int32_t x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
 
@@ -1050,27 +1003,27 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
 	{
 		DrawLine<int32_t>({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
 	template <typename T>
-	void ConsolaProd::DrawTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, int16_t c, int16_t col)
 	{
 		DrawLine(pos1, pos2, c, col);
 		DrawLine(pos2, pos3, c, col);
 		DrawLine(pos3, pos1, c, col);
 	}
 
-	void ConsolaProd::DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c, int16_t col)
 	{
 		DrawTriangle<int32_t>({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
 	}
 
 	// https://www.avrfreaks.net/sites/default/files/triangles.c
 	template <typename T>
-	void ConsolaProd::FillTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, int16_t c, int16_t col)
+	void ConsoleGameEngine::FillTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, int16_t c, int16_t col)
 	{
 		auto drawline = [&](int32_t sx, int32_t ex, int32_t ny) { for (int i = sx; i <= ex; i++) Draw(i, ny, c, col); };
 
@@ -1101,7 +1054,7 @@ namespace def
 		dy1 = (int32_t)(pos2.y - pos1.y);
 
 		dx2 = (int32_t)(pos3.x - pos1.x);
-		
+
 		if (dx2 < 0)
 		{
 			dx2 = -dx2;
@@ -1131,11 +1084,11 @@ namespace def
 
 		e1 = (int32_t)(dx1 >> 1);
 
-		for (int i = 0; i < dx1;) 
+		for (int i = 0; i < dx1;)
 		{
 			t1xp = 0; t2xp = 0;
-			if (t1x < t2x) 
-			{ 
+			if (t1x < t2x)
+			{
 				minx = t1x;
 				maxx = t2x;
 			}
@@ -1146,12 +1099,12 @@ namespace def
 			}
 
 			// process first line until y value is about to change
-			while (i < dx1) 
+			while (i < dx1)
 			{
 				i++;
 				e1 += dy1;
 
-				while (e1 >= dx1) 
+				while (e1 >= dx1)
 				{
 					e1 -= dx1;
 
@@ -1169,7 +1122,7 @@ namespace def
 			// Move line
 		next1:
 			// process second line until y value is about to change
-			while (1) 
+			while (1)
 			{
 				e2 += dy2;
 				while (e2 >= dx2)
@@ -1199,7 +1152,7 @@ namespace def
 				maxx = t2x;
 
 			drawline(minx, maxx, y);    // Draw line from min to max points found on the y
-											// Now increase y
+			// Now increase y
 			if (!changed1)
 				t1x += signx1;
 
@@ -1218,7 +1171,7 @@ namespace def
 	next:
 		// Second half
 		dx1 = (int32_t)(pos3.x - pos2.x);
-		
+
 		if (dx1 < 0)
 		{
 			dx1 = -dx1;
@@ -1230,7 +1183,7 @@ namespace def
 		dy1 = (int32_t)(pos3.y - pos2.y);
 		t1x = pos2.x;
 
-		if (dy1 > dx1) 
+		if (dy1 > dx1)
 		{   // swap values
 			std::swap(dy1, dx1);
 			changed1 = true;
@@ -1334,13 +1287,13 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c, int16_t col)
+	void ConsoleGameEngine::FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c, int16_t col)
 	{
 		FillTriangle<int32_t>({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
 	}
 
 	template <typename T>
-	void ConsolaProd::DrawRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c, int16_t col)
 	{
 		for (int x = 0; x <= pos2.x - pos1.x; x++)
 		{
@@ -1355,24 +1308,24 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
 	{
 		DrawRectangle<int32_t>({ x1, y1 }, { x2, y2 }, c, col);
 	}
 
 	template <typename T>
-	void ConsolaProd::DrawRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, int16_t c, int16_t col)
 	{
 		DrawRectangle<int32_t>(pos, { pos.x + size.x, pos.y + size.y }, c, col);
 	}
 
-	void ConsolaProd::DrawRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c, int16_t col)
 	{
 		DrawRectangle<int32_t>({ x, y }, { x + size_x, y + size_y }, c, col);
 	}
 
 	template <typename T>
-	void ConsolaProd::DrawSprite(vec2d_basic<T> pos, Sprite* sprite)
+	void ConsoleGameEngine::DrawSprite(vec2d_basic<T> pos, Sprite* sprite)
 	{
 		if (sprite == nullptr)
 			return;
@@ -1387,13 +1340,13 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawSprite(int32_t x, int32_t y, Sprite* sprite)
+	void ConsoleGameEngine::DrawSprite(int32_t x, int32_t y, Sprite* sprite)
 	{
 		DrawSprite<int32_t>({ x, y }, sprite);
 	}
 
 	template <typename T>
-	void ConsolaProd::DrawPartialSprite(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite)
+	void ConsoleGameEngine::DrawPartialSprite(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite)
 	{
 		if (sprite == nullptr || fpos1.x < 0 || fpos1.y < 0 || fpos2.x > sprite->nWidth || fpos2.y > sprite->nHeight)
 			return;
@@ -1408,23 +1361,23 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawPartialSprite(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite)
+	void ConsoleGameEngine::DrawPartialSprite(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite)
 	{
 		DrawPartialSprite<int32_t>({ x, y }, { fx1, fy1 }, { fx2, fy2 }, sprite);
 	}
 
 	template <typename T>
-	void ConsolaProd::DrawPartialSpriteS(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite)
+	void ConsoleGameEngine::DrawPartialSpriteS(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite)
 	{
 		DrawPartialSprite<int32_t>({ pos.x, pos.y }, { fpos1.x, fpos1.y }, { fpos1.x + fpos2.x, fpos1.y + fpos2.y }, sprite);
 	}
 
-	void ConsolaProd::DrawPartialSpriteS(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite)
+	void ConsoleGameEngine::DrawPartialSpriteS(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite)
 	{
 		DrawPartialSprite<int32_t>({ x, y }, { fx1, fy1 }, { fx1 + fx2, fy1 + fy2 }, sprite);
 	}
 
-	void ConsolaProd::DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r, float s, int16_t c, int16_t col)
+	void ConsoleGameEngine::DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r, float s, int16_t c, int16_t col)
 	{
 		// pair.first = x coordinate
 		// pair.second = y coordinate
@@ -1465,7 +1418,7 @@ namespace def
 	}
 
 	template <typename T>
-	void ConsolaProd::DrawString(vec2d_basic<T> pos, std::wstring text, int16_t col)
+	void ConsoleGameEngine::DrawString(vec2d_basic<T> pos, std::wstring text, int16_t col)
 	{
 		for (size_t i = 0; i < text.size(); i++)
 		{
@@ -1474,53 +1427,53 @@ namespace def
 		}
 	}
 
-	void ConsolaProd::DrawString(int32_t x, int32_t y, std::wstring text, int16_t col)
+	void ConsoleGameEngine::DrawString(int32_t x, int32_t y, std::wstring text, int16_t col)
 	{
 		DrawString<int32_t>({ x, y }, text, col);
 	}
 
-	void ConsolaProd::Clear(int16_t c, int16_t col)
+	void ConsoleGameEngine::Clear(int16_t c, int16_t col)
 	{
 		FillRectangle(0, 0, nScreenWidth - 1, nScreenHeight - 1, c, col);
 	}
 
 	template <typename T>
-	inline vec2d_basic<T> ConsolaProd::GetMouse() const
+	inline vec2d_basic<T> ConsoleGameEngine::GetMouse() const
 	{
 		return { nMousePosX, nMousePosY };
 	}
 
-	inline int32_t ConsolaProd::GetMouseX() const
+	inline int32_t ConsoleGameEngine::GetMouseX() const
 	{
 		return nMousePosX;
 	}
 
-	inline int32_t ConsolaProd::GetMouseY() const
+	inline int32_t ConsoleGameEngine::GetMouseY() const
 	{
 		return nMousePosY;
 	}
 
-	inline KeyState ConsolaProd::GetMouse(int16_t button) const
+	inline KeyState ConsoleGameEngine::GetMouse(int16_t button) const
 	{
 		return mouse[button];
 	}
 
-	inline KeyState ConsolaProd::GetKey(int16_t key) const
+	inline KeyState ConsoleGameEngine::GetKey(int16_t key) const
 	{
 		return keys[key];
 	}
 
-	inline int32_t ConsolaProd::GetScreenWidth() const
+	inline int32_t ConsoleGameEngine::GetScreenWidth() const
 	{
 		return nScreenWidth;
 	}
 
-	inline int32_t ConsolaProd::GetScreenHeight() const
+	inline int32_t ConsoleGameEngine::GetScreenHeight() const
 	{
 		return nScreenHeight;
 	}
 
-	inline int32_t ConsolaProd::GetCharacter(bool bHeld, bool bPressed, bool bReleased)
+	inline int32_t ConsoleGameEngine::GetCharacter(bool bHeld, bool bPressed, bool bReleased)
 	{
 		for (int i = ' '; i <= '~'; i++)
 		{
@@ -1546,12 +1499,12 @@ namespace def
 	}
 
 	template <typename T>
-	inline vec2d_basic<T> ConsolaProd::GetScreenSize() const
+	inline vec2d_basic<T> ConsoleGameEngine::GetScreenSize() const
 	{
 		return { nScreenWidth, nScreenHeight };
 	}
 
-	inline float ConsolaProd::GetDeltaTime() const
+	inline float ConsoleGameEngine::GetDeltaTime() const
 	{
 		return fDeltaTime;
 	}
