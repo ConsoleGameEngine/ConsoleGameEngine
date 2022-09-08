@@ -1,10 +1,10 @@
 // Tutorial: https://youtu.be/gCclsviUeUk
 
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 #include <list>
 
-class AStar : public def::ConsolaProd
+class AStar : public def::ConsoleGameEngine
 {
 public:
 	AStar()
