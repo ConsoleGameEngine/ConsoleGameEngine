@@ -1,4 +1,4 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 #undef max
 #undef min
@@ -16,7 +16,7 @@ struct sSpaceObject
 	float angle;
 };
 
-class Asteroids : public def::ConsolaProd
+class Asteroids : public def::ConsoleGameEngine
 {
 public:
 	Asteroids()
