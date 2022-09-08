@@ -1,6 +1,6 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
-class Example : public def::ConsolaProd
+class Example : public def::ConsoleGameEngine
 {
 public:
 	Example()
