@@ -1,4 +1,4 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 struct Expression
 {
@@ -169,7 +169,7 @@ double Parser::evaluate(const Expression& e)
 
 }
 
-class Graphs : public def::ConsolaProd
+class Graphs : public def::ConsoleGameEngine
 {
 public:
 	Graphs(std::string exp)
