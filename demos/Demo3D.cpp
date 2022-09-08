@@ -1,4 +1,4 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 using namespace def;
 
@@ -24,7 +24,7 @@ struct mesh
 	std::vector<triangle> tris;
 };
 
-class Engine3D : public def::ConsolaProd
+class Engine3D : public def::ConsoleGameEngine
 {
 public:
 	Engine3D()
