@@ -1,8 +1,8 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 using namespace def;
 
-class Example : public def::ConsolaProd
+class Example : public def::ConsoleGameEngine
 {
 public:
 	Example()
