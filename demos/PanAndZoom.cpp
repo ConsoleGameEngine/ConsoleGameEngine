@@ -1,6 +1,6 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
-class PanAndZoom : public def::ConsolaProd
+class PanAndZoom : public def::ConsoleGameEngine
 {
 public:
 	PanAndZoom()
