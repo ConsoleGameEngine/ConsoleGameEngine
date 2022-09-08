@@ -1,11 +1,11 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
-class Example : public def::ConsolaProd
+class Example : public def::ConsoleGameEngine
 {
 public:
 	Example()
 	{
-		sAppName = L"Consola Prod Sample";
+		sAppName = L"ConsoleGameEngine Sample";
 	}
 
 private:
