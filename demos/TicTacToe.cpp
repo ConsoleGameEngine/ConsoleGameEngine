@@ -1,4 +1,4 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 enum class CELL_TYPE
 {
@@ -7,7 +7,7 @@ enum class CELL_TYPE
 	BLANK
 };
 
-class TicTacToe : public def::ConsolaProd
+class TicTacToe : public def::ConsoleGameEngine
 {
 public:
 	TicTacToe()
