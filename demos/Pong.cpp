@@ -1,4 +1,4 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 struct sBall
 {
@@ -24,7 +24,7 @@ struct sPlayer
 	float speed;
 };
 
-class AtariPong : public def::ConsolaProd
+class AtariPong : public def::ConsoleGameEngine
 {
 public:
 	AtariPong()
