@@ -1,11 +1,11 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 #include <thread>
 #include <list>
 
 using namespace std::chrono_literals;
 
-class Tetris : public def::ConsolaProd
+class Tetris : public def::ConsoleGameEngine
 {
 public:
 	Tetris()
