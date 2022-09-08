@@ -1,4 +1,4 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 #include <algorithm>
 
@@ -29,7 +29,7 @@ enum Side
 	Y_COORD
 };
 
-class Example : public def::ConsolaProd
+class Example : public def::ConsoleGameEngine
 {
 public:
 	Example()
