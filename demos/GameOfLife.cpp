@@ -1,8 +1,8 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 using namespace def;
 
-class CellularAutomata : public def::ConsolaProd
+class CellularAutomata : public def::ConsoleGameEngine
 {
 public:
 	CellularAutomata()
