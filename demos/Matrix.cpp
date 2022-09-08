@@ -1,4 +1,4 @@
-#include "ConsolaProd.h"
+#include "ConsoleGameEngine.h"
 
 struct sLine
 {
@@ -6,7 +6,7 @@ struct sLine
 	def::vf2d pos;
 };
 
-class Matrix : public def::ConsolaProd
+class Matrix : public def::ConsoleGameEngine
 {
 public:
 	Matrix()
