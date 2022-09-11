@@ -167,6 +167,10 @@ if (GetMouse(0).bPressed)
 }
 ```
 
+## Полезности
+
+1. Редактор спрайтов: [SpriteEditor](https://github.com/defini7/SpriteEditor)
+
 ## Лицензия
 
 BSD 3-Clause License
