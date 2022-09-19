@@ -24,8 +24,8 @@ protected:
 	{
 		Clear(def::FG::BLACK);
 
-		FillRectangleS(10, 10, nBarWidth, nBarHeight, def::Pixel::SOLID, def::FG::WHITE);
-		FillRectangleS(10, 10, nBarWidth * fHealth, nBarHeight, def::Pixel::SOLID, def::FG::RED);
+		FillRectangleS(10, 10, nBarWidth, nBarHeight, def::PIXEL_SOLID, def::FG_WHITE);
+		FillRectangleS(10, 10, nBarWidth * fHealth, nBarHeight, def::PIXEL_SOLID, def::FG_RED);
 
 		if (GetKey(VK_LEFT).bHeld)
 			fHealth -= 2.0f * fDeltaTime;
