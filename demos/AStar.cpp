@@ -1,5 +1,3 @@
-// Tutorial: https://youtu.be/gCclsviUeUk
-
 #include "ConsoleGameEngine.h"
 
 #include <list>
@@ -166,7 +164,7 @@ protected:
 				}
 		}
 
-		Clear(def::Pixel::SOLID, def::FG::BLACK);
+		Clear(def::PIXEL_SOLID, def::FG_BLACK);
 
 		for (int x = 0; x < nMapWidth; x++)
 			for (int y = 0; y < nMapHeight; y++)
@@ -184,15 +182,15 @@ protected:
 				int y2 = (y + 1) * nNodeSize - nNodeBorder;
 
 				if (nodes[y * nMapWidth + x].bObstacle)
-					FillRectangle(x1, y1, x2, y2, def::Pixel::SOLID, def::FG::WHITE);
+					FillRectangle(x1, y1, x2, y2, def::PIXEL_SOLID, def::FG_WHITE);
 				else if (&nodes[y * nMapWidth + x] == start)
-					FillRectangle(x1, y1, x2, y2, def::Pixel::SOLID, def::FG::GREEN);
+					FillRectangle(x1, y1, x2, y2, def::PIXEL_SOLID, def::FG_GREEN);
 				else if (&nodes[y * nMapWidth + x] == goal)
-					FillRectangle(x1, y1, x2, y2, def::Pixel::SOLID, def::FG::RED);
+					FillRectangle(x1, y1, x2, y2, def::PIXEL_SOLID, def::FG_RED);
 				else if (nodes[y * nMapWidth + x].bVisited)
-					FillRectangle(x1, y1, x2, y2, def::Pixel::SOLID, def::FG::BLUE);
+					FillRectangle(x1, y1, x2, y2, def::PIXEL_SOLID, def::FG_BLUE);
 				else
-					FillRectangle(x1, y1, x2, y2, def::Pixel::SOLID, def::FG::DARK_BLUE);
+					FillRectangle(x1, y1, x2, y2, def::PIXEL_SOLID, def::FG_DARK_BLUE);
 			}
 
 		if (goal != nullptr)
@@ -200,7 +198,7 @@ protected:
 			Node* p = goal;
 			while (p->parent != nullptr)
 			{
-				DrawLine(p->x * nNodeSize + nNodeSize / 2, p->y * nNodeSize + nNodeSize / 2, p->parent->x * nNodeSize + nNodeSize / 2, p->parent->y * nNodeSize + nNodeSize / 2, def::Pixel::SOLID, def::FG::YELLOW);
+				DrawLine(p->x * nNodeSize + nNodeSize / 2, p->y * nNodeSize + nNodeSize / 2, p->parent->x * nNodeSize + nNodeSize / 2, p->parent->y * nNodeSize + nNodeSize / 2, def::PIXEL_SOLID, def::FG_YELLOW);
 
 				p = p->parent;
 			}
