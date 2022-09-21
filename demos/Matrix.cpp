@@ -22,7 +22,7 @@ protected:
 
 	virtual bool OnUserUpdate(float fDeltaTime) override
 	{
-		Clear(def::Pixel::SOLID, def::FG::BLACK | def::BG::BLACK);
+		Clear(def::PIXEL_SOLID, def::FG_BLACK | def::BG_BLACK);
 
 		for (int i = 0; i < GetScreenWidth(); i++)
 		{
