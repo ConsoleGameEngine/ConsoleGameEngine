@@ -32,7 +32,7 @@ protected:
 			return def::vi2d(x + fOffsetX, y + fOffsetY);
 		};
 
-		Clear(def::Pixel::SOLID, def::FG::BLACK);
+		Clear(def::PIXEL_SOLID, def::FG_BLACK);
 
 		def::KeyState sLeftState = GetMouseBtn(0);
 
@@ -70,7 +70,7 @@ protected:
 		if (sLeftState.bReleased)
 			bPanStarted = false;
 
-		DrawCircle(to_screen(GetScreenWidth() / 2, GetScreenHeight() / 2), 40 * fScale, def::Pixel::SOLID, def::FG::BLUE);
+		DrawCircle(to_screen(GetScreenWidth() / 2, GetScreenHeight() / 2), 40 * fScale, def::PIXEL_SOLID, def::FG_BLUE);
 
 		return true;
 	}
