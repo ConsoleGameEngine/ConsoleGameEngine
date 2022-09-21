@@ -71,11 +71,11 @@ protected:
 		for (auto& c : rgCells)
 			c = CELL_TYPE::BLANK;
 
-		Clear(def::Pixel::SOLID, def::FG::WHITE);
+		Clear(def::PIXEL_SOLID, def::FG_WHITE);
 
 		for (int i = 0; i <= nCellXCount; i++)
 			for (int j = 0; j <= nCellYCount; j++)
-				DrawRectangle(i * nCellWidth, j * nCellHeight, nCellWidth, nCellHeight, def::Pixel::SOLID, def::FG::BLACK);
+				DrawRectangle(i * nCellWidth, j * nCellHeight, nCellWidth, nCellHeight, def::PIXEL_SOLID, def::FG_BLACK);
 
 
 		return true;
@@ -99,7 +99,7 @@ protected:
 				if (IsWinner())
 				{
 					std::wstring winner = (CELL_TYPE(bPlayer) == CELL_TYPE::CIRCLE) ? L"O won" :  L"X won";
-					DrawString(nCellWidth / 3 + 1, GetScreenHeight() / 2 + nCellHeight / 3, winner, def::Pixel::SOLID, def::FG::BLACK);
+					DrawString(nCellWidth / 3 + 1, GetScreenHeight() / 2 + nCellHeight / 3, winner, def::PIXEL_SOLID, def::FG_BLACK);
 					bEnd = true;
 				}
 			}
@@ -111,11 +111,11 @@ protected:
 					{
 					case CELL_TYPE::BLANK: break;
 					case CELL_TYPE::CROSS:
-						DrawLine(i * nCellWidth + 1, j * nCellHeight + 1, i * nCellWidth + nCellWidth - 1, j * nCellHeight + nCellHeight - 1, def::Pixel::SOLID, def::FG::BLACK);
-						DrawLine(i * nCellWidth + nCellWidth - 1, j * nCellHeight + 1, i * nCellWidth + 1, j * nCellHeight + nCellHeight - 1, def::Pixel::SOLID, def::FG::BLACK);
+						DrawLine(i * nCellWidth + 1, j * nCellHeight + 1, i * nCellWidth + nCellWidth - 1, j * nCellHeight + nCellHeight - 1, def::PIXEL_SOLID, def::FG_BLACK);
+						DrawLine(i * nCellWidth + nCellWidth - 1, j * nCellHeight + 1, i * nCellWidth + 1, j * nCellHeight + nCellHeight - 1, def::PIXEL_SOLID, def::FG_BLACK);
 						break;
 					case CELL_TYPE::CIRCLE:
-						DrawCircle(i * nCellWidth + nCellWidth / 2, j * nCellHeight + nCellHeight / 2, nCellWidth / 2 - 1, def::Pixel::SOLID, def::FG::BLACK);
+						DrawCircle(i * nCellWidth + nCellWidth / 2, j * nCellHeight + nCellHeight / 2, nCellWidth / 2 - 1, def::PIXEL_SOLID, def::FG_BLACK);
 						break;
 					}
 				}
