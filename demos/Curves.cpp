@@ -22,7 +22,7 @@ protected:
 
 	virtual bool OnUserUpdate(float fDeltaTime) override
 	{
-		Clear(def::FG::BLACK);
+		Clear(def::FG_BLACK);
 
 		def::vf2d vQuadPrev = vFirst;
 		
@@ -41,7 +41,7 @@ protected:
 			};
 
 			if (vQuadPrev.x != vQuad.x && vQuadPrev.y != vQuad.y && vFirst.x != vLinear.x && vFirst.y != vLinear.y)
-				DrawLine(vQuadPrev.x, vQuadPrev.y, vQuad.x, vQuad.y, def::Pixel::SOLID, def::FG::WHITE);
+				DrawLine(vQuadPrev.x, vQuadPrev.y, vQuad.x, vQuad.y, def::PIXEL_SOLID, def::FG_WHITE);
 
 			vQuadPrev = vQuad;
 		}
@@ -90,6 +90,7 @@ protected:
 int main()
 {
 	Example demo;
-	demo.Run(256, 240, 4, 4);
+	demo.ConstructConsole(256, 240, 4, 4);
+	demo.Run();
 	return 0;
 }
