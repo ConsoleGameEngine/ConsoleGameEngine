@@ -157,6 +157,25 @@ namespace def
 
 	struct rcode
 	{
+		rcode() = default;
+
+		rcode(bool bOk)
+		{
+			ok = bOk;
+			info = "ok";
+		}
+
+		rcode(bool bOk, const std::string& sInfo)
+		{
+			ok = bOk;
+			info = sInfo;
+		}
+
+		operator bool()
+		{
+			return ok;
+		}
+
 		bool ok;
 		std::string info;
 	};
