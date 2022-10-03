@@ -565,63 +565,63 @@ namespace def
 	public:
 		template <typename T>
 		void Draw(vec2d_basic<T> pos, int16_t c = 0x2588, int16_t col = 0x000F);
-		void Draw(int32_t x, int32_t y, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void Draw(int32_t x, int32_t y, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void DrawLine(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c = 0x2588, int16_t col = 0x000F);
-		void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void DrawTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, int16_t c = 0x2588, int16_t col = 0x000F);
-		void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void FillTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, int16_t c = 0x2588, int16_t col = 0x000F);
-		void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void DrawRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c = 0x2588, int16_t col = 0x000F);
-		void DrawRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void DrawRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, int16_t c = 0x2588, int16_t col = 0x000F);
-		void DrawRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void FillRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, int16_t c = 0x2588, int16_t col = 0x000F);
-		void FillRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void FillRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, int16_t c = 0x2588, int16_t col = 0x000F);
-		void FillRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillRectangleS(int32_t x, int32_t y, int32_t size_x, int32_t size_y, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void DrawCircle(vec2d_basic<T> pos, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
-		void DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void FillCircle(vec2d_basic<T> pos, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
-		void FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void DrawSprite(vec2d_basic<T> pos, Sprite* sprite);
-		void DrawSprite(int32_t x, int32_t y, Sprite* sprite);
+		virtual void DrawSprite(int32_t x, int32_t y, Sprite* sprite);
 
 		template <typename T>
 		void DrawPartialSprite(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite);
-		void DrawPartialSprite(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite);
+		virtual void DrawPartialSprite(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite);
 
 		template <typename T>
 		void DrawPartialSpriteS(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite);
-		void DrawPartialSpriteS(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite);
+		virtual void DrawPartialSpriteS(int32_t x, int32_t y, int32_t fx1, int32_t fy1, int32_t fx2, int32_t fy2, Sprite* sprite);
 
-		void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, int16_t c = 0x2588, int16_t col = 0x000F);
 
 		template <typename T>
 		void DrawString(vec2d_basic<T> pos, std::wstring text, int16_t col = 0x000F);
-		void DrawString(int32_t x, int32_t y, std::wstring text, int16_t col = 0x000F);
+		virtual void DrawString(int32_t x, int32_t y, std::wstring text, int16_t col = 0x000F);
 
-		void Clear(int16_t c = 0x2588, int16_t col = 0x000F);
+		virtual void Clear(int16_t c = 0x2588, int16_t col = 0x000F);
 
 		bool MakeSound(std::wstring sFilename, bool bLoop = false);
 		bool Focused();
