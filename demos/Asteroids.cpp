@@ -178,7 +178,7 @@ protected:
 
 		// DRAW SCORE
 
-		DrawString(10, 10, L"Score: " + std::to_wstring(nScore), def::PIXEL_SOLID, def::FG_WHITE);
+		DrawString(10, 10, L"Score: " + std::to_wstring(nScore), def::FG_WHITE);
 
 		return true;
 	}
@@ -290,7 +290,7 @@ protected:
 	{
 		float fx, fy;
 		WrapCoords(x, y, fx, fy);
-		def::ConsolaProd::Draw((int32_t)fx, (int32_t)fy, c, col);
+		def::ConsoleGameEngine::Draw((int32_t)fx, (int32_t)fy, c, col);
 	}
 
 private:
