@@ -143,7 +143,7 @@ protected:
 		int nSelectedNodeX = GetMouseX() / nNodeSize;
 		int nSelectedNodeY = GetMouseY() / nNodeSize;
 
-		if (GetMouseBtn(0).bReleased)
+		if (GetMouse(0).bReleased)
 		{
 			if (nSelectedNodeX >= 0 && nSelectedNodeX < nMapWidth)
 				if (nSelectedNodeY >= 0 && nSelectedNodeY < nMapHeight)
@@ -170,7 +170,7 @@ protected:
 			for (int y = 0; y < nMapHeight; y++)
 			{
 				for (auto n : nodes[y * nMapWidth + x].vecNeighbours)
-					DrawLine(x * nNodeSize + nNodeSize / 2, y * nNodeSize + nNodeSize / 2, n->x * nNodeSize + nNodeSize / 2, n->y * nNodeSize + nNodeSize / 2, def::Pixel::SOLID, def::FG::DARK_BLUE);
+					DrawLine(x * nNodeSize + nNodeSize / 2, y * nNodeSize + nNodeSize / 2, n->x * nNodeSize + nNodeSize / 2, n->y * nNodeSize + nNodeSize / 2, def::PIXEL_SOLID, def::FG_DARK_BLUE);
 			}
 
 		for (int x = 0; x < nMapWidth; x++)
