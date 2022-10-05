@@ -1162,3 +1162,4 @@ float cge_get_delta_time(console_game_engine* cge)
 {
 	return cge->delta_time;
 }
+
