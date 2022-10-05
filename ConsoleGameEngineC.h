@@ -28,6 +28,40 @@
 ***/
 #pragma endregion
 
+#pragma region consolegameengine_sample
+/**
+	#include "ConsoleGameEngineC.h"
+
+	static console_game_engine cge;
+
+	bool on_user_create()
+	{
+		return true;
+	}
+
+	bool on_user_update(float delta_time)
+	{
+		for (int i = 0; i < cge_get_screen_width(&cge); i++)
+			for (int j = 0; j < cge_get_screen_height(&cge); j++)
+				cge_draw(&cge, i, j, PIXEL_SOLID, rand() % 15);
+
+		return true;
+	}
+
+	int main()
+	{
+		cge_init(&cge, L"Example", CONSOLAS);
+
+		cge_construct_console(&cge, 120, 40, 12, 12);
+		cge_run(&cge, on_user_create, on_user_update);
+
+		cge_destroy(&cge);
+
+		return 0;
+	}
+**/
+#pragma endregion
+
 #ifndef UNICODE
 #error Enable Unicode in settings
 #endif
