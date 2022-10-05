@@ -1094,7 +1094,7 @@ int cge_get_screen_width(console_game_engine* cge)
 	return cge->screen_width;
 }
 
-int GetScreenHeight(console_game_engine* cge)
+int cge_get_screen_height(console_game_engine* cge)
 {
 	return cge->screen_height;
 }
