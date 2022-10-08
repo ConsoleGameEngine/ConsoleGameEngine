@@ -155,6 +155,14 @@ namespace def
 		PIXEL_QUARTER = 0x2591
 	};
 
+	enum COMMON_LVB : int32_t
+	{
+		CL_GRID_HORIZONTAL = 0x400,
+		CL_GRID_LVERTICAL = 0x0800,
+		CL_GRID_RVERTICAL = 0x1000,
+		CL_UNDERSCORE = 0x8000
+	};
+
 	struct rcode
 	{
 		rcode() = default;
