@@ -57,8 +57,8 @@
 
 		bool OnUserUpdate(float fDeltaTime) override
 		{
-			for (int i = 0; i < GetpScreenWidth(); i++)
-				for (int j = 0; j < GetpScreenHeight(); j++)
+			for (int i = 0; i < GetScreenWidth(); i++)
+				for (int j = 0; j < GetScreenHeight(); j++)
 					Draw(i, j, def::PIXEL_SOLID, rand() % 15);
 
 			return true;
@@ -494,17 +494,17 @@ namespace def
 			hConsoleOut = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
 			if (hConsoleOut == INVALID_HANDLE_VALUE)
-				return rcode(false, "Can't create console pScreen buffer for output");
+				return rcode(false, "Can't create console Screen buffer for output");
 
 			rRectWindow = { 0, 0, 1, 1 };
 			SetConsoleWindowInfo(hConsoleOut, TRUE, &rRectWindow);
 			
 			COORD coord = { (short)nScreenWidth, (short)nScreenHeight };
 			if (!SetConsoleScreenBufferSize(hConsoleOut, coord))
-				return rcode(false, "Too large or to small pScreen width or height");
+				return rcode(false, "Too large or to small Screen width or height");
 
 			if (!SetConsoleActiveScreenBuffer(hConsoleOut))
-				return rcode(false, "Can't set console pScreen buffer");
+				return rcode(false, "Can't set console Screen buffer");
 
 			CONSOLE_FONT_INFOEX cfi;
 			cfi.cbSize = sizeof(cfi);
@@ -523,13 +523,13 @@ namespace def
 
 			CONSOLE_SCREEN_BUFFER_INFO csbi;
 			if (!GetConsoleScreenBufferInfo(hConsoleOut, &csbi))
-				return rcode(false, "Could not get console pScreen buffer info");
+				return rcode(false, "Could not get console Screen buffer info");
 
 			if (nScreenHeight > csbi.dwMaximumWindowSize.Y)
-				return rcode(false, "Specified pScreen height larger than maximum window height");
+				return rcode(false, "Specified Screen height larger than maximum window height");
 
 			if (nScreenWidth > csbi.dwMaximumWindowSize.X)
-				return rcode(false, "Specified pScreen width larger than maximum window width");
+				return rcode(false, "Specified Screen width larger than maximum window width");
 
 			rRectWindow = { 0, 0, short(nScreenWidth - 1), short(nScreenHeight - 1) };
 			SetConsoleWindowInfo(hConsoleOut, TRUE, &rRectWindow);
@@ -623,11 +623,11 @@ namespace def
 
 		inline int GetCharacter(bool bHeld = true, bool bPressed = false, bool bReleased = false);
 
-		inline int GetpScreenWidth() const;
-		inline int GetpScreenHeight() const;
+		inline int GetScreenWidth() const;
+		inline int GetScreenHeight() const;
 
 		template <typename T>
-		inline vec2d_basic<T> GetpScreenSize() const;
+		inline vec2d_basic<T> GetScreenSize() const;
 
 		inline float GetDeltaTime() const;
 
@@ -813,8 +813,8 @@ namespace def
 		for (int i = pos1.x; i <= pos2.x; i++)
 			for (int j = pos1.y; j <= pos2.y; j++)
 			{
-				pScreen[j * npScreenWidth + i].Char.UnicodeChar = c;
-				pScreen[j * npScreenWidth + i].Attributes = col;
+				pScreen[j * nScreenWidth + i].Char.UnicodeChar = c;
+				pScreen[j * nScreenWidth + i].Attributes = col;
 			}
 	}
 
@@ -909,10 +909,10 @@ namespace def
 	template <typename T>
 	void ConsoleGameEngine::Draw(vec2d_basic<T> pos, short c, short col)
 	{
-		if (pos.x >= 0 && pos.x < npScreenWidth && pos.y >= 0 && pos.y < npScreenHeight)
+		if (pos.x >= 0 && pos.x < nScreenWidth && pos.y >= 0 && pos.y < nScreenHeight)
 		{
-			pScreen[pos.y * npScreenWidth + pos.x].Char.UnicodeChar = c;
-			pScreen[pos.y * npScreenWidth + pos.x].Attributes = col;
+			pScreen[pos.y * nScreenWidth + pos.x].Char.UnicodeChar = c;
+			pScreen[pos.y * nScreenWidth + pos.x].Attributes = col;
 		}
 	}
 
@@ -1427,8 +1427,8 @@ namespace def
 	{
 		for (size_t i = 0; i < text.size(); i++)
 		{
-			pScreen[pos.y * npScreenWidth + pos.x + i].Char.UnicodeChar = text[i];
-			pScreen[pos.y * npScreenWidth + pos.x + i].Attributes = col;
+			pScreen[pos.y * nScreenWidth + pos.x + i].Char.UnicodeChar = text[i];
+			pScreen[pos.y * nScreenWidth + pos.x + i].Attributes = col;
 		}
 	}
 
@@ -1468,12 +1468,12 @@ namespace def
 		return vKeys[key];
 	}
 
-	inline int ConsoleGameEngine::GetpScreenWidth() const
+	inline int ConsoleGameEngine::GetScreenWidth() const
 	{
 		return nScreenWidth;
 	}
 
-	inline int ConsoleGameEngine::GetpScreenHeight() const
+	inline int ConsoleGameEngine::GetScreenHeight() const
 	{
 		return nScreenHeight;
 	}
@@ -1504,9 +1504,9 @@ namespace def
 	}
 
 	template <typename T>
-	inline vec2d_basic<T> ConsoleGameEngine::GetpScreenSize() const
+	inline vec2d_basic<T> ConsoleGameEngine::GetScreenSize() const
 	{
-		return { npScreenWidth, npScreenHeight };
+		return { nScreenWidth, nScreenHeight };
 	}
 
 	inline float ConsoleGameEngine::GetDeltaTime() const
