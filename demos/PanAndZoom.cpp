@@ -34,7 +34,7 @@ protected:
 
 		Clear(def::PIXEL_SOLID, def::FG_BLACK);
 
-		def::KeyState sLeftState = GetMouseBtn(0);
+		def::KeyState sLeftState = GetMouse(0);
 
 		if (GetKey(L'Z').bHeld)
 			fScale += fDeltaTime;
