@@ -656,7 +656,7 @@ namespace def
 					fDeltaTime = elapsedTime.count();
 
 					wchar_t buffer_title[256];
-					swprintf_s(buffer_title, 256, L"github.com/defini7 - Consola Prod - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / fDeltaTime);
+					swprintf_s(buffer_title, 256, L"github.com/defini7 - Console Game Engine - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / fDeltaTime);
 					SetConsoleTitleW(buffer_title);
 
 					if (!OnUserUpdate(fDeltaTime))
