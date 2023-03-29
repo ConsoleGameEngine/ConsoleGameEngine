@@ -605,9 +605,9 @@ namespace def
 
 	void ConsoleGameEngine::FillRectangle(int x, int y, int size_x, int size_y, short c, short col)
 	{
-		for (int i = x; i <= size_x; i++)
-			for (int j = y; j <= size_y; j++)
-				Draw(x, y, c, col);
+		for (int i = x; i <= x + size_x; i++)
+			for (int j = y; j <= y + size_y; j++)
+				Draw(i, j, c, col);
 	}
 
 	void ConsoleGameEngine::DrawCircle(int x, int y, int radius, short c, short col)
