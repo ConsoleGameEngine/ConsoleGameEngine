@@ -155,7 +155,7 @@ namespace def
 		PIXEL_QUARTER = 0x2591
 	};
 
-	enum COMMON_LVB : int
+	enum COMMON_LVB : unsigned short
 	{
 		CL_GRID_HORIZONTAL = 0x400,
 		CL_GRID_LVERTICAL = 0x0800,
@@ -163,176 +163,12 @@ namespace def
 		CL_UNDERSCORE = 0x8000
 	};
 
-	struct rcode
-	{
-		rcode() = default;
-
-		rcode(bool bOk)
-		{
-			ok = bOk;
-			info = "ok";
-		}
-
-		rcode(bool bOk, const std::string& sInfo)
-		{
-			ok = bOk;
-			info = sInfo;
-		}
-
-		operator bool()
-		{
-			return ok;
-		}
-
-		bool ok;
-		std::string info;
-	};
-
-	namespace Font
-	{
-		std::wstring CONSOLAS = L"Consolas";
-		std::wstring COURIER_NEW = L"Courier New";
-		std::wstring LUCIDA_CONSOLE = L"Lucida Console";
-		std::wstring LUCIDA_SANS_TYPEWRITER = L"Lucida Sans Typewriter";
-		std::wstring MS_GOTHIC = L"MS Gothic";
-		std::wstring NSIMSUN = L"NSimSum";
-		std::wstring SIMSUM_EXTB = L"SimSun-ExtB";
-	}
-
-	template <class T>
-	struct vec2d_basic
-	{
-		vec2d_basic() = default;
-		vec2d_basic(T x, T y)
-		{
-			this->x = x;
-			this->y = y;
-		}
-
-		T x;
-		T y;
-
-		friend vec2d_basic<T> operator+(const vec2d_basic<T>& v1, const vec2d_basic<T>& v2) { return { v1.x + v2.x, v1.y + v2.y }; }
-		friend vec2d_basic<T> operator-(const vec2d_basic<T> v1, const vec2d_basic<T>& v2) { return { v1.x - v2.x, v1.y - v2.y }; }
-		friend vec2d_basic<T> operator*(const vec2d_basic<T> v1, const vec2d_basic<T>& v2) { return { v1.x * v2.x, v1.y * v2.y }; }
-		friend vec2d_basic<T> operator/(const vec2d_basic<T> v1, const vec2d_basic<T>& v2) { return { v1.x / v2.x, v1.y / v2.y }; }
-		friend vec2d_basic<T> operator+(const vec2d_basic<T> v1, const T v) { return { v1.x + v, v1.y + v }; }
-		friend vec2d_basic<T> operator-(const vec2d_basic<T> v1, const T v) { return { v1.x - v, v1.y - v }; }
-		friend vec2d_basic<T> operator*(const vec2d_basic<T> v1, const T v) { return { v1.x * v, v1.y * v }; }
-		friend vec2d_basic<T> operator/(vec2d_basic<T> v1, const T v) { return { v1.x / v,	v1.y / v }; }
-
-		friend vec2d_basic<T> operator+=(vec2d_basic<T>& v1, const vec2d_basic<T>& v2)
-		{
-			v1.x += v2.x;
-			v1.y += v2.y;
-			return v1;
-		}
-
-		friend vec2d_basic<T> operator-=(vec2d_basic<T> v1, const vec2d_basic<T>& v2)
-		{
-			v1.x -= v2.x;
-			v1.y -= v2.y;
-			return v1;
-		}
-
-		friend vec2d_basic<T> operator*=(vec2d_basic<T> v1, const vec2d_basic<T>& v2)
-		{
-			v1.x *= v2.x;
-			v1.y *= v2.y;
-			return v1;
-		}
-
-		friend vec2d_basic<T> operator/=(vec2d_basic<T> v1, const vec2d_basic<T>& v2)
-		{
-			v1.x /= v2.x;
-			v1.y /= v2.y;
-			return v1;
-		}
-
-		friend vec2d_basic<T> operator+=(vec2d_basic<T> v1, const T v)
-		{
-			v1.x += v;
-			v1.y += v;
-			return v1;
-		}
-
-		friend vec2d_basic<T> operator-=(vec2d_basic<T> v1, const T v)
-		{
-			v1.x -= v;
-			v1.y -= v;
-			return v1;
-		}
-
-		friend vec2d_basic<T> operator*=(vec2d_basic<T> v1, const T v)
-		{
-			v1.x *= v;
-			v1.y *= v;
-			return v1;
-		}
-
-		friend vec2d_basic<T> operator/=(vec2d_basic<T> v1, const T v)
-		{
-			v1.x /= v;
-			v1.y /= v;
-			return v1;
-		}
-
-		friend bool operator<(const vec2d_basic<T> v1, const vec2d_basic<T> v) { return v1.x < v.x&& v1.y < v.y; }
-		friend bool operator>(const vec2d_basic<T> v1, const vec2d_basic<T> v) { return v1.x > v.x && v1.y > v.y; }
-		friend bool operator<=(const vec2d_basic<T> v1, const vec2d_basic<T> v) { return v1.x <= v.x && v1.y <= v.y; }
-		friend bool operator>=(const vec2d_basic<T> v1, const vec2d_basic<T> v) { return v1.x >= v.x && v1.y >= v.y; }
-		friend bool operator==(const vec2d_basic<T> v1, const vec2d_basic<T> v) { return v1.x == v.x && v1.y == v.y; }
-		friend bool operator!=(const vec2d_basic<T> v1, const vec2d_basic<T> v) { return v1.x != v.x || v1.y != v.y; }
-
-		friend bool operator<(const vec2d_basic<T> v1, const T v) { return v1.x < v&& v1.y < v; }
-		friend bool operator>(const vec2d_basic<T> v1, const T v) { return v1.x > v && v1.y > v; }
-		friend bool operator<=(const vec2d_basic<T> v1, const T v) { return v1.x <= v && v1.y <= v; }
-		friend bool operator>=(const vec2d_basic<T> v1, const T v) { return v1.x >= v && v1.y >= v; }
-		friend bool operator==(const vec2d_basic<T> v1, const T v) { return v1.x == v && v1.y == v; }
-		friend bool operator!=(const vec2d_basic<T> v1, const T v) { return v1.x != v || v1.y != v; }
-
-		template <typename T1>
-		vec2d_basic<T1> to() { return vec2d_basic<T1>((T1)this->x, (T1)this->y); }
-
-		float dot(vec2d_basic<T> v)
-		{
-			return this->x * v.x + this->y * v.y;
-		}
-
-		float length()
-		{
-			return sqrtf(dot(*this));
-		}
-
-		vec2d_basic<T> norm()
-		{
-			float l = length();
-			return vec2d_basic<T>(this->x / l, this->y / l);
-		}
-
-		T mag() { return T(sqrtf(this->x * this->x + this->y * this->y)); }
-		T mag2() { return T(this->x * this->x + this->y * this->y); }
-		
-		vec2d_basic<T> abs() { return vec2d_basic<T>(std::abs(this->x), std::abs(this->y)); }
-		vec2d_basic<T> perp() { return vec2d_basic<T>(-this->y, this->x); }
-		vec2d_basic<T> floor() { return vec2d_basic<T>(std::floor(this->x), std::floor(this->y)); }
-		vec2d_basic<T> ceil() { return vec2d_basic<T>(std::ceil(this->x), std::ceil(this->y)); }
-		vec2d_basic<T> cart() { return vec2d_basic<T>(cos(this->y) * x, sin(this->y) * this->x); }
-		vec2d_basic<T> polar() { return vec2d_basic<T>(mag(), atan2(this->y, this->x)); }
-		vec2d_basic<T>& ref() { return *this; }
-	};
-
-	typedef vec2d_basic<int> vi2d;
-	typedef vec2d_basic<float> vf2d;
-
-	struct sKeyState
+	struct KeyState
 	{
 		bool bHeld;
 		bool bReleased;
 		bool bPressed;
 	};
-
-	const float PI = 2.0f * acosf(0.0f);
 
 	class Sprite
 	{
@@ -351,6 +187,12 @@ namespace def
 		{
 			if (!Load(sFileName))
 				Create(8, 8);
+		}
+
+		~Sprite()
+		{
+			if (m_Glyphs != nullptr) delete[] m_Glyphs;
+			if (m_Colours != nullptr) delete[] m_Colours;
 		}
 
 	private:
@@ -406,7 +248,7 @@ namespace def
 			return FG_BLACK;
 		}
 
-		bool Save(std::wstring sFile)
+		bool Save(const std::wstring& sFile)
 		{
 			FILE* f = nullptr;
 
@@ -480,10 +322,20 @@ namespace def
 		virtual bool OnUserCreate() = 0;
 		virtual bool OnUserUpdate(float fDeltaTime) = 0;
 
-		rcode ConstructConsole(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
+		enum RCODE
+		{
+			RCODE_OK,
+			RCODE_INVALID_SCREEN_SIZE,
+			RCODE_INVALID_SCREEN_BUFFER,
+			RCODE_INVALID_FONT,
+			RCODE_INVALID_CONSOLE_MODE,
+			RCODE_INVALID_SCREEN_INFO,
+		};
+
+		int ConstructConsole(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
 		{
 			if (width <= 0 || height <= 0 || fontw <= 0 || fonth <= 0)
-				return rcode(false, "Invalid width or height");
+				return RCODE_INVALID_SCREEN_SIZE;
 
 			nScreenWidth = width;
 			nScreenHeight = height;
@@ -494,17 +346,17 @@ namespace def
 			hConsoleOut = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
 			if (hConsoleOut == INVALID_HANDLE_VALUE)
-				return rcode(false, "Can't create console Screen buffer for output");
+				return RCODE_INVALID_SCREEN_BUFFER;
 
 			rRectWindow = { 0, 0, 1, 1 };
 			SetConsoleWindowInfo(hConsoleOut, TRUE, &rRectWindow);
-			
+
 			COORD coord = { (short)nScreenWidth, (short)nScreenHeight };
 			if (!SetConsoleScreenBufferSize(hConsoleOut, coord))
-				return rcode(false, "Too large or to small Screen width or height");
+				return RCODE_INVALID_SCREEN_SIZE;
 
 			if (!SetConsoleActiveScreenBuffer(hConsoleOut))
-				return rcode(false, "Can't set console Screen buffer");
+				return RCODE_INVALID_SCREEN_BUFFER;
 
 			CONSOLE_FONT_INFOEX cfi;
 			cfi.cbSize = sizeof(cfi);
@@ -516,28 +368,28 @@ namespace def
 
 			wcscpy_s(cfi.FaceName, sFont.c_str());
 			if (!SetCurrentConsoleFontEx(hConsoleOut, false, &cfi))
-				return rcode(false, "Can't set font");
+				return RCODE_INVALID_FONT;
 
 			if (!SetConsoleMode(hConsoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
-				return rcode(false, "Could not set console mode (ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT)");
+				return RCODE_INVALID_CONSOLE_MODE;
 
 			CONSOLE_SCREEN_BUFFER_INFO csbi;
 			if (!GetConsoleScreenBufferInfo(hConsoleOut, &csbi))
-				return rcode(false, "Could not get console Screen buffer info");
+				return RCODE_INVALID_SCREEN_INFO;
 
 			if (nScreenHeight > csbi.dwMaximumWindowSize.Y)
-				return rcode(false, "Specified Screen height larger than maximum window height");
+				return RCODE_INVALID_SCREEN_SIZE;
 
 			if (nScreenWidth > csbi.dwMaximumWindowSize.X)
-				return rcode(false, "Specified Screen width larger than maximum window width");
+				return RCODE_INVALID_SCREEN_SIZE;
 
 			rRectWindow = { 0, 0, short(nScreenWidth - 1), short(nScreenHeight - 1) };
 			SetConsoleWindowInfo(hConsoleOut, TRUE, &rRectWindow);
-			
+
 			pScreen = new CHAR_INFO[nScreenWidth * nScreenHeight];
 			memset(pScreen, 0, sizeof(CHAR_INFO) * nScreenWidth * nScreenHeight);
 
-			return rcode(true, "Ok");
+			return RCODE_OK;
 		}
 
 		void Run()
@@ -549,87 +401,31 @@ namespace def
 		}
 
 	public:
-		template <typename T>
-		void Draw(vec2d_basic<T> pos, short c = 0x2588, short col = 0x000F);
 		virtual void Draw(int x, int y, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void DrawLine(vec2d_basic<T> pos1, vec2d_basic<T> pos2, short c = 0x2588, short col = 0x000F);
 		virtual void DrawLine(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void DrawTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, short c = 0x2588, short col = 0x000F);
 		virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void FillTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, short c = 0x2588, short col = 0x000F);
 		virtual void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void DrawRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, short c = 0x2588, short col = 0x000F);
-		virtual void DrawRectangle(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void DrawRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, short c = 0x2588, short col = 0x000F);
-		virtual void DrawRectangleS(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void FillRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, short c = 0x2588, short col = 0x000F);
-		virtual void FillRectangle(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void FillRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, short c = 0x2588, short col = 0x000F);
-		virtual void FillRectangleS(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void DrawCircle(vec2d_basic<T> pos, int radius, short c = 0x2588, short col = 0x000F);
+		virtual void DrawRectangle(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
+		virtual void FillRectangle(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
 		virtual void DrawCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void FillCircle(vec2d_basic<T> pos, int radius, short c = 0x2588, short col = 0x000F);
 		virtual void FillCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void DrawSprite(vec2d_basic<T> pos, Sprite* sprite);
 		virtual void DrawSprite(int x, int y, Sprite* sprite);
-
-		template <typename T>
-		void DrawPartialSprite(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite);
 		virtual void DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
-
-		template <typename T>
-		void DrawPartialSpriteS(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite);
-		virtual void DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
-
 		virtual void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, short c = 0x2588, short col = 0x000F);
-
-		template <typename T>
-		void DrawString(vec2d_basic<T> pos, std::wstring text, short col = 0x000F);
-		virtual void DrawString(int x, int y, std::wstring text, short col = 0x000F);
-
+		virtual void DrawString(int x, int y, const std::wstring& text, short col = 0x000F);
 		virtual void Clear(short c = 0x2588, short col = 0x000F);
 
 		bool MakeSound(std::wstring sFilename, bool bLoop = false);
 		bool Focused();
 
-		template <typename T>
-		inline vec2d_basic<T> GetMouse() const;
+		int MouseX() const;
+		int MouseY() const;
 
-		inline int GetMouseX() const;
-		inline int GetMouseY() const;
+		KeyState GetMouse(short button) const;
+		KeyState GetKey(short key) const;
 
-		inline sKeyState GetMouse(short button) const;
-		inline sKeyState GetKey(short key) const;
-
-		inline int GetCharacter(bool bHeld = true, bool bPressed = false, bool bReleased = false);
-
-		inline int GetScreenWidth() const;
-		inline int GetScreenHeight() const;
-
-		template <typename T>
-		inline vec2d_basic<T> GetScreenSize() const;
-
-		inline float GetDeltaTime() const;
+		int ScreenWidth() const;
+		int ScreenHeight() const;
 
 	private:
 		void AppThread()
@@ -643,10 +439,10 @@ namespace def
 				auto tp2 = std::chrono::system_clock::now();
 
 				for (int i = 0; i < 256; i++)
-					vKeys.push_back({ false, false, false });
+					Keys[i] = { false, false, false };
 
 				for (int i = 0; i < 5; i++)
-					vMouse.push_back({ false, false, false });
+					Mouse[i] = { false, false, false };
 
 				while (bGameThreadActive)
 				{
@@ -709,20 +505,20 @@ namespace def
 					{
 						nKeyNewState[i] = GetAsyncKeyState(i);
 
-						vKeys[i].bPressed = false;
-						vKeys[i].bReleased = false;
+						Keys[i].bPressed = false;
+						Keys[i].bReleased = false;
 
 						if (nKeyNewState[i] != nKeyOldState[i])
 						{
 							if (nKeyNewState[i] & 0x8000)
 							{
-								vKeys[i].bPressed = !vKeys[i].bHeld;
-								vKeys[i].bHeld = true;
+								Keys[i].bPressed = !Keys[i].bHeld;
+								Keys[i].bHeld = true;
 							}
 							else
 							{
-								vKeys[i].bReleased = true;
-								vKeys[i].bHeld = false;
+								Keys[i].bReleased = true;
+								Keys[i].bHeld = false;
 							}
 						}
 
@@ -731,20 +527,20 @@ namespace def
 
 					for (int m = 0; m < 5; m++)
 					{
-						vMouse[m].bPressed = false;
-						vMouse[m].bReleased = false;
+						Mouse[m].bPressed = false;
+						Mouse[m].bReleased = false;
 
 						if (bMouseNewState[m] != bMouseOldState[m])
 						{
 							if (bMouseNewState[m])
 							{
-								vMouse[m].bPressed = true;
-								vMouse[m].bHeld = true;
+								Mouse[m].bPressed = true;
+								Mouse[m].bHeld = true;
 							}
 							else
 							{
-								vMouse[m].bReleased = true;
-								vMouse[m].bHeld = false;
+								Mouse[m].bReleased = true;
+								Mouse[m].bHeld = false;
 							}
 						}
 
@@ -768,8 +564,8 @@ namespace def
 		HWND hWnd;
 		HDC hDC;
 
-		std::vector<sKeyState> vKeys;
-		std::vector<sKeyState> vMouse;
+		KeyState Keys[256];
+		KeyState Mouse[5];
 
 		short nKeyOldState[256];
 		short nKeyNewState[256];
@@ -779,7 +575,7 @@ namespace def
 
 		int nMousePosX;
 		int nMousePosY;
-		
+
 		int nScreenWidth;
 		int nScreenHeight;
 
@@ -807,81 +603,43 @@ namespace def
 		return bFocused;
 	}
 
-	template <typename T>
-	void ConsoleGameEngine::FillRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, short c, short col)
+	void ConsoleGameEngine::FillRectangle(int x, int y, int size_x, int size_y, short c, short col)
 	{
-		for (int i = pos1.x; i <= pos2.x; i++)
-			for (int j = pos1.y; j <= pos2.y; j++)
-			{
-				pScreen[j * nScreenWidth + i].Char.UnicodeChar = c;
-				pScreen[j * nScreenWidth + i].Attributes = col;
-			}
-	}
-
-	void ConsoleGameEngine::FillRectangle(int x1, int y1, int x2, int y2, short c, short col)
-	{
-		FillRectangle<int>({ x1, y1 }, { x2, y2 }, c, col);
-	}
-
-	template <typename T>
-	void ConsoleGameEngine::FillRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, short c, short col)
-	{
-		FillRectangle(pos, { pos.x + size.x, pos.y + size.y }, c, col);
-	}
-
-	void ConsoleGameEngine::FillRectangleS(int x, int y, int size_x, int size_y, short c, short col)
-	{
-		FillRectangle<int>({ x, y }, { x + size_x, y + size_y }, c, col);
-	}
-
-	template <typename T>
-	void ConsoleGameEngine::DrawCircle(vec2d_basic<T> pos, int radius, short c, short col)
-	{
-		if (!radius) return;
-
-		int x = 0;
-		int y = radius;
-		int p = 3 - 2 * radius;
-
-		while (y >= x)
-		{
-			Draw(pos.x - x, pos.y - y, c, col);	// upper left left
-			Draw(pos.x - y, pos.y - x, c, col);	// upper upper left
-			Draw(pos.x + y, pos.y - x, c, col);	// upper upper right
-			Draw(pos.x + x, pos.y - y, c, col);	// upper right right
-			Draw(pos.x - x, pos.y + y, c, col);	// lower left left
-			Draw(pos.x - y, pos.y + x, c, col);	// lower lower left
-			Draw(pos.x + y, pos.y + x, c, col);	// lower lower right
-			Draw(pos.x + x, pos.y + y, c, col);	// lower right right
-
-			if (p < 0)
-			{
-				p += 4 * x + 6;
-
-				x++;
-			}
-			else
-			{
-				p += 4 * (x - y) + 10;
-
-				x++;
-				y--;
-			}
-		}
+		for (int i = x; i <= size_x; i++)
+			for (int j = y; j <= size_y; j++)
+				Draw(x, y, c, col);
 	}
 
 	void ConsoleGameEngine::DrawCircle(int x, int y, int radius, short c, short col)
 	{
-		DrawCircle<int>({ x, y }, radius, c, col);
+		if (radius <= 0) return;
+
+		int x1 = 0;
+		int y1 = radius;
+		int p = 3 - 2 * radius;
+
+		while (y1 >= x1)
+		{
+			Draw(x - x1, y - y1, c, col);	// upper left left
+			Draw(x - y1, y - x1, c, col);	// upper upper left
+			Draw(x + y1, y - x1, c, col);	// upper upper right
+			Draw(x + x1, y - y1, c, col);	// upper right right
+			Draw(x - x1, y + y1, c, col);	// lower left left
+			Draw(x - y1, y + x1, c, col);	// lower lower left
+			Draw(x + y1, y + x1, c, col);	// lower lower right
+			Draw(x + x1, y + y1, c, col);	// lower right right
+
+			if (p < 0) p += 4 * x1++ + 6;
+			else p += 4 * (x1++ - y1--) + 10;
+		}
 	}
 
-	template <typename T>
-	void ConsoleGameEngine::FillCircle(vec2d_basic<T> pos, int radius, short c, short col)
+	void ConsoleGameEngine::FillCircle(int x, int y, int radius, short c, short col)
 	{
-		if (!radius) return;
+		if (radius <= 0) return;
 
-		int x = 0;
-		int y = radius;
+		int x1 = 0;
+		int y1 = radius;
 		int p = 3 - 2 * radius;
 
 		auto drawline = [&](int sx, int ex, int ny)
@@ -890,69 +648,58 @@ namespace def
 				Draw(i, ny, c, col);
 		};
 
-		while (y >= x)
+		while (y1 >= x1)
 		{
-			drawline(pos.x - x, pos.x + x, pos.y - y);
-			drawline(pos.x - y, pos.x + y, pos.y - x);
-			drawline(pos.x - x, pos.x + x, pos.y + y);
-			drawline(pos.x - y, pos.x + y, pos.y + x);
-			if (p < 0) p += 4 * x++ + 6;
-			else p += 4 * (x++ - y--) + 10;
-		}
-	}
+			drawline(x - x1, x + x1, y - y1);
+			drawline(x - y1, x + y1, y - x1);
+			drawline(x - x1, x + x1, y + y1);
+			drawline(x - y1, x + y1, y + x1);
 
-	void ConsoleGameEngine::FillCircle(int x, int y, int radius, short c, short col)
-	{
-		FillCircle<int>({ x, y }, radius, c, col);
-	}
-
-	template <typename T>
-	void ConsoleGameEngine::Draw(vec2d_basic<T> pos, short c, short col)
-	{
-		if (pos.x >= 0 && pos.x < nScreenWidth && pos.y >= 0 && pos.y < nScreenHeight)
-		{
-			pScreen[pos.y * nScreenWidth + pos.x].Char.UnicodeChar = c;
-			pScreen[pos.y * nScreenWidth + pos.x].Attributes = col;
+			if (p < 0) p += 4 * x1++ + 6;
+			else p += 4 * (x1++ - y1--) + 10;
 		}
 	}
 
 	void ConsoleGameEngine::Draw(int x, int y, short c, short col)
 	{
-		Draw<int>({ x, y }, c, col);
+		if (x >= 0 && x < nScreenWidth && y >= 0 && y < nScreenHeight)
+		{
+			pScreen[y * nScreenWidth + x].Char.UnicodeChar = c;
+			pScreen[y * nScreenWidth + x].Attributes = col;
+		}
 	}
 
-	template <typename T>
-	void ConsoleGameEngine::DrawLine(vec2d_basic<T> pos1, vec2d_basic<T> pos2, short c, short col)
+	void ConsoleGameEngine::DrawLine(int x1, int y1, int x2, int y2, short c, short col)
 	{
-		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
+		int x, y, xe, ye;
 
-		dx = pos2.x - pos1.x;
-		dy = pos2.y - pos1.y;
+		int dx = x2 - x1;
+		int dy = y2 - y1;
 
-		dx1 = abs(dx);
-		dy1 = abs(dy);
+		int dx1 = abs(dx);
+		int dy1 = abs(dy);
 
-		px = 2 * dy1 - dx1;
-		py = 2 * dx1 - dy1;
+		int px = 2 * dy1 - dx1;
+		int py = 2 * dx1 - dy1;
 
 		if (dy1 <= dx1)
 		{
 			if (dx >= 0)
 			{
-				x = pos1.x;
-				y = pos1.y;
-				xe = pos2.x;
+				x = x1;
+				y = y1;
+				xe = x2;
 			}
 			else
 			{
-				x = pos2.x;
-				y = pos2.y;
-				xe = pos1.x;
+				x = x2;
+				y = y2;
+				xe = x1;
 			}
 
 			Draw(x, y, c, col);
 
-			for (i = 0; x < xe; i++)
+			for (int i = 0; x < xe; i++)
 			{
 				x++;
 
@@ -974,31 +721,31 @@ namespace def
 		{
 			if (dy >= 0)
 			{
-				x = pos1.x;
-				y = pos1.y;
-				ye = pos2.y;
+				x = x1;
+				y = y1;
+				ye = y2;
 			}
 			else
 			{
-				x = pos2.x;
-				y = pos2.y;
-				ye = pos1.y;
+				x = x2;
+				y = y2;
+				ye = y1;
 			}
 
 			Draw(x, y, c, col);
 
-			for (i = 0; y < ye; i++)
+			for (int i = 0; y < ye; i++)
 			{
-				y = y + 1;
+				y++;
 
 				if (py <= 0)
 					py = py + 2 * dx1;
 				else
 				{
 					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
-						x = x + 1;
+						x++;
 					else
-						x = x - 1;
+						x--;
 
 					py = py + 2 * (dx1 - dy1);
 				}
@@ -1008,27 +755,14 @@ namespace def
 		}
 	}
 
-	void ConsoleGameEngine::DrawLine(int x1, int y1, int x2, int y2, short c, short col)
-	{
-		DrawLine<int>({ x1, y1 }, { x2, y2 }, c, col);
-	}
-
-	template <typename T>
-	void ConsoleGameEngine::DrawTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, short c, short col)
-	{
-		DrawLine(pos1, pos2, c, col);
-		DrawLine(pos2, pos3, c, col);
-		DrawLine(pos3, pos1, c, col);
-	}
-
 	void ConsoleGameEngine::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
 	{
-		DrawTriangle<int>({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
+		DrawLine(x1, y1, x2, y2, c, col);
+		DrawLine(x2, y2, x3, y3, c, col);
+		DrawLine(x3, y3, x1, y1, c, col);
 	}
 
-	// https://www.avrfreaks.net/sites/default/files/triangles.c
-	template <typename T>
-	void ConsoleGameEngine::FillTriangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, vec2d_basic<T> pos3, short c, short col)
+	void ConsoleGameEngine::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
 	{
 		auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw(i, ny, c, col); };
 
@@ -1041,12 +775,12 @@ namespace def
 		int e1, e2;
 
 		// Sort vertices
-		if (pos1.y > pos2.y) { std::swap(pos1.y, pos2.y); std::swap(pos1.x, pos2.x); }
-		if (pos1.y > pos3.y) { std::swap(pos1.y, pos3.y); std::swap(pos1.x, pos3.x); }
-		if (pos2.y > pos3.y) { std::swap(pos2.y, pos3.y); std::swap(pos2.x, pos3.x); }
+		if (y1 > y2) { std::swap(y1, y2); std::swap(x1, x2); }
+		if (y1 > y3) { std::swap(y1, y3); std::swap(x1, x3); }
+		if (y2 > y3) { std::swap(y2, y3); std::swap(x2, x3); }
 
-		t1x = t2x = pos1.x; y = pos1.y;   // Starting points
-		dx1 = (int)(pos2.x - pos1.x);
+		t1x = t2x = x1; y = y1;   // Starting points
+		dx1 = x2 - x1;
 
 		if (dx1 < 0)
 		{
@@ -1056,9 +790,8 @@ namespace def
 		else
 			signx1 = 1;
 
-		dy1 = (int)(pos2.y - pos1.y);
-
-		dx2 = (int)(pos3.x - pos1.x);
+		dy1 = y2 - y1;
+		dx2 = x3 - x1;
 
 		if (dx2 < 0)
 		{
@@ -1068,7 +801,7 @@ namespace def
 		else
 			signx2 = 1;
 
-		dy2 = (int)(pos3.y - pos1.y);
+		dy2 = y3 - y1;
 
 		if (dy1 > dx1)
 		{   // swap values
@@ -1084,7 +817,7 @@ namespace def
 		e2 = (int)(dx2 >> 1);
 
 		// Flat top, just process the second half
-		if (pos1.y == pos2.y)
+		if (y1 == y2)
 			goto next;
 
 		e1 = (int)(dx1 >> 1);
@@ -1169,13 +902,13 @@ namespace def
 			t2x += t2xp;
 			y += 1;
 
-			if (y == pos2.y)
+			if (y == y2)
 				break;
 
 		}
 	next:
 		// Second half
-		dx1 = (int)(pos3.x - pos2.x);
+		dx1 = x3 - x2;
 
 		if (dx1 < 0)
 		{
@@ -1185,8 +918,8 @@ namespace def
 		else
 			signx1 = 1;
 
-		dy1 = (int)(pos3.y - pos2.y);
-		t1x = pos2.x;
+		dy1 = y3 - y2;
+		t1x = x2;
 
 		if (dy1 > dx1)
 		{   // swap values
@@ -1241,7 +974,7 @@ namespace def
 			}
 		next3:
 			// process second line until y value is about to change
-			while (t2x != pos3.x)
+			while (t2x != x3)
 			{
 				e2 += dy2;
 
@@ -1287,99 +1020,52 @@ namespace def
 			t2x += t2xp;
 			y += 1;
 
-			if (y > pos3.y)
+			if (y > y3)
 				return;
 		}
 	}
 
-	void ConsoleGameEngine::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
+	void ConsoleGameEngine::DrawRectangle(int x, int y, int size_x, int size_y, short c, short col)
 	{
-		FillTriangle<int>({ x1, y1 }, { x2, y2 }, { x3, y3 }, c, col);
-	}
-
-	template <typename T>
-	void ConsoleGameEngine::DrawRectangle(vec2d_basic<T> pos1, vec2d_basic<T> pos2, short c, short col)
-	{
-		for (int x = 0; x <= pos2.x - pos1.x; x++)
+		for (int i = 0; i <= size_x; i++)
 		{
-			Draw(pos1.x + x, pos1.y, c, col);
-			Draw(pos1.x + x, pos2.y, c, col);
+			Draw(x + i, y, c, col);
+			Draw(x + i, y + size_y, c, col);
 		}
 
-		for (int y = 0; y <= pos2.y - pos1.y; y++)
+		for (int j = 0; j <= size_y; j++)
 		{
-			Draw(pos1.x, pos1.y + y, c, col);
-			Draw(pos2.x, pos1.y + y, c, col);
+			Draw(x, y + j, c, col);
+			Draw(x + size_x, y + j, c, col);
 		}
 	}
 
-	void ConsoleGameEngine::DrawRectangle(int x1, int y1, int x2, int y2, short c, short col)
+	void ConsoleGameEngine::DrawSprite(int x, int y, Sprite* sprite)
 	{
-		DrawRectangle<int>({ x1, y1 }, { x2, y2 }, c, col);
-	}
-
-	template <typename T>
-	void ConsoleGameEngine::DrawRectangleS(vec2d_basic<T> pos, vec2d_basic<T> size, short c, short col)
-	{
-		DrawRectangle<int>(pos, { pos.x + size.x, pos.y + size.y }, c, col);
-	}
-
-	void ConsoleGameEngine::DrawRectangleS(int x, int y, int size_x, int size_y, short c, short col)
-	{
-		DrawRectangle<int>({ x, y }, { x + size_x, y + size_y }, c, col);
-	}
-
-	template <typename T>
-	void ConsoleGameEngine::DrawSprite(vec2d_basic<T> pos, Sprite* sprite)
-	{
-		if (sprite == nullptr)
-			return;
+		if (sprite == nullptr) return;
 
 		for (int i = 0; i < sprite->nWidth; i++)
 		{
 			for (int j = 0; j < sprite->nHeight; j++)
 			{
 				if (sprite->GetGlyph(i, j) != L' ')
-					Draw(pos.x + i, pos.y + j, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
+					Draw(x + i, y + j, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
 			}
 		}
 	}
 
-	void ConsoleGameEngine::DrawSprite(int x, int y, Sprite* sprite)
+	void ConsoleGameEngine::DrawPartialSprite(int x, int y, int fx, int fy, int fsizex, int fsizey, Sprite* sprite)
 	{
-		DrawSprite<int>({ x, y }, sprite);
-	}
+		if (sprite == nullptr) return;
 
-	template <typename T>
-	void ConsoleGameEngine::DrawPartialSprite(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite)
-	{
-		if (sprite == nullptr || fpos1.x < 0 || fpos1.y < 0 || fpos2.x > sprite->nWidth || fpos2.y > sprite->nHeight)
-			return;
-
-		for (int i = fpos1.x, x = 0; i < fpos2.x; i++, x++)
+		for (int i = fx, x1 = 0; i < fx + fsizex; i++, x1++)
 		{
-			for (int j = fpos1.y, y = 0; j < fpos2.y; j++, y++)
+			for (int j = fy, y1 = 0; j < fy + fsizey; j++, y1++)
 			{
 				if (sprite->GetGlyph(i, j) != L' ')
-					Draw(pos.x + x, pos.y + y, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
+					Draw(x + x1, y + y1, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
 			}
 		}
-	}
-
-	void ConsoleGameEngine::DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite)
-	{
-		DrawPartialSprite<int>({ x, y }, { fx1, fy1 }, { fx2, fy2 }, sprite);
-	}
-
-	template <typename T>
-	void ConsoleGameEngine::DrawPartialSpriteS(vec2d_basic<T> pos, vec2d_basic<T> fpos1, vec2d_basic<T> fpos2, Sprite* sprite)
-	{
-		DrawPartialSprite<int>({ pos.x, pos.y }, { fpos1.x, fpos1.y }, { fpos1.x + fpos2.x, fpos1.y + fpos2.y }, sprite);
-	}
-
-	void ConsoleGameEngine::DrawPartialSpriteS(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite)
-	{
-		DrawPartialSprite<int>({ x, y }, { fx1, fy1 }, { fx1 + fx2, fy1 + fy2 }, sprite);
 	}
 
 	void ConsoleGameEngine::DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r, float s, short c, short col)
@@ -1414,7 +1100,7 @@ namespace def
 		}
 
 		// Draw Closed Polygon
-		for (int i = 0; i < verts + 1; i++)
+		for (int i = 0; i <= verts; i++)
 		{
 			int j = (i + 1);
 			DrawLine((int)vecTransformedCoordinates[i % verts].first, (int)vecTransformedCoordinates[i % verts].second,
@@ -1422,19 +1108,13 @@ namespace def
 		}
 	}
 
-	template <typename T>
-	void ConsoleGameEngine::DrawString(vec2d_basic<T> pos, std::wstring text, short col)
+	void ConsoleGameEngine::DrawString(int x, int y, const std::wstring& text, short col)
 	{
 		for (size_t i = 0; i < text.size(); i++)
 		{
-			pScreen[pos.y * nScreenWidth + pos.x + i].Char.UnicodeChar = text[i];
-			pScreen[pos.y * nScreenWidth + pos.x + i].Attributes = col;
+			pScreen[y * nScreenWidth + x + i].Char.UnicodeChar = text[i];
+			pScreen[y * nScreenWidth + x + i].Attributes = col;
 		}
-	}
-
-	void ConsoleGameEngine::DrawString(int x, int y, std::wstring text, short col)
-	{
-		DrawString<int>({ x, y }, text, col);
 	}
 
 	void ConsoleGameEngine::Clear(short c, short col)
@@ -1442,75 +1122,33 @@ namespace def
 		FillRectangle(0, 0, nScreenWidth - 1, nScreenHeight - 1, c, col);
 	}
 
-	template <typename T>
-	inline vec2d_basic<T> ConsoleGameEngine::GetMouse() const
-	{
-		return { nMousePosX, nMousePosY };
-	}
-
-	inline int ConsoleGameEngine::GetMouseX() const
+	int ConsoleGameEngine::MouseX() const
 	{
 		return nMousePosX;
 	}
 
-	inline int ConsoleGameEngine::GetMouseY() const
+	int ConsoleGameEngine::MouseY() const
 	{
 		return nMousePosY;
 	}
 
-	inline sKeyState ConsoleGameEngine::GetMouse(short button) const
+	KeyState ConsoleGameEngine::GetMouse(short button) const
 	{
-		return vMouse[button];
+		return Mouse[button];
 	}
 
-	inline sKeyState ConsoleGameEngine::GetKey(short key) const
+	KeyState ConsoleGameEngine::GetKey(short key) const
 	{
-		return vKeys[key];
+		return Keys[key];
 	}
 
-	inline int ConsoleGameEngine::GetScreenWidth() const
+	int ConsoleGameEngine::ScreenWidth() const
 	{
 		return nScreenWidth;
 	}
 
-	inline int ConsoleGameEngine::GetScreenHeight() const
+	int ConsoleGameEngine::ScreenHeight() const
 	{
 		return nScreenHeight;
-	}
-
-	inline int ConsoleGameEngine::GetCharacter(bool bHeld, bool bPressed, bool bReleased)
-	{
-		for (int i = ' '; i <= '~'; i++)
-		{
-			if (bHeld)
-			{
-				if (vKeys[i].bHeld)
-					return i;
-			}
-			else if (bPressed)
-			{
-				if (vKeys[i].bPressed)
-					return i;
-			}
-			else if (bReleased)
-			{
-				if (vKeys[i].bReleased)
-					return i;
-			}
-
-		}
-
-		return -1;
-	}
-
-	template <typename T>
-	inline vec2d_basic<T> ConsoleGameEngine::GetScreenSize() const
-	{
-		return { nScreenWidth, nScreenHeight };
-	}
-
-	inline float ConsoleGameEngine::GetDeltaTime() const
-	{
-		return fDeltaTime;
 	}
 }
