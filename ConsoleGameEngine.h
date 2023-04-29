@@ -55,8 +55,8 @@
 
 		bool OnUserUpdate(float fDeltaTime) override
 		{
-			for (int i = 0; i < GetScreenWidth(); i++)
-				for (int j = 0; j < GetScreenHeight(); j++)
+			for (int i = 0; i < ScreenWidth(); i++)
+				for (int j = 0; j < ScreenHeight(); j++)
 					Draw(i, j, PIXEL_SOLID, rand() % 15);
 
 			return true;
@@ -66,12 +66,9 @@
 	int main()
 	{
 			Example demo;
-			rcode err = demo.ConstructConsole(120, 40, 12, 12);
 
-			if (err.ok)
+			if (demo.ConstructConsole(120, 40, 12, 12) == RCODE_OK)
 				demo.Run();
-			else
-				std::cerr << err.info << "\n";
 
 			return 0;
 	}
@@ -293,6 +290,16 @@ public:
 	}
 };
 
+enum RCODE
+{
+	RCODE_OK,
+	RCODE_INVALID_SCREEN_SIZE,
+	RCODE_INVALID_SCREEN_BUFFER,
+	RCODE_INVALID_FONT,
+	RCODE_INVALID_CONSOLE_MODE,
+	RCODE_INVALID_SCREEN_INFO,
+};
+
 class ConsoleGameEngine
 {
 public:
@@ -317,16 +324,6 @@ public:
 public:
 	virtual bool OnUserCreate() = 0;
 	virtual bool OnUserUpdate(float fDeltaTime) = 0;
-
-	enum RCODE
-	{
-		RCODE_OK,
-		RCODE_INVALID_SCREEN_SIZE,
-		RCODE_INVALID_SCREEN_BUFFER,
-		RCODE_INVALID_FONT,
-		RCODE_INVALID_CONSOLE_MODE,
-		RCODE_INVALID_SCREEN_INFO,
-	};
 
 	int ConstructConsole(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
 	{
@@ -566,8 +563,8 @@ private:
 	short nKeyOldState[256];
 	short nKeyNewState[256];
 
-	bool bMouseOldState[5];
-	bool bMouseNewState[5];
+	bool bMouseOldState[5]{false};
+	bool bMouseNewState[5]{false};
 
 	int nMousePosX;
 	int nMousePosY;
@@ -1150,5 +1147,4 @@ int ConsoleGameEngine::ScreenHeight() const
 {
 	return nScreenHeight;
 }
-
 #endif
