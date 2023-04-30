@@ -3,6 +3,8 @@
 #undef max
 #undef min
 
+using namespace std;
+
 struct sSpaceObject
 {
 	float x;
@@ -16,7 +18,7 @@ struct sSpaceObject
 	float angle;
 };
 
-class Asteroids : public def::ConsoleGameEngine
+class Asteroids : public ConsoleGameEngine
 {
 public:
 	Asteroids()
@@ -29,39 +31,16 @@ protected:
 	{
 		ResetGame();
 
-		vecPlayerVerticies.push_back(std::make_pair(0.0f, -5.5f));
-		vecPlayerVerticies.push_back(std::make_pair(-2.5f, 2.5f));
-		vecPlayerVerticies.push_back(std::make_pair(2.5f, 2.5f));
+		vecPlayerVerticies.push_back({ 0.0f, -5.5f });
+		vecPlayerVerticies.push_back({ -2.5f, 2.5f });
+		vecPlayerVerticies.push_back({ 2.5f, 2.5f });
 
 		return true;
 	}
 
 	bool OnUserUpdate(float fDeltaTime) override
 	{
-		if (bDead)
-			ResetGame();
-
-		// CLEAR SCREEN
-
-		Clear(def::PIXEL_SOLID, def::FG_BLACK);
-
-		// DRAW ASTEROIDS
-
-		for (auto& a : vecAsteroids)
-		{
-			a.x += a.dx * 5.0f * fDeltaTime;
-			a.y += a.dy * 5.0f * fDeltaTime;
-
-			WrapCoords(a.x, a.y, a.x, a.y);
-
-			DrawCircle(a.x, a.y, a.size, def::PIXEL_SOLID, def::FG_YELLOW);
-		}
-
-		// DRAW PLAYER
-
-		DrawWireFrameModel(vecPlayerVerticies, player.x, player.y, player.angle, 2.0f);
-
-		// CHECK FOR CRASH
+		if (bDead) ResetGame();
 
 		float fContactPointX = 0.0f;
 		float fContactPointY = 0.0f;
@@ -95,8 +74,6 @@ protected:
 				bDead = true;
 		}
 
-		// CONTROL PLAYER
-
 		if (GetKey(VK_LEFT).bHeld)
 			player.angle -= 5.0f * fDeltaTime;
 
@@ -105,8 +82,8 @@ protected:
 
 		if (GetKey(VK_UP).bHeld)
 		{
-			player.dx += sinf(player.angle) * 20.0f * fDeltaTime;
-			player.dy -= cosf(player.angle) * 20.0f * fDeltaTime;
+			player.dx += sin(player.angle) * 20.0f * fDeltaTime;
+			player.dy -= cos(player.angle) * 20.0f * fDeltaTime;
 		}
 
 		player.x += player.dx * fDeltaTime;
@@ -114,7 +91,20 @@ protected:
 
 		WrapCoords(player.x, player.y, player.x, player.y);
 
-		// DRAW BULLETS
+		if (GetMouse(0).bPressed)
+			vecBullets.push_back({ player.x, player.y, 50.0f * sin(player.angle), -50.0f * cos(player.angle), 0, 0.0f });
+
+		if (vecBullets.size() > 0)
+		{
+			auto it = remove_if(vecBullets.begin(), vecBullets.end(),
+				[&](sSpaceObject& o)
+				{
+					return o.x <= 0 || o.y <= 0 || o.x > ScreenWidth() || o.y > ScreenHeight();
+				});
+
+			if (it != vecBullets.end())
+				vecBullets.erase(it);
+		}
 
 		for (int j = 0; j < vecBullets.size(); j++)
 		{
@@ -123,13 +113,11 @@ protected:
 
 			WrapCoords(vecBullets[j].x, vecBullets[j].y, vecBullets[j].x, vecBullets[j].y);
 
-			Draw(vecBullets[j].x, vecBullets[j].y);
-
 			for (int i = 0; i < vecAsteroids.size(); i++)
 			{
 				if (PointVsCircle(vecAsteroids[i].x, vecAsteroids[i].y, vecAsteroids[i].size, vecBullets[j].x, vecBullets[j].y))
 				{
-					sSpaceObject o = vecAsteroids[i];
+					const sSpaceObject& o = vecAsteroids[i];
 
 					vecAsteroids.erase(vecAsteroids.begin() + i);
 
@@ -144,11 +132,7 @@ protected:
 							});
 					}
 					else
-					{
-						vecAsteroids.push_back({
-								   float(rand() % 100 + 30), float(rand() % 100 + 30), -8.0f, 6.0f, rand() % 10, 0.0f
-							});
-					}
+						vecAsteroids.push_back({ (float)(rand() % 100 + 30), (float)(rand() % 100 + 30), -8.0f, 6.0f, rand() % 10, 0.0f });
 
 					vecBullets.erase(vecBullets.begin() + j);
 
@@ -159,26 +143,24 @@ protected:
 			}
 		}
 
-		// FIRE BULLETS
+		Clear(PIXEL_SOLID, FG_BLACK);
 
-		if (GetMouse(0).bPressed)
-			vecBullets.push_back({ player.x, player.y, 50.0f * sinf(player.angle), -50.0f * cosf(player.angle), 0, 0.0f });
-
-		if (vecBullets.size() > 0)
+		for (auto& a : vecAsteroids)
 		{
-			auto it = std::remove_if(vecBullets.begin(), vecBullets.end(),
-				[&](sSpaceObject& o)
-				{
-					return o.x < 1 || o.y < 1 || o.x > GetScreenWidth() || o.y > GetScreenHeight();
-				});
+			a.x += a.dx * 5.0f * fDeltaTime;
+			a.y += a.dy * 5.0f * fDeltaTime;
 
-			if (it != vecBullets.end())
-				vecBullets.erase(it);
+			WrapCoords(a.x, a.y, a.x, a.y);
+
+			DrawCircle(a.x, a.y, a.size, PIXEL_SOLID, FG_YELLOW);
 		}
 
-		// DRAW SCORE
+		DrawWireFrameModel(vecPlayerVerticies, player.x, player.y, player.angle, 2.0f);
 
-		DrawString(10, 10, L"Score: " + std::to_wstring(nScore), def::FG_WHITE);
+		DrawString(10, 10, L"Score: " + to_wstring(nScore), FG_WHITE);
+
+		for (const auto& bullet : vecBullets)
+			Draw(bullet.x, bullet.y);
 
 		return true;
 	}
@@ -192,8 +174,8 @@ protected:
 				20.0f, 20.0f, 8.0f, -6.0f, 16, 0.0f
 			});
 
-		player.x = (float)GetScreenWidth() / 2.0f;
-		player.y = (float)GetScreenHeight() / 2.0f;
+		player.x = (float)ScreenWidth() / 2.0f;
+		player.y = (float)ScreenHeight() / 2.0f;
 		player.dx = 0.0f;
 		player.dy = 0.0f;
 		player.angle = 0.0f;
@@ -207,17 +189,11 @@ protected:
 		ox = ix;
 		oy = iy;
 
-		if (ix < 0.0f)
-			ox = ix + (float)GetScreenWidth();
+		if (ix < 0.0f) ox += (float)ScreenWidth();
+		if (iy < 0.0f) oy += (float)ScreenHeight();
 
-		if (ix > (float)GetScreenWidth())
-			ox = ix - (float)GetScreenWidth();
-
-		if (iy < 0.0f)
-			oy = iy + (float)GetScreenHeight();
-
-		if (iy > (float)GetScreenHeight())
-			oy = iy - (float)GetScreenHeight();
+		if (ix > (float)ScreenWidth()) ox -= (float)ScreenWidth();
+		if (iy > (float)ScreenHeight()) oy -= (float)ScreenHeight();
 	}
 
 	bool PointVsCircle(float cx, float cy, float r, float x, float y)
@@ -242,17 +218,17 @@ protected:
 		float fTFarX = (target->x + target->size - fRayOriginX) * fInvDirX;
 		float fTFarY = (target->y + target->size - fRayOriginY) * fInvDirY;
 
-		if (std::isnan(fTFarY) || std::isnan(fTFarX)) return false;
-		if (std::isnan(fTNearY) || std::isnan(fTNearX)) return false;
+		if (isnan(fTFarY) || isnan(fTFarX)) return false;
+		if (isnan(fTNearY) || isnan(fTNearX)) return false;
 
-		if (fTNearX > fTFarX) std::swap(fTNearX, fTFarX);
-		if (fTNearY > fTFarY) std::swap(fTNearY, fTFarY);
+		if (fTNearX > fTFarX) swap(fTNearX, fTFarX);
+		if (fTNearY > fTFarY) swap(fTNearY, fTFarY);
 
 		if (fTNearX > fTFarY || fTNearY > fTFarX) return false;
 
-		fTHitNear = std::max(fTNearX, fTNearY);
+		fTHitNear = max(fTNearX, fTNearY);
 
-		float fTHitFar = std::min(fTFarX, fTFarY);
+		float fTHitFar = min(fTFarX, fTFarY);
 
 		if (fTHitFar < 0.0f)
 			return false;
@@ -290,16 +266,16 @@ protected:
 	{
 		float fx, fy;
 		WrapCoords(x, y, fx, fy);
-		def::ConsoleGameEngine::Draw((int32_t)fx, (int32_t)fy, c, col);
+		ConsoleGameEngine::Draw((int)fx, (int)fy, c, col);
 	}
 
 private:
-	std::vector<sSpaceObject> vecAsteroids;
-	std::vector<sSpaceObject> vecBullets;
+	vector<sSpaceObject> vecAsteroids;
+	vector<sSpaceObject> vecBullets;
 
 	sSpaceObject player;
 
-	std::vector<std::pair<float, float>> vecPlayerVerticies;
+	vector<pair<float, float>> vecPlayerVerticies;
 
 	int nScore = 0;
 	bool bDead = false;
@@ -309,12 +285,7 @@ private:
 int main()
 {
 	Asteroids demo;
-	def::rcode err = demo.ConstructConsole(160, 100, 8, 8);
-
-	if (err.ok)
+	if (demo.ConstructConsole(160, 100, 8, 8) == RCODE_OK)
 		demo.Run();
-	else
-		std::cerr << err.info << "\n";
-
 	return 0;
 }
