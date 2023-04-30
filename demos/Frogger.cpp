@@ -153,7 +153,7 @@ public:
 			nTileY++;
 		}
 
-		DrawSprite(fFrogX * (float)nTileSize, fFrogY * (float)nTileSize, sprFrog);
+		DrawSpriteAlpha(fFrogX * (float)nTileSize, fFrogY * (float)nTileSize, sprFrog);
 
 		return true;
 	}
