@@ -23,9 +23,9 @@ private:
 
 	vector<pair<float, string>> vecLines = {
 		{  0.0f, "oohhooohhooohhoo""oohhooohhooohhoo" },
-		{ -3.5f, "wwqstwwwwwqstwww""wwqstwwwwwqstwww" },
+		{ -4.0f, "wwqstwwwwwqstwww""wwqstwwwwwqstwww" },
 		{  3.5f, "wqstwwwqstwwqstw""wqstwwwqstwwqstw" },
-		{ -3.5f, "wwwqstwwwqstwwww""wwwqstwwwqstwwww" },
+		{ -4.5f, "wwwqstwwwqstwwww""wwwqstwwwqstwwww" },
 		{  0.0f, "pppppppppppppppp""pppppppppppppppp" },
 		{  3.5f, "rabcdrrrrefrrrrr""rabcdrrrrefrrrrr" },
 		{ -3.5f, "rrrrrgkrrrrrrrrr""rrrrrgkrrrrrrrrr" },
@@ -33,7 +33,7 @@ private:
 		{  0.0f, "pppppppppppppppp""pppppppppppppppp" }
 	};
 
-	int nTileSize = 8;
+	const int nTileSize = 8;
 
 	float fFrogX = 8.0f;
 	float fFrogY = 8.0f;
@@ -98,6 +98,7 @@ public:
 				else if (string("qst").find(tile) != string::npos)
 				{
 					fPotentialX += vecLines[nTileY].first * fDeltaTime;
+					break;
 				}
 			}
 
@@ -109,17 +110,20 @@ public:
 
 		Clear(PIXEL_SOLID, FG_BLACK);
 
+		int nMapWidth = ScreenWidth() * 2;
+
 		nTileY = 0;
 		for (auto& line : vecLines)
 		{
-			int nOffset = (int)(line.first * fGlobalTime * (float)nTileSize) % (ScreenWidth() * 2);
+			int nOffset = (int)(line.first * fGlobalTime * (float)nTileSize) % nMapWidth;
 
 			nTileX = 0;
 			for (const auto& tile : line.second)
 			{
-				int x = (nTileX * nTileSize + nOffset) % (ScreenWidth() * 2);
+				int x = (nTileX * nTileSize + nOffset) % nMapWidth;
 				int y = nTileY * nTileSize;
-				if (x < 0) x = (ScreenWidth() * 2) - (abs(x) % (ScreenWidth() * 2));
+
+				if (x < 0) x = nMapWidth - (abs(x) % nMapWidth);
 				x -= nTileSize;
 
 				switch (tile)
@@ -152,7 +156,10 @@ public:
 			nTileY++;
 		}
 
-		DrawSpriteAlpha(fFrogX * (float)nTileSize, fFrogY * (float)nTileSize, sprFrog);
+		int nFrogX = (int)(fFrogX * (float)nTileSize);
+		int nFrogY = (int)(fFrogY * (float)nTileSize);
+
+		DrawSpriteAlpha(nFrogX, nFrogY, sprFrog);
 
 		return true;
 	}
