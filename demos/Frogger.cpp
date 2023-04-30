@@ -1,4 +1,3 @@
-#define CGE_APP
 #include "ConsoleGameEngine.h"
 
 using namespace std;
