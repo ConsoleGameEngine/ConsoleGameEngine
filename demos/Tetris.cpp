@@ -3,9 +3,10 @@
 #include <thread>
 #include <list>
 
-using namespace std::chrono_literals;
+using namespace std;
+using namespace chrono_literals;
 
-class Tetris : public def::ConsoleGameEngine
+class Tetris : public ConsoleGameEngine
 {
 public:
 	Tetris()
@@ -14,7 +15,7 @@ public:
 	}
 
 private:
-	std::string tetromino[7];
+	string tetromino[7];
 
 	const int nAreaWidth = 12;
 	const int nAreaHeight = 18;
@@ -37,7 +38,7 @@ private:
 
 	bool bGameOver = false;
 
-	std::list<int> listLines;
+	list<int> listLines;
 
 protected:
 	int Rotate(int px, int py, int r)
@@ -93,109 +94,94 @@ protected:
 
 	bool OnUserUpdate(float fDeltaTime) override
 	{
-		Clear(def::PIXEL_SOLID, def::FG_BLACK);
+		Clear(PIXEL_SOLID, FG_BLACK);
 
 		if (bGameOver)
-			DrawString(5, 10, L"Game over");
-		else
 		{
+			DrawString(5, 10, L"Game over");
+			return true;
+		}
 
-			// MAKE A DELAY
+		this_thread::sleep_for(50ms);
 
-			std::this_thread::sleep_for(50ms);
+		nSpeedCount++;
+		bForceDown = (nSpeedCount == nSpeed);
 
-			nSpeedCount++;
-			bForceDown = (nSpeedCount == nSpeed);
+		nCurrentX += (GetKey(VK_RIGHT).bHeld && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX + 1, nCurrentY)) ? 1 : 0;
+		nCurrentX -= (GetKey(VK_LEFT).bHeld && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX - 1, nCurrentY)) ? 1 : 0;
+		nCurrentY += (GetKey(VK_DOWN).bHeld && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1)) ? 1 : 0;
 
-			// PLAYER MOVEMENT
-			
-			nCurrentX += (GetKey(VK_RIGHT).bHeld && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX + 1, nCurrentY)) ? 1 : 0;
-			nCurrentX -= (GetKey(VK_LEFT).bHeld && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX - 1, nCurrentY)) ? 1 : 0;
-			nCurrentY += (GetKey(VK_DOWN).bHeld && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1)) ? 1 : 0;
+		if (GetMouse(0).bPressed)
+			nCurrentRotation += DoesPieceFit(nCurrentPiece, nCurrentRotation + 1, nCurrentX, nCurrentY) ? 1 : 0;
 
-			if (GetMouse(0).bPressed)
-				nCurrentRotation += DoesPieceFit(nCurrentPiece, nCurrentRotation + 1, nCurrentX, nCurrentY) ? 1 : 0;
+		if (bForceDown)
+		{
+			nSpeedCount = 0;
+			nPieceCount++;
 
-			if (bForceDown)
+			if (nPieceCount % 50 == 0)
+				if (nSpeed >= 10) nSpeed--;
+
+			if (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1))
+				nCurrentY++;
+			else
 			{
-				nSpeedCount = 0;
-				nPieceCount++;
-
-				if (nPieceCount % 50 == 0)
-					if (nSpeed >= 10) nSpeed--;
-
-				if (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1))
-					nCurrentY++;
-				else
-				{
-					for (int px = 0; px < 4; px++)
-						for (int py = 0; py < 4; py++)
-							if (tetromino[nCurrentPiece][Rotate(px, py, nCurrentRotation)] != L'.')
-								pArea[(nCurrentY + py) * nAreaWidth + (nCurrentX + px)] = nCurrentPiece + 1;
-
+				for (int px = 0; px < 4; px++)
 					for (int py = 0; py < 4; py++)
-						if (nCurrentY + py < nAreaHeight - 1)
-						{
-							bool bLine = true;
+						if (tetromino[nCurrentPiece][Rotate(px, py, nCurrentRotation)] != L'.')
+							pArea[(nCurrentY + py) * nAreaWidth + (nCurrentX + px)] = nCurrentPiece + 1;
 
-							for (int px = 1; px < nAreaWidth - 1; px++)
-								bLine &= (pArea[(nCurrentY + py) * nAreaWidth + px]) != 0;
-
-							if (bLine)
-							{
-								for (int px = 1; px < nAreaWidth - 1; px++)
-									pArea[(nCurrentY + py) * nAreaWidth + px] = 8;
-								listLines.push_back(nCurrentY + py);
-							}
-						}
-
-					nScore += 25;
-					if (!listLines.empty())	nScore += (1 << listLines.size()) * 100;
-
-					nCurrentX = nAreaWidth / 2;
-					nCurrentY = 0;
-					nCurrentRotation = 0;
-					nCurrentPiece = rand() % 7;
-
-					bGameOver = !DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY);
-				}
-			}
-
-
-			// DRAW AREA
-
-			for (int i = 0; i < nAreaWidth; i++)
-				for (int j = 0; j < nAreaHeight; j++)
-					Draw(i + 2, j + 2, def::PIXEL_SOLID, pArea[j * nAreaWidth + i]);
-
-			// DRAW CURRENT PIECE
-
-			for (int i = 0; i < 4; i++)
-				for (int j = 0; j < 4; j++)
-					if (tetromino[nCurrentPiece][Rotate(i, j, nCurrentRotation)] != '.')
-						Draw(nCurrentX + i + 2, nCurrentY + j + 2, def::PIXEL_SOLID, nCurrentPiece + 1);
-
-			// DISPLAY SCORE
-
-			DrawString(15, 1, L"Score:" + std::to_wstring(nScore));
-
-			// ANIMATE LINES
-
-			if (!listLines.empty())
-			{
-				//std::this_thread::sleep_for(400ms);
-
-				for (auto& l : listLines)
-					for (int i = 1; i < nAreaWidth - 1; i++)
+				for (int py = 0; py < 4; py++)
+					if (nCurrentY + py < nAreaHeight - 1)
 					{
-						for (int j = l; j > 0; j--)
-							pArea[j * nAreaWidth + i] = pArea[(j - 1) * nAreaWidth + i];
+						bool bLine = true;
 
-						pArea[i] = 0;
+						for (int px = 1; px < nAreaWidth - 1; px++)
+							bLine &= (pArea[(nCurrentY + py) * nAreaWidth + px]) != 0;
+
+						if (bLine)
+						{
+							for (int px = 1; px < nAreaWidth - 1; px++)
+								pArea[(nCurrentY + py) * nAreaWidth + px] = 8;
+							listLines.push_back(nCurrentY + py);
+						}
 					}
 
-				listLines.clear();
+				nScore += 25;
+				if (!listLines.empty())	nScore += (1 << listLines.size()) * 100;
+
+				nCurrentX = nAreaWidth / 2;
+				nCurrentY = 0;
+				nCurrentRotation = 0;
+				nCurrentPiece = rand() % 7;
+
+				bGameOver = !DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY);
 			}
+		}
+
+		for (int i = 0; i < nAreaWidth; i++)
+			for (int j = 0; j < nAreaHeight; j++)
+				Draw(i + 2, j + 2, PIXEL_SOLID, pArea[j * nAreaWidth + i]);
+
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				if (tetromino[nCurrentPiece][Rotate(i, j, nCurrentRotation)] != '.')
+					Draw(nCurrentX + i + 2, nCurrentY + j + 2, PIXEL_SOLID, nCurrentPiece + 1);
+
+		DrawString(15, 1, L"Score:" + to_wstring(nScore));
+
+		if (!listLines.empty())
+		{
+			for (auto& l : listLines)
+				for (int i = 1; i < nAreaWidth - 1; i++)
+				{
+					for (int j = l; j > 0; j--)
+						pArea[j * nAreaWidth + i] = pArea[(j - 1) * nAreaWidth + i];
+
+					pArea[i] = 0;
+				}
+
+			listLines.clear();
 		}
 
 		return true;
@@ -206,12 +192,9 @@ protected:
 int main()
 {
 	Tetris demo;
-	def::rcode err = demo.ConstructConsole(80, 50, 16, 16);
 
-	if (err.ok)
+	if (demo.ConstructConsole(80, 50, 16, 16) == RCODE_OK)
 		demo.Run();
-	else
-		std::cerr << err.info << "\n";
 
 	return 0;
 }
