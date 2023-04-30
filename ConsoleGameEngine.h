@@ -305,12 +305,12 @@ class ConsoleGameEngine
 public:
 	ConsoleGameEngine()
 	{
-		hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
-		hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
+		m_hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		m_hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
 
-		hWnd = GetConsoleWindow();
+		m_hWnd = GetConsoleWindow();
 
-		hDC = GetDC(hWnd);
+		m_hDC = GetDC(m_hWnd);
 
 		sAppName = L"Undefined";
 		sFont = L"Consolas";
@@ -318,151 +318,684 @@ public:
 
 	virtual ~ConsoleGameEngine()
 	{
-		delete[] pScreen;
+		delete[] m_pScreen;
 	}
 
 public:
 	virtual bool OnUserCreate() = 0;
 	virtual bool OnUserUpdate(float fDeltaTime) = 0;
 
-	int ConstructConsole(int width = 120, int height = 40, int fontw = 4, int fonth = 4)
+	int ConstructConsole(int width = 120, int height = 40, int fontW = 4, int fontH = 4)
 	{
-		if (width <= 0 || height <= 0 || fontw <= 0 || fonth <= 0)
+		if (width <= 0 || height <= 0 || fontW <= 0 || fontH <= 0)
 			return RCODE_INVALID_SCREEN_SIZE;
 
-		nScreenWidth = width;
-		nScreenHeight = height;
+		m_nScreenWidth = width;
+		m_nScreenHeight = height;
 
-		nFontW = fontw;
-		nFontH = fonth;
+		m_nFontW = fontW;
+		m_nFontH = fontH;
 
-		hConsoleOut = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+		m_hConsoleOut = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
-		if (hConsoleOut == INVALID_HANDLE_VALUE)
+		if (m_hConsoleOut == INVALID_HANDLE_VALUE)
 			return RCODE_INVALID_SCREEN_BUFFER;
 
-		rRectWindow = { 0, 0, 1, 1 };
-		SetConsoleWindowInfo(hConsoleOut, TRUE, &rRectWindow);
+		m_rectWindow = { 0, 0, 1, 1 };
+		SetConsoleWindowInfo(m_hConsoleOut, TRUE, &m_rectWindow);
 
-		COORD coord = { (short)nScreenWidth, (short)nScreenHeight };
-		if (!SetConsoleScreenBufferSize(hConsoleOut, coord))
-			return RCODE_INVALID_SCREEN_SIZE;
+		COORD coord = { (short)m_nScreenWidth, (short)m_nScreenHeight };
 
-		if (!SetConsoleActiveScreenBuffer(hConsoleOut))
-			return RCODE_INVALID_SCREEN_BUFFER;
+		if (!SetConsoleScreenBufferSize(m_hConsoleOut, coord))  return RCODE_INVALID_SCREEN_SIZE;
+		if (!SetConsoleActiveScreenBuffer(m_hConsoleOut))		return RCODE_INVALID_SCREEN_BUFFER;
 
 		CONSOLE_FONT_INFOEX cfi;
 		cfi.cbSize = sizeof(cfi);
 		cfi.nFont = 0;
-		cfi.dwFontSize.X = nFontW;
-		cfi.dwFontSize.Y = nFontH;
+		cfi.dwFontSize.X = m_nFontW;
+		cfi.dwFontSize.Y = m_nFontH;
 		cfi.FontFamily = FF_DONTCARE;
 		cfi.FontWeight = FW_NORMAL;
 
 		wcscpy_s(cfi.FaceName, sFont.c_str());
-		if (!SetCurrentConsoleFontEx(hConsoleOut, false, &cfi))
+		if (!SetCurrentConsoleFontEx(m_hConsoleOut, false, &cfi))
 			return RCODE_INVALID_FONT;
 
-		if (!SetConsoleMode(hConsoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
+		if (!SetConsoleMode(m_hConsoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
 			return RCODE_INVALID_CONSOLE_MODE;
 
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (!GetConsoleScreenBufferInfo(hConsoleOut, &csbi))
+		if (!GetConsoleScreenBufferInfo(m_hConsoleOut, &csbi))
 			return RCODE_INVALID_SCREEN_INFO;
 
-		if (nScreenHeight > csbi.dwMaximumWindowSize.Y)
+		if (m_nScreenHeight > csbi.dwMaximumWindowSize.Y)
 			return RCODE_INVALID_SCREEN_SIZE;
 
-		if (nScreenWidth > csbi.dwMaximumWindowSize.X)
+		if (m_nScreenWidth > csbi.dwMaximumWindowSize.X)
 			return RCODE_INVALID_SCREEN_SIZE;
 
-		rRectWindow = { 0, 0, short(nScreenWidth - 1), short(nScreenHeight - 1) };
-		SetConsoleWindowInfo(hConsoleOut, TRUE, &rRectWindow);
+		m_rectWindow = { 0, 0, (short)(m_nScreenWidth - 1), (short)(m_nScreenHeight - 1) };
+		SetConsoleWindowInfo(m_hConsoleOut, TRUE, &m_rectWindow);
 
-		pScreen = new CHAR_INFO[nScreenWidth * nScreenHeight];
-		memset(pScreen, 0, sizeof(CHAR_INFO) * nScreenWidth * nScreenHeight);
+		m_pScreen = new CHAR_INFO[m_nScreenWidth * m_nScreenHeight];
+		memset(m_pScreen, 0, sizeof(CHAR_INFO) * m_nScreenWidth * m_nScreenHeight);
 
 		return RCODE_OK;
 	}
 
 	void Run()
 	{
-		bGameThreadActive = true;
+		m_bGameThreadActive = true;
 
 		std::thread t = std::thread(&ConsoleGameEngine::AppThread, this);
 		t.join();
 	}
 
 public:
-	virtual void Draw(int x, int y, short c = 0x2588, short col = 0x000F);
-	virtual void DrawLine(int x1, int y1, int x2, int y2, short c = 0x2588, short col = 0x000F);
-	virtual void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
-	virtual void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = 0x2588, short col = 0x000F);
-	virtual void DrawRectangle(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
-	virtual void FillRectangle(int x, int y, int size_x, int size_y, short c = 0x2588, short col = 0x000F);
-	virtual void DrawCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
-	virtual void FillCircle(int x, int y, int radius, short c = 0x2588, short col = 0x000F);
-	virtual void DrawSprite(int x, int y, Sprite* sprite);
-	virtual void DrawPartialSprite(int x, int y, int fx1, int fy1, int fx2, int fy2, Sprite* sprite);
-	virtual void DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, short c = 0x2588, short col = 0x000F);
-	virtual void DrawString(int x, int y, const std::wstring& text, short col = 0x000F);
-	virtual void Clear(short c = 0x2588, short col = 0x000F);
+	bool MakeSound(std::wstring sFilename, bool bLoop)
+	{
+		DWORD f = SND_ASYNC | SND_FILENAME;
 
-	bool MakeSound(std::wstring sFilename, bool bLoop = false);
-	bool Focused();
+		if (bLoop)
+			f |= SND_LOOP;
 
-	int MouseX() const;
-	int MouseY() const;
+		return (bool)PlaySoundW(sFilename.c_str(), nullptr, f);
+	}
 
-	KeyState GetMouse(short button) const;
-	KeyState GetKey(short key) const;
+	bool Focused()
+	{
+		return m_bFocused;
+	}
 
-	int ScreenWidth() const;
-	int ScreenHeight() const;
+	void Draw(int x, int y, short c = PIXEL_SOLID, short col = FG_WHITE)
+	{
+		if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
+		{
+			m_pScreen[y * m_nScreenWidth + x].Char.UnicodeChar = c;
+			m_pScreen[y * m_nScreenWidth + x].Attributes = col;
+		}
+	}
+
+	void FillRectangle(int x, int y, int sizeX, int sizeY, short c = PIXEL_SOLID, short col = FG_WHITE)
+	{
+		for (int i = 0; i < sizeX; i++)
+			for (int j = 0; j < sizeY; j++)
+				Draw(x + i, y + j, c, col);
+	}
+
+	void DrawCircle(int x, int y, int radius, short c = PIXEL_SOLID, short col = FG_WHITE)
+	{
+		if (radius <= 0) return;
+
+		int x1 = 0;
+		int y1 = radius;
+		int p = 3 - 2 * radius;
+
+		while (y1 >= x1)
+		{
+			Draw(x - x1, y - y1, c, col);
+			Draw(x - y1, y - x1, c, col);
+			Draw(x + y1, y - x1, c, col);
+			Draw(x + x1, y - y1, c, col);
+			Draw(x - x1, y + y1, c, col);
+			Draw(x - y1, y + x1, c, col);
+			Draw(x + y1, y + x1, c, col);
+			Draw(x + x1, y + y1, c, col);
+
+			if (p < 0) p += 4 * x1++ + 6;
+			else p += 4 * (x1++ - y1--) + 10;
+		}
+	}
+
+	void FillCircle(int x, int y, int radius, short c = PIXEL_SOLID, short col = FG_WHITE)
+	{
+		if (radius <= 0) return;
+
+		int x1 = 0;
+		int y1 = radius;
+		int p = 3 - 2 * radius;
+
+		auto drawline = [&](int sx, int ex, int ny)
+		{
+			for (int i = sx; i <= ex; i++)
+				Draw(i, ny, c, col);
+		};
+
+		while (y1 >= x1)
+		{
+			drawline(x - x1, x + x1, y - y1);
+			drawline(x - y1, x + y1, y - x1);
+			drawline(x - x1, x + x1, y + y1);
+			drawline(x - y1, x + y1, y + x1);
+
+			if (p < 0) p += 4 * x1++ + 6;
+			else p += 4 * (x1++ - y1--) + 10;
+		}
+	}
+
+	void DrawLine(int x1, int y1, int x2, int y2, short c = PIXEL_SOLID, short col = FG_WHITE)
+	{
+		int x, y, xe, ye;
+
+		int dx = x2 - x1;
+		int dy = y2 - y1;
+
+		int dx1 = abs(dx);
+		int dy1 = abs(dy);
+
+		int px = 2 * dy1 - dx1;
+		int py = 2 * dx1 - dy1;
+
+		if (dy1 <= dx1)
+		{
+			if (dx >= 0)
+			{
+				x = x1;
+				y = y1;
+				xe = x2;
+			}
+			else
+			{
+				x = x2;
+				y = y2;
+				xe = x1;
+			}
+
+			Draw(x, y, c, col);
+
+			for (int i = 0; x < xe; i++)
+			{
+				x++;
+
+				if (px < 0)
+					px = px + 2 * dy1;
+				else
+				{
+					y += ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) ? 1 : -1;
+					px = px + 2 * (dy1 - dx1);
+				}
+
+				Draw(x, y, c, col);
+			}
+		}
+		else
+		{
+			if (dy >= 0)
+			{
+				x = x1;
+				y = y1;
+				ye = y2;
+			}
+			else
+			{
+				x = x2;
+				y = y2;
+				ye = y1;
+			}
+
+			Draw(x, y, c, col);
+
+			for (int i = 0; y < ye; i++)
+			{
+				y++;
+
+				if (py <= 0)
+					py = py + 2 * dx1;
+				else
+				{
+					x += ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) ? 1 : -1;
+					py = py + 2 * (dx1 - dy1);
+				}
+
+				Draw(x, y, c, col);
+			}
+		}
+	}
+
+	void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = PIXEL_SOLID, short col = FG_WHITE)
+	{
+		DrawLine(x1, y1, x2, y2, c, col);
+		DrawLine(x2, y2, x3, y3, c, col);
+		DrawLine(x3, y3, x1, y1, c, col);
+	}
+
+	void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c = PIXEL_SOLID, short col = FG_WHITE)
+	{
+		auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw(i, ny, c, col); };
+
+		int t1x, t2x, y, minx, maxx, t1xp, t2xp;
+
+		bool changed1 = false;
+		bool changed2 = false;
+
+		int signx1, signx2, dx1, dy1, dx2, dy2;
+		int e1, e2;
+
+		if (y1 > y2) { std::swap(y1, y2); std::swap(x1, x2); }
+		if (y1 > y3) { std::swap(y1, y3); std::swap(x1, x3); }
+		if (y2 > y3) { std::swap(y2, y3); std::swap(x2, x3); }
+
+		t1x = t2x = x1; y = y1;
+		dx1 = x2 - x1;
+
+		if (dx1 < 0)
+		{
+			dx1 = -dx1;
+			signx1 = -1;
+		}
+		else
+			signx1 = 1;
+
+		dy1 = y2 - y1;
+		dx2 = x3 - x1;
+
+		if (dx2 < 0)
+		{
+			dx2 = -dx2;
+			signx2 = -1;
+		}
+		else
+			signx2 = 1;
+
+		dy2 = y3 - y1;
+
+		if (dy1 > dx1)
+		{
+			std::swap(dx1, dy1);
+			changed1 = true;
+		}
+
+		if (dy2 > dx2)
+		{
+			std::swap(dy2, dx2);
+			changed2 = true;
+		}
+
+		e2 = (int)(dx2 >> 1);
+
+		if (y1 == y2) goto next;
+
+		e1 = (int)(dx1 >> 1);
+
+		for (int i = 0; i < dx1;)
+		{
+			t1xp = 0;
+			t2xp = 0;
+
+			if (t1x < t2x)
+			{
+				minx = t1x;
+				maxx = t2x;
+			}
+			else
+			{
+				minx = t2x;
+				maxx = t1x;
+			}
+
+			while (i < dx1)
+			{
+				i++;
+				e1 += dy1;
+
+				while (e1 >= dx1)
+				{
+					e1 -= dx1;
+
+					if (changed1)
+						t1xp = signx1;
+					else
+						goto next1;
+				}
+
+				if (changed1)
+					break;
+				else
+					t1x += signx1;
+			}
+
+		next1:
+			while (1)
+			{
+				e2 += dy2;
+				while (e2 >= dx2)
+				{
+					e2 -= dx2;
+					if (changed2)
+						t2xp = signx2;
+					else
+						goto next2;
+				}
+				if (changed2)
+					break;
+				else
+					t2x += signx2;
+			}
+
+		next2:
+			if (minx > t1x)
+				minx = t1x;
+
+			if (minx > t2x)
+				minx = t2x;
+
+			if (maxx < t1x)
+				maxx = t1x;
+
+			if (maxx < t2x)
+				maxx = t2x;
+
+			drawline(minx, maxx, y);
+
+			if (!changed1)
+				t1x += signx1;
+
+			t1x += t1xp;
+
+			if (!changed2)
+				t2x += signx2;
+
+			t2x += t2xp;
+			y += 1;
+
+			if (y == y2)
+				break;
+
+		}
+
+	next:
+		dx1 = x3 - x2;
+
+		if (dx1 < 0)
+		{
+			dx1 = -dx1;
+			signx1 = -1;
+		}
+		else
+			signx1 = 1;
+
+		dy1 = y3 - y2;
+		t1x = x2;
+
+		if (dy1 > dx1)
+		{
+			std::swap(dy1, dx1);
+			changed1 = true;
+		}
+		else
+			changed1 = false;
+
+		e1 = (int)(dx1 >> 1);
+
+		for (int i = 0; i <= dx1; i++)
+		{
+			t1xp = 0;
+			t2xp = 0;
+
+			if (t1x < t2x)
+			{
+				minx = t1x;
+				maxx = t2x;
+			}
+			else
+			{
+				minx = t2x;
+				maxx = t1x;
+			}
+
+			while (i < dx1)
+			{
+				e1 += dy1;
+
+				while (e1 >= dx1)
+				{
+					e1 -= dx1;
+					if (changed1)
+					{
+						t1xp = signx1;
+						break;
+					}
+					else
+						goto next3;
+				}
+
+				if (changed1)
+					break;
+				else
+					t1x += signx1;
+
+				if (i < dx1)
+					i++;
+			}
+
+		next3:
+			while (t2x != x3)
+			{
+				e2 += dy2;
+
+				while (e2 >= dx2)
+				{
+					e2 -= dx2;
+
+					if (changed2)
+						t2xp = signx2;
+					else
+						goto next4;
+				}
+
+				if (changed2)
+					break;
+				else
+					t2x += signx2;
+			}
+
+		next4:
+			if (minx > t1x)
+				minx = t1x;
+
+			if (minx > t2x)
+				minx = t2x;
+
+			if (maxx < t1x)
+				maxx = t1x;
+
+			if (maxx < t2x)
+				maxx = t2x;
+
+			drawline(minx, maxx, y);
+
+			if (!changed1)
+				t1x += signx1;
+
+			t1x += t1xp;
+
+			if (!changed2)
+				t2x += signx2;
+
+			t2x += t2xp;
+			y += 1;
+
+			if (y > y3)
+				return;
+		}
+	}
+
+	void DrawRectangle(int x, int y, int sizeX, int sizeY, short c = PIXEL_SOLID, short col = FG_WHITE)
+	{
+		for (int i = 0; i < sizeX; i++)
+		{
+			Draw(x + i, y, c, col);
+			Draw(x + i, y + sizeY, c, col);
+		}
+
+		for (int j = 0; j < sizeY; j++)
+		{
+			Draw(x, y + j, c, col);
+			Draw(x + sizeX, y + j, c, col);
+		}
+	}
+
+	void DrawSprite(int x, int y, Sprite* sprite)
+	{
+		if (sprite == nullptr) return;
+
+		for (int i = 0; i < sprite->nWidth; i++)
+			for (int j = 0; j < sprite->nHeight; j++)
+				Draw(x + i, y + j, sprite->GetGlyph(i, j), sprite->GetColour(i, j) | sprite->GetColour(i, j) * 16);
+	}
+
+	void DrawSpriteAlpha(int x, int y, Sprite* sprite)
+	{
+		if (sprite == nullptr) return;
+
+		for (int i = 0; i < sprite->nWidth; i++)
+			for (int j = 0; j < sprite->nHeight; j++)
+				if (sprite->GetGlyph(i, j) != L' ')
+					Draw(x + i, y + j, sprite->GetGlyph(i, j), sprite->GetColour(i, j) | sprite->GetColour(i, j) * 16);
+	}
+	
+	void DrawPartialSprite(int x, int y, int fx, int fy, int fsizeX, int fsizeY, Sprite* sprite)
+	{
+		if (sprite == nullptr) return;
+
+		for (int i = fx, x1 = 0; i < fx + fsizeX; i++, x1++)
+			for (int j = fy, y1 = 0; j < fy + fsizeY; j++, y1++)
+				Draw(x + x1, y + y1, sprite->GetGlyph(i, j), sprite->GetColour(i, j) | sprite->GetColour(i, j) * 16);
+	}
+
+	void DrawPartialSpriteAlpha(int x, int y, int fx, int fy, int fsizeX, int fsizeY, Sprite* sprite)
+	{
+		if (sprite == nullptr) return;
+
+		for (int i = fx, x1 = 0; i < fx + fsizeX; i++, x1++)
+			for (int j = fy, y1 = 0; j < fy + fsizeY; j++, y1++)
+				if (sprite->GetGlyph(i, j) != L' ')
+					Draw(x + x1, y + y1, sprite->GetGlyph(i, j), sprite->GetColour(i, j) | sprite->GetColour(i, j) * 16);
+	}
+
+	void DrawWireFrameModel(const std::vector<std::pair<float, float>>& modelCoordinates, float x, float y, float r, float s, short c = PIXEL_SOLID, short col = FG_WHITE)
+	{
+		std::vector<std::pair<float, float>> vecTransformedCoordinates;
+		int nVerts = modelCoordinates.size();
+		vecTransformedCoordinates.resize(nVerts);
+
+		// Rotate
+		for (int i = 0; i < nVerts; i++)
+		{
+			vecTransformedCoordinates[i].first = modelCoordinates[i].first * cos(r) - modelCoordinates[i].second * sin(r);
+			vecTransformedCoordinates[i].second = modelCoordinates[i].first * sin(r) + modelCoordinates[i].second * cos(r);
+		}
+
+		// Scale
+		for (int i = 0; i < nVerts; i++)
+		{
+			vecTransformedCoordinates[i].first = vecTransformedCoordinates[i].first * s;
+			vecTransformedCoordinates[i].second = vecTransformedCoordinates[i].second * s;
+		}
+
+		// Translate
+		for (int i = 0; i < nVerts; i++)
+		{
+			vecTransformedCoordinates[i].first = vecTransformedCoordinates[i].first + x;
+			vecTransformedCoordinates[i].second = vecTransformedCoordinates[i].second + y;
+		}
+
+		// Draw Closed Polygon
+		for (int i = 0; i <= nVerts; i++)
+		{
+			int j = (i + 1);
+			DrawLine((int)vecTransformedCoordinates[i % nVerts].first, (int)vecTransformedCoordinates[i % nVerts].second,
+				(int)vecTransformedCoordinates[j % nVerts].first, (int)vecTransformedCoordinates[j % nVerts].second, c, col);
+		}
+	}
+
+	void DrawString(int x, int y, const std::wstring& text, short col = FG_WHITE)
+	{
+		for (size_t i = 0; i < text.size(); i++)
+		{
+			m_pScreen[y * m_nScreenWidth + x + i].Char.UnicodeChar = text[i];
+			m_pScreen[y * m_nScreenWidth + x + i].Attributes = col;
+		}
+	}
+
+	void Clear(short c = PIXEL_SOLID, short col = FG_WHITE)
+	{
+		FillRectangle(0, 0, m_nScreenWidth - 1, m_nScreenHeight - 1, c, col);
+	}
+
+	int MouseX() const
+	{
+		return m_nMouseX;
+	}
+
+	int MouseY() const
+	{
+		return m_nMouseY;
+	}
+
+	KeyState GetMouse(short button) const
+	{
+		return m_Mouse[button];
+	}
+
+	KeyState GetKey(short key) const
+	{
+		return m_Keys[key];
+	}
+
+	int ScreenWidth() const
+	{
+		return m_nScreenWidth;
+	}
+
+	int ScreenHeight() const
+	{
+		return m_nScreenHeight;
+	}
 
 private:
 	void AppThread()
 	{
 		if (!OnUserCreate())
-			bGameThreadActive = false;
+			m_bGameThreadActive = false;
 
-		if (bGameThreadActive)
+		if (m_bGameThreadActive)
 		{
 			auto tp1 = std::chrono::system_clock::now();
 			auto tp2 = std::chrono::system_clock::now();
 
 			for (int i = 0; i < 256; i++)
-				Keys[i] = { false, false, false };
+				m_Keys[i] = { false, false, false };
 
 			for (int i = 0; i < 5; i++)
-				Mouse[i] = { false, false, false };
+				m_Mouse[i] = { false, false, false };
 
-			while (bGameThreadActive)
+			while (m_bGameThreadActive)
 			{
 				tp2 = std::chrono::system_clock::now();
 				std::chrono::duration<float> elapsedTime = tp2 - tp1;
 				tp1 = tp2;
-				fDeltaTime = elapsedTime.count();
+				m_fDeltaTime = elapsedTime.count();
 
 				wchar_t buffer_title[256];
-				swprintf_s(buffer_title, 256, L"github.com/defini7 - Console Game Engine - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / fDeltaTime);
+				swprintf_s(buffer_title, 256, L"github.com/defini7 - Console Game Engine - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / m_fDeltaTime);
 				SetConsoleTitleW(buffer_title);
 
-				if (!OnUserUpdate(fDeltaTime))
-					bGameThreadActive = false;
+				if (!OnUserUpdate(m_fDeltaTime))
+					m_bGameThreadActive = false;
 
 				INPUT_RECORD inBuf[32];
 				DWORD events = 0;
-				GetNumberOfConsoleInputEvents(hConsoleIn, &events);
+				GetNumberOfConsoleInputEvents(m_hConsoleIn, &events);
 				if (events > 0)
-					ReadConsoleInputW(hConsoleIn, inBuf, events, &events);
+					ReadConsoleInputW(m_hConsoleIn, inBuf, events, &events);
 
 				for (DWORD i = 0; i < events; i++)
 				{
 					switch (inBuf[i].EventType)
 					{
 					case FOCUS_EVENT:
-						bFocused = inBuf[i].Event.FocusEvent.bSetFocus;
+						m_bFocused = inBuf[i].Event.FocusEvent.bSetFocus;
 						break;
 
 					case MOUSE_EVENT:
@@ -471,15 +1004,15 @@ private:
 						{
 						case MOUSE_MOVED:
 						{
-							nMousePosX = inBuf[i].Event.MouseEvent.dwMousePosition.X;
-							nMousePosY = inBuf[i].Event.MouseEvent.dwMousePosition.Y;
+							m_nMouseX = inBuf[i].Event.MouseEvent.dwMousePosition.X;
+							m_nMouseY = inBuf[i].Event.MouseEvent.dwMousePosition.Y;
 						}
 						break;
 
 						case 0:
 						{
 							for (int m = 0; m < 5; m++)
-								bMouseNewState[m] = (inBuf[i].Event.MouseEvent.dwButtonState & (1 << m)) > 0;
+								m_bMouseNewState[m] = (inBuf[i].Event.MouseEvent.dwButtonState & (1 << m)) > 0;
 						}
 						break;
 
@@ -496,51 +1029,51 @@ private:
 
 				for (int i = 0; i < 256; i++)
 				{
-					nKeyNewState[i] = GetAsyncKeyState(i);
+					m_nKeyNewState[i] = GetAsyncKeyState(i);
 
-					Keys[i].bPressed = false;
-					Keys[i].bReleased = false;
+					m_Keys[i].bPressed = false;
+					m_Keys[i].bReleased = false;
 
-					if (nKeyNewState[i] != nKeyOldState[i])
+					if (m_nKeyNewState[i] != m_nKeyOldState[i])
 					{
-						if (nKeyNewState[i] & 0x8000)
+						if (m_nKeyNewState[i] & 0x8000)
 						{
-							Keys[i].bPressed = !Keys[i].bHeld;
-							Keys[i].bHeld = true;
+							m_Keys[i].bPressed = !m_Keys[i].bHeld;
+							m_Keys[i].bHeld = true;
 						}
 						else
 						{
-							Keys[i].bReleased = true;
-							Keys[i].bHeld = false;
+							m_Keys[i].bReleased = true;
+							m_Keys[i].bHeld = false;
 						}
 					}
 
-					nKeyOldState[i] = nKeyNewState[i];
+					m_nKeyOldState[i] = m_nKeyNewState[i];
 				}
 
 				for (int m = 0; m < 5; m++)
 				{
-					Mouse[m].bPressed = false;
-					Mouse[m].bReleased = false;
+					m_Mouse[m].bPressed = false;
+					m_Mouse[m].bReleased = false;
 
-					if (bMouseNewState[m] != bMouseOldState[m])
+					if (m_bMouseNewState[m] != m_bMouseOldState[m])
 					{
-						if (bMouseNewState[m])
+						if (m_bMouseNewState[m])
 						{
-							Mouse[m].bPressed = true;
-							Mouse[m].bHeld = true;
+							m_Mouse[m].bPressed = true;
+							m_Mouse[m].bHeld = true;
 						}
 						else
 						{
-							Mouse[m].bReleased = true;
-							Mouse[m].bHeld = false;
+							m_Mouse[m].bReleased = true;
+							m_Mouse[m].bHeld = false;
 						}
 					}
 
-					bMouseOldState[m] = bMouseNewState[m];
+					m_bMouseOldState[m] = m_bMouseNewState[m];
 				}
 
-				WriteConsoleOutputW(hConsoleOut, pScreen, { (short)nScreenWidth, (short)nScreenHeight }, { 0,0 }, &rRectWindow);
+				WriteConsoleOutputW(m_hConsoleOut, m_pScreen, { (short)m_nScreenWidth, (short)m_nScreenHeight }, { 0,0 }, &m_rectWindow);
 			}
 		}
 	}
@@ -550,601 +1083,33 @@ protected:
 	std::wstring sFont;
 
 private:
-	CHAR_INFO* pScreen = nullptr;
-	HANDLE hConsoleOut;
-	HANDLE hConsoleIn;
-	SMALL_RECT rRectWindow;
-	HWND hWnd;
-	HDC hDC;
+	CHAR_INFO* m_pScreen = nullptr;
+	HANDLE m_hConsoleOut;
+	HANDLE m_hConsoleIn;
+	SMALL_RECT m_rectWindow;
+	HWND m_hWnd;
+	HDC m_hDC;
 
-	KeyState Keys[256];
-	KeyState Mouse[5];
+	KeyState m_Keys[256];
+	KeyState m_Mouse[5];
 
-	short nKeyOldState[256];
-	short nKeyNewState[256];
+	short m_nKeyOldState[256];
+	short m_nKeyNewState[256];
 
-	bool bMouseOldState[5]{false};
-	bool bMouseNewState[5]{false};
+	bool m_bMouseOldState[5]{false};
+	bool m_bMouseNewState[5]{false};
 
-	int nMousePosX;
-	int nMousePosY;
+	int m_nMouseX;
+	int m_nMouseY;
 
-	int nScreenWidth;
-	int nScreenHeight;
+	int m_nScreenWidth;
+	int m_nScreenHeight;
 
-	int nFontW;
-	int nFontH;
+	int m_nFontW;
+	int m_nFontH;
 
-	float fDeltaTime;
+	float m_fDeltaTime;
 
-	bool bGameThreadActive;
-	bool bFocused;
+	bool m_bGameThreadActive;
+	bool m_bFocused;
 };
-
-#ifdef CGE_APP
-#undef CGE_APP
-
-bool ConsoleGameEngine::MakeSound(std::wstring sFilename, bool bLoop)
-{
-	DWORD f = SND_ASYNC | SND_FILENAME;
-
-	if (bLoop)
-		f |= SND_LOOP;
-
-	return (bool)PlaySoundW(sFilename.c_str(), nullptr, f);
-}
-
-bool ConsoleGameEngine::Focused()
-{
-	return bFocused;
-}
-
-void ConsoleGameEngine::FillRectangle(int x, int y, int size_x, int size_y, short c, short col)
-{
-	for (int i = x; i <= x + size_x; i++)
-		for (int j = y; j <= y + size_y; j++)
-			Draw(i, j, c, col);
-}
-
-void ConsoleGameEngine::DrawCircle(int x, int y, int radius, short c, short col)
-{
-	if (radius <= 0) return;
-
-	int x1 = 0;
-	int y1 = radius;
-	int p = 3 - 2 * radius;
-
-	while (y1 >= x1)
-	{
-		Draw(x - x1, y - y1, c, col);	// upper left left
-		Draw(x - y1, y - x1, c, col);	// upper upper left
-		Draw(x + y1, y - x1, c, col);	// upper upper right
-		Draw(x + x1, y - y1, c, col);	// upper right right
-		Draw(x - x1, y + y1, c, col);	// lower left left
-		Draw(x - y1, y + x1, c, col);	// lower lower left
-		Draw(x + y1, y + x1, c, col);	// lower lower right
-		Draw(x + x1, y + y1, c, col);	// lower right right
-
-		if (p < 0) p += 4 * x1++ + 6;
-		else p += 4 * (x1++ - y1--) + 10;
-	}
-}
-
-void ConsoleGameEngine::FillCircle(int x, int y, int radius, short c, short col)
-{
-	if (radius <= 0) return;
-
-	int x1 = 0;
-	int y1 = radius;
-	int p = 3 - 2 * radius;
-
-	auto drawline = [&](int sx, int ex, int ny)
-	{
-		for (int i = sx; i <= ex; i++)
-			Draw(i, ny, c, col);
-	};
-
-	while (y1 >= x1)
-	{
-		drawline(x - x1, x + x1, y - y1);
-		drawline(x - y1, x + y1, y - x1);
-		drawline(x - x1, x + x1, y + y1);
-		drawline(x - y1, x + y1, y + x1);
-
-		if (p < 0) p += 4 * x1++ + 6;
-		else p += 4 * (x1++ - y1--) + 10;
-	}
-}
-
-void ConsoleGameEngine::Draw(int x, int y, short c, short col)
-{
-	if (x >= 0 && x < nScreenWidth && y >= 0 && y < nScreenHeight)
-	{
-		pScreen[y * nScreenWidth + x].Char.UnicodeChar = c;
-		pScreen[y * nScreenWidth + x].Attributes = col;
-	}
-}
-
-void ConsoleGameEngine::DrawLine(int x1, int y1, int x2, int y2, short c, short col)
-{
-	int x, y, xe, ye;
-
-	int dx = x2 - x1;
-	int dy = y2 - y1;
-
-	int dx1 = abs(dx);
-	int dy1 = abs(dy);
-
-	int px = 2 * dy1 - dx1;
-	int py = 2 * dx1 - dy1;
-
-	if (dy1 <= dx1)
-	{
-		if (dx >= 0)
-		{
-			x = x1;
-			y = y1;
-			xe = x2;
-		}
-		else
-		{
-			x = x2;
-			y = y2;
-			xe = x1;
-		}
-
-		Draw(x, y, c, col);
-
-		for (int i = 0; x < xe; i++)
-		{
-			x++;
-
-			if (px < 0)
-				px = px + 2 * dy1;
-			else
-			{
-				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
-					y = y + 1;
-				else
-					y = y - 1;
-
-				px = px + 2 * (dy1 - dx1);
-			}
-			Draw(x, y, c, col);
-		}
-	}
-	else
-	{
-		if (dy >= 0)
-		{
-			x = x1;
-			y = y1;
-			ye = y2;
-		}
-		else
-		{
-			x = x2;
-			y = y2;
-			ye = y1;
-		}
-
-		Draw(x, y, c, col);
-
-		for (int i = 0; y < ye; i++)
-		{
-			y++;
-
-			if (py <= 0)
-				py = py + 2 * dx1;
-			else
-			{
-				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
-					x++;
-				else
-					x--;
-
-				py = py + 2 * (dx1 - dy1);
-			}
-
-			Draw(x, y, c, col);
-		}
-	}
-}
-
-void ConsoleGameEngine::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
-{
-	DrawLine(x1, y1, x2, y2, c, col);
-	DrawLine(x2, y2, x3, y3, c, col);
-	DrawLine(x3, y3, x1, y1, c, col);
-}
-
-void ConsoleGameEngine::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, short c, short col)
-{
-	auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw(i, ny, c, col); };
-
-	int t1x, t2x, y, minx, maxx, t1xp, t2xp;
-
-	bool changed1 = false;
-	bool changed2 = false;
-
-	int signx1, signx2, dx1, dy1, dx2, dy2;
-	int e1, e2;
-
-	// Sort vertices
-	if (y1 > y2) { std::swap(y1, y2); std::swap(x1, x2); }
-	if (y1 > y3) { std::swap(y1, y3); std::swap(x1, x3); }
-	if (y2 > y3) { std::swap(y2, y3); std::swap(x2, x3); }
-
-	t1x = t2x = x1; y = y1;   // Starting points
-	dx1 = x2 - x1;
-
-	if (dx1 < 0)
-	{
-		dx1 = -dx1;
-		signx1 = -1;
-	}
-	else
-		signx1 = 1;
-
-	dy1 = y2 - y1;
-	dx2 = x3 - x1;
-
-	if (dx2 < 0)
-	{
-		dx2 = -dx2;
-		signx2 = -1;
-	}
-	else
-		signx2 = 1;
-
-	dy2 = y3 - y1;
-
-	if (dy1 > dx1)
-	{   // swap values
-		std::swap(dx1, dy1);
-		changed1 = true;
-	}
-	if (dy2 > dx2)
-	{   // swap values
-		std::swap(dy2, dx2);
-		changed2 = true;
-	}
-
-	e2 = (int)(dx2 >> 1);
-
-	// Flat top, just process the second half
-	if (y1 == y2)
-		goto next;
-
-	e1 = (int)(dx1 >> 1);
-
-	for (int i = 0; i < dx1;)
-	{
-		t1xp = 0; t2xp = 0;
-		if (t1x < t2x)
-		{
-			minx = t1x;
-			maxx = t2x;
-		}
-		else
-		{
-			minx = t2x;
-			maxx = t1x;
-		}
-
-		// process first line until y value is about to change
-		while (i < dx1)
-		{
-			i++;
-			e1 += dy1;
-
-			while (e1 >= dx1)
-			{
-				e1 -= dx1;
-
-				if (changed1)
-					t1xp = signx1;
-				else
-					goto next1;
-			}
-
-			if (changed1)
-				break;
-			else
-				t1x += signx1;
-		}
-		// Move line
-	next1:
-		// process second line until y value is about to change
-		while (1)
-		{
-			e2 += dy2;
-			while (e2 >= dx2)
-			{
-				e2 -= dx2;
-				if (changed2)
-					t2xp = signx2;
-				else
-					goto next2;
-			}
-			if (changed2)
-				break;
-			else
-				t2x += signx2;
-		}
-	next2:
-		if (minx > t1x)
-			minx = t1x;
-
-		if (minx > t2x)
-			minx = t2x;
-
-		if (maxx < t1x)
-			maxx = t1x;
-
-		if (maxx < t2x)
-			maxx = t2x;
-
-		drawline(minx, maxx, y);    // Draw line from min to max points found on the y
-		// Now increase y
-		if (!changed1)
-			t1x += signx1;
-
-		t1x += t1xp;
-
-		if (!changed2)
-			t2x += signx2;
-
-		t2x += t2xp;
-		y += 1;
-
-		if (y == y2)
-			break;
-
-	}
-next:
-	// Second half
-	dx1 = x3 - x2;
-
-	if (dx1 < 0)
-	{
-		dx1 = -dx1;
-		signx1 = -1;
-	}
-	else
-		signx1 = 1;
-
-	dy1 = y3 - y2;
-	t1x = x2;
-
-	if (dy1 > dx1)
-	{   // swap values
-		std::swap(dy1, dx1);
-		changed1 = true;
-	}
-	else
-		changed1 = false;
-
-	e1 = (int)(dx1 >> 1);
-
-	for (int i = 0; i <= dx1; i++)
-	{
-		t1xp = 0;
-		t2xp = 0;
-
-		if (t1x < t2x)
-		{
-			minx = t1x;
-			maxx = t2x;
-		}
-		else
-		{
-			minx = t2x;
-			maxx = t1x;
-		}
-
-		// process first line until y value is about to change
-		while (i < dx1)
-		{
-			e1 += dy1;
-
-			while (e1 >= dx1)
-			{
-				e1 -= dx1;
-				if (changed1)
-				{
-					t1xp = signx1;
-					break;
-				}
-				else
-					goto next3;
-			}
-
-			if (changed1)
-				break;
-			else
-				t1x += signx1;
-
-			if (i < dx1)
-				i++;
-		}
-	next3:
-		// process second line until y value is about to change
-		while (t2x != x3)
-		{
-			e2 += dy2;
-
-			while (e2 >= dx2)
-			{
-				e2 -= dx2;
-
-				if (changed2)
-					t2xp = signx2;
-				else
-					goto next4;
-			}
-
-			if (changed2)
-				break;
-			else
-				t2x += signx2;
-		}
-	next4:
-
-		if (minx > t1x)
-			minx = t1x;
-
-		if (minx > t2x)
-			minx = t2x;
-
-		if (maxx < t1x)
-			maxx = t1x;
-
-		if (maxx < t2x)
-			maxx = t2x;
-
-		drawline(minx, maxx, y);
-
-		if (!changed1)
-			t1x += signx1;
-
-		t1x += t1xp;
-
-		if (!changed2)
-			t2x += signx2;
-
-		t2x += t2xp;
-		y += 1;
-
-		if (y > y3)
-			return;
-	}
-}
-
-void ConsoleGameEngine::DrawRectangle(int x, int y, int size_x, int size_y, short c, short col)
-{
-	for (int i = 0; i <= size_x; i++)
-	{
-		Draw(x + i, y, c, col);
-		Draw(x + i, y + size_y, c, col);
-	}
-
-	for (int j = 0; j <= size_y; j++)
-	{
-		Draw(x, y + j, c, col);
-		Draw(x + size_x, y + j, c, col);
-	}
-}
-
-void ConsoleGameEngine::DrawSprite(int x, int y, Sprite* sprite)
-{
-	if (sprite == nullptr) return;
-
-	for (int i = 0; i < sprite->nWidth; i++)
-	{
-		for (int j = 0; j < sprite->nHeight; j++)
-		{
-			if (sprite->GetGlyph(i, j) != L' ')
-				Draw(x + i, y + j, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
-		}
-	}
-}
-
-void ConsoleGameEngine::DrawPartialSprite(int x, int y, int fx, int fy, int fsizex, int fsizey, Sprite* sprite)
-{
-	if (sprite == nullptr) return;
-
-	for (int i = fx, x1 = 0; i < fx + fsizex; i++, x1++)
-	{
-		for (int j = fy, y1 = 0; j < fy + fsizey; j++, y1++)
-		{
-			if (sprite->GetGlyph(i, j) != L' ')
-				Draw(x + x1, y + y1, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
-		}
-	}
-}
-
-void ConsoleGameEngine::DrawWireFrameModel(std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r, float s, short c, short col)
-{
-	// pair.first = x coordinate
-	// pair.second = y coordinate
-
-	// Create translated model vector of coordinate pairs
-	std::vector<std::pair<float, float>> vecTransformedCoordinates;
-	int verts = vecModelCoordinates.size();
-	vecTransformedCoordinates.resize(verts);
-
-	// Rotate
-	for (int i = 0; i < verts; i++)
-	{
-		vecTransformedCoordinates[i].first = vecModelCoordinates[i].first * cosf(r) - vecModelCoordinates[i].second * sinf(r);
-		vecTransformedCoordinates[i].second = vecModelCoordinates[i].first * sinf(r) + vecModelCoordinates[i].second * cosf(r);
-	}
-
-	// Scale
-	for (int i = 0; i < verts; i++)
-	{
-		vecTransformedCoordinates[i].first = vecTransformedCoordinates[i].first * s;
-		vecTransformedCoordinates[i].second = vecTransformedCoordinates[i].second * s;
-	}
-
-	// Translate
-	for (int i = 0; i < verts; i++)
-	{
-		vecTransformedCoordinates[i].first = vecTransformedCoordinates[i].first + x;
-		vecTransformedCoordinates[i].second = vecTransformedCoordinates[i].second + y;
-	}
-
-	// Draw Closed Polygon
-	for (int i = 0; i <= verts; i++)
-	{
-		int j = (i + 1);
-		DrawLine((int)vecTransformedCoordinates[i % verts].first, (int)vecTransformedCoordinates[i % verts].second,
-			(int)vecTransformedCoordinates[j % verts].first, (int)vecTransformedCoordinates[j % verts].second, c, col);
-	}
-}
-
-void ConsoleGameEngine::DrawString(int x, int y, const std::wstring& text, short col)
-{
-	for (size_t i = 0; i < text.size(); i++)
-	{
-		pScreen[y * nScreenWidth + x + i].Char.UnicodeChar = text[i];
-		pScreen[y * nScreenWidth + x + i].Attributes = col;
-	}
-}
-
-void ConsoleGameEngine::Clear(short c, short col)
-{
-	FillRectangle(0, 0, nScreenWidth - 1, nScreenHeight - 1, c, col);
-}
-
-int ConsoleGameEngine::MouseX() const
-{
-	return nMousePosX;
-}
-
-int ConsoleGameEngine::MouseY() const
-{
-	return nMousePosY;
-}
-
-KeyState ConsoleGameEngine::GetMouse(short button) const
-{
-	return Mouse[button];
-}
-
-KeyState ConsoleGameEngine::GetKey(short key) const
-{
-	return Keys[key];
-}
-
-int ConsoleGameEngine::ScreenWidth() const
-{
-	return nScreenWidth;
-}
-
-int ConsoleGameEngine::ScreenHeight() const
-{
-	return nScreenHeight;
-}
-#endif
