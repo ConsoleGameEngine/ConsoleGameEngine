@@ -22,38 +22,38 @@ BattleRoyale::~BattleRoyale()
 	delete sprFont;
 }
 
-void BattleRoyale::CreateShip(float x, float y, wstring name)
+void BattleRoyale::CreateShip(float x, float y, wstring sName)
 {
 	if (listShips.size() < MAX_PLAYERS)
 	{
-		name = name.substr(0, MAX_NAME_LENGTH);
+		sName = sName.substr(0, MAX_NAME_LENGTH);
 
 		sShip s;
 
-		s.x = x;	 s.y = y;
-		s.dx = 0.0f; s.dy = 0.0f;
-		s.heading = 0.0f;
+		s.fPosX = x;	s.fPosY = y;
+		s.fDirX = 0.0f; s.fDirY = 0.0f;
+		s.fHeading = 0.0f;
 
-		s.health = MAX_SHIP_HEALTH;
-		s.name = name;
-		s.score = 0;
+		s.nHealth = MAX_SHIP_HEALTH;
+		s.sName = sName;
+		s.nScore = 0;
 
-		s.id = GenerateId();
-		s.col = s.id + 1;
+		s.nId = GenerateId();
+		s.nCol = s.nId + 1;
 
 		listShips.push_back(s);
 	}
 }
 
-void BattleRoyale::CreateBullet(float x, float y, float dx, float dy, short col)
+void BattleRoyale::CreateBullet(float fPosX, float fPosY, float fDirX, float fDirY, short nCol)
 {
 	sBullet b;
 
-	b.x = x; b.y = y;
-	b.dx = dx; b.dy = dy;
-	b.lifeTime = BULLET_LIFETIME;
+	b.fPosX = fPosX; b.fPosY = fPosY;
+	b.fDirX = fDirX; b.fDirY = fDirY;
 
-	b.col = col;
+	b.fLifeTime = BULLET_LIFETIME;
+	b.nCol = nCol;
 
 	listBullets.push_back(b);
 }
@@ -67,7 +67,7 @@ int BattleRoyale::GenerateId()
 		size_t i = 0;
 		for (const auto& s : listShips)
 		{
-			if (s.id == nId)
+			if (s.nId == nId)
 			{
 				nId = rand() % 13 + 1;
 				break;
@@ -77,10 +77,8 @@ int BattleRoyale::GenerateId()
 		}
 
 		if (i == listShips.size())
-			break;
+			return nId;
 	}
-
-	return nId;
 }
 
 void BattleRoyale::DrawBigText(int x, int y, const wstring& text, short col)
@@ -178,7 +176,7 @@ bool BattleRoyale::OnUserCreate()
 {
 	ConstructFont();
 
-	if (LoadPlayersData(L"assets/players.dat"))
+	if (LoadPlayersData(L"players.dat"))
 	{
 		if (listShips.size() > 0)
 			pControl = &listShips.back();
@@ -217,7 +215,7 @@ void BattleRoyale::HandleMoves(float fDeltaTime)
 	{
 		for (auto& s : listShips)
 		{
-			if (PointVsCircle(MouseX(), MouseY(), s.x, s.y, 3.5f))
+			if (PointVsCircle(MouseX(), MouseY(), s.fPosX, s.fPosY, 3.5f))
 			{
 				pControl = &s;
 				break;
@@ -230,22 +228,22 @@ void BattleRoyale::HandleMoves(float fDeltaTime)
 		if (GetMouse(0).bPressed)
 		{
 			CreateBullet(
-				pControl->x, pControl->y,
-				sin(pControl->heading) * 80.0f,
-				-cos(pControl->heading) * 80.0f,
-				pControl->col
+				pControl->fPosX, pControl->fPosY,
+				sin(pControl->fHeading) * 80.0f,
+				-cos(pControl->fHeading) * 80.0f,
+				pControl->nCol
 			);
 		}
 
-		if (GetKey(VK_LEFT).bHeld) pControl->heading -= fDeltaTime;
-		if (GetKey(VK_RIGHT).bHeld) pControl->heading += fDeltaTime;
+		if (GetKey(VK_LEFT).bHeld) pControl->fHeading -= fDeltaTime;
+		if (GetKey(VK_RIGHT).bHeld) pControl->fHeading += fDeltaTime;
 
 		int nDir = 0;
 		if (GetKey(VK_UP).bHeld)	nDir = 1;
 		if (GetKey(VK_DOWN).bHeld)	nDir = -1;
 
-		pControl->dx += nDir * sin(pControl->heading) * 30.0f * fDeltaTime;
-		pControl->dy += nDir * -cos(pControl->heading) * 30.0f * fDeltaTime;
+		pControl->fDirX += nDir * sin(pControl->fHeading) * 30.0f * fDeltaTime;
+		pControl->fDirY += nDir * -cos(pControl->fHeading) * 30.0f * fDeltaTime;
 	}
 }
 
@@ -255,20 +253,20 @@ void BattleRoyale::HandleCollision()
 	{
 		for (auto& b : listBullets)
 		{
-			if (s.col != b.col && !b.redundant && !s.redundant)
+			if (s.nCol != b.nCol && !b.bRedundant && !s.bRedundant)
 			{
-				if (PointVsCircle(b.x, b.y, s.x, s.y, 3.5f))
+				if (PointVsCircle(b.fPosX, b.fPosY, s.fPosX, s.fPosY, 3.5f))
 				{
-					b.redundant = true;
-					s.redundant = (--s.health <= 0);
+					b.bRedundant = true;
+					s.bRedundant = (--s.nHealth <= 0);
 
-					if (s.redundant)
+					if (s.bRedundant)
 					{
-						int nAuthorId = b.col - 1;
+						int nAuthorId = b.nCol - 1;
 						for (auto& a : listShips)
 						{
-							if (nAuthorId == a.id)
-								a.score++;
+							if (nAuthorId == a.nId)
+								a.nScore++;
 						}
 					}
 				}
@@ -279,43 +277,43 @@ void BattleRoyale::HandleCollision()
 
 void BattleRoyale::CleanUp()
 {
-	listBullets.remove_if([](sBullet& b) { return b.redundant || b.lifeTime <= 0.0f; });
-	listShips.remove_if([](sShip& s) { return s.redundant; });
+	listBullets.remove_if([](sBullet& b) { return b.bRedundant || b.fLifeTime <= 0.0f; });
+	listShips.remove_if([](sShip& s) { return s.bRedundant; });
 
-	listShips.sort([](const sShip& s1, const sShip& s2) { return s2.score < s1.score; });
+	listShips.sort([](const sShip& s1, const sShip& s2) { return s2.nScore < s1.nScore; });
 }
 
 void BattleRoyale::DrawShips(float fDeltaTime)
 {
 	for (auto& s : listShips)
 	{
-		s.x += s.dx * fDeltaTime;
-		s.y += s.dy * fDeltaTime;
-		WrapCoords(s.x, s.y);
+		s.fPosX += s.fDirX * fDeltaTime;
+		s.fPosY += s.fDirY * fDeltaTime;
+		WrapCoords(s.fPosX, s.fPosY);
 
 		DrawWireFrameModel(
 			vecShipVertices,
-			s.x, s.y,
-			s.heading, 1.0f,
-			PIXEL_SOLID, s.col
+			s.fPosX, s.fPosY,
+			s.fHeading, 1.0f,
+			PIXEL_SOLID, s.nCol
 		);
 	}
 
 	if (pControl != nullptr)
-		DrawCircle(pControl->x, pControl->y, 6, PIXEL_SOLID, FG_YELLOW);
+		DrawCircle(pControl->fPosX, pControl->fPosY, 6, PIXEL_SOLID, FG_YELLOW);
 }
 
 void BattleRoyale::DrawBullets(float fDeltaTime)
 {
 	for (auto& b : listBullets)
 	{
-		b.x += b.dx * fDeltaTime;
-		b.y += b.dy * fDeltaTime;
-		WrapCoords(b.x, b.y);
+		b.fPosX += b.fDirX * fDeltaTime;
+		b.fPosY += b.fDirY * fDeltaTime;
+		WrapCoords(b.fPosX, b.fPosY);
 
-		b.lifeTime -= fDeltaTime;
+		b.fLifeTime -= fDeltaTime;
 
-		Draw(b.x, b.y, PIXEL_SOLID, b.col);
+		Draw(b.fPosX, b.fPosY, PIXEL_SOLID, b.nCol);
 	}
 }
 
@@ -327,13 +325,13 @@ void BattleRoyale::DrawScoreTable()
 	{
 		FillRectangle(x, y, 96, 14, PIXEL_SOLID, FG_BLACK);
 
-		wstring sInfo = to_wstring(s.score) + L' ' + s.name;
+		wstring sInfo = to_wstring(s.nScore) + L' ' + s.sName;
 
 		DrawBigText(x + 2, y + 2, sInfo, FG_WHITE | BG_WHITE);
 		FillRectangle(
 			x + 2, y + 10,
-			92 * ((float)s.health / (float)MAX_SHIP_HEALTH), 2,
-			PIXEL_SOLID, s.col
+			92 * ((float)s.nHealth / (float)MAX_SHIP_HEALTH), 2,
+			PIXEL_SOLID, s.nCol
 		);
 
 		y += 15;
@@ -355,8 +353,12 @@ bool BattleRoyale::UpdateGameScreen(float fDeltaTime)
 
 bool BattleRoyale::UpdateCreditsScreen()
 {
-	DrawBigText(70, 80, L" Battle-Royal!", FG_BLUE);
-	DrawBigText(70, 90, L"Made by def1ni7", FG_BLUE);
+	if (GetKey(VK_SPACE).bPressed)
+		nGameState = GS_GAME;
+
+	DrawBigText(70, 80,  L"   Battle-Royal!   ", FG_BLUE);
+	DrawBigText(70, 90,  L"  Made by def1ni7  ", FG_BLUE);
+	DrawBigText(70, 110, L"Press SPACE to play", FG_BLUE);
 
 	return true;
 }
