@@ -178,7 +178,7 @@ bool BattleRoyale::OnUserCreate()
 {
 	ConstructFont();
 
-	if (LoadPlayersData(L"players.dat"))
+	if (LoadPlayersData(L"assets/players.dat"))
 	{
 		if (listShips.size() > 0)
 			pControl = &listShips.back();
