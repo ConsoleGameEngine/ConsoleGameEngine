@@ -23,29 +23,29 @@ const vector<pair<float, float>> vecShipVertices =
 
 struct sShip
 {
-	float x, y;
-	float dx, dy;
-	float heading;
+	float fPosX, fPosY;
+	float fDirX, fDirY;
+	float fHeading;
 
-	int health;
-	int score;
-	wstring name;
+	int nHealth;
+	int nScore;
+	wstring sName;
 
-	int id;
-	short col;
+	int nId;
+	short nCol;
 
-	bool redundant = false;
+	bool bRedundant = false;
 };
 
 struct sBullet
 {
-	float x, y;
-	float dx, dy;
+	float fPosX, fPosY;
+	float fDirX, fDirY;
 
-	float lifeTime;
-	short col;
+	float fLifeTime;
+	short nCol;
 
-	bool redundant = false;
+	bool bRedundant = false;
 };
 
 enum GAME_STATE : int
@@ -72,8 +72,8 @@ private:
 	int nGameState;
 
 private:
-	void CreateShip(float x, float y, wstring name);
-	void CreateBullet(float x, float y, float dx, float dy, short col);
+	void CreateShip(float fPosX, float fPosY, wstring sName);
+	void CreateBullet(float fPosX, float fPosY, float fDirX, float fDirY, short nCol);
 
 	int GenerateId();
 
