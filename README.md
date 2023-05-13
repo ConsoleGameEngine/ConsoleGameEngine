@@ -15,7 +15,7 @@ ConsoleGameEngine - это простой игровой движок для в�
 ```c++
 #include "ConsoleGameEngine.h"
 
-class Example : public def::ConsoleGameEngine
+class Example : public ConsoleGameEngine
 {
 public:
 	Example()
@@ -36,12 +36,9 @@ protected:
 int main()
 {
 	Example demo;
-	def::rcode err = demo.Construct(256, 240, 4, 4);
 	
-	if (err.ok)
+	if (demo.Construct(256, 240, 4, 4) == RCODE_OK)
 		demo.Run();
-	else
-		std::cerr << err.info << "\n";
 	
 	return 0;
 }
