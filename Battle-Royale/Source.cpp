@@ -2,8 +2,8 @@
 
 int main()
 {
-	BattleRoyale demo;
-	if (demo.ConstructConsole(256, 240, 4, 4) == RCODE_OK)
-		demo.Run();
+	BattleRoyale game;
+	if (game.ConstructConsole(256, 240, 4, 4) == RCODE_OK)
+		game.Run();
 	return 0;
 }
