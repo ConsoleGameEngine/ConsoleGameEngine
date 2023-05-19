@@ -24,7 +24,7 @@ struct sPlayer
 	float speed;
 };
 
-class AtariPong : public def::ConsoleGameEngine
+class AtariPong : public ConsoleGameEngine
 {
 public:
 	AtariPong()
@@ -43,16 +43,16 @@ private:
 
 protected:
 
-	void Ball_Move()
+	void Ball_Move(float fDeltaTime)
 	{
-		ball.x += ball.xVel * GetDeltaTime();
-		ball.y += ball.yVel * GetDeltaTime();
+		ball.x += ball.xVel * fDeltaTime;
+		ball.y += ball.yVel * fDeltaTime;
 	}
 
 	void Ball_Reset(float fModifier)
 	{
-		ball.x = float(GetScreenWidth() / 2 - ball.radius / 2);
-		ball.y = float(GetScreenHeight() / 2 - ball.radius / 2);
+		ball.x = float(ScreenWidth() / 2 - ball.radius / 2);
+		ball.y = float(ScreenHeight() / 2 - ball.radius / 2);
 
 		ball.xVel = ball.speed * fModifier;
 		ball.yVel = 0.0f;
@@ -65,7 +65,7 @@ protected:
 			Ball_Reset(1.0f);
 			nPlayer2_Score++;
 		}
-		else if ((int)ball.x + ball.radius > GetScreenWidth())
+		else if ((int)ball.x + ball.radius > ScreenWidth())
 		{
 			Ball_Reset(-1.0f);
 			nPlayer1_Score++;
@@ -79,9 +79,9 @@ protected:
 			ball.y = 0.0f;
 			ball.yVel = -ball.yVel;
 		}
-		else if ((int)ball.y + ball.radius > GetScreenHeight())
+		else if ((int)ball.y + ball.radius > ScreenHeight())
 		{
-			ball.y = float(GetScreenHeight() - ball.radius);
+			ball.y = float(ScreenHeight() - ball.radius);
 			ball.yVel = -ball.yVel;
 		}
 	}
@@ -112,26 +112,23 @@ protected:
 		FillCircle((int)ball.x, (int)ball.y, ball.radius);
 	}
 
-	void Player_Move(sPlayer& p, const short upKey, const short downKey)
+	void Player_Move(sPlayer& p, short up, short down, float fDeltaTime)
 	{
-		if (GetKey(upKey).bHeld)
-			p.y -= p.speed * GetDeltaTime();
-
-		if (GetKey(downKey).bHeld)
-			p.y += p.speed * GetDeltaTime();
+		if (GetKey(up).bHeld)	p.y -= p.speed * fDeltaTime;
+		if (GetKey(down).bHeld) p.y += p.speed * fDeltaTime;
 	}
 
 	void Player_Clip(sPlayer& p)
 	{
 		if (p.y < 0.0f)
 			p.y = 1.0f;
-		else if (p.y + (float)p.height > GetScreenHeight())
-			p.y = float(GetScreenHeight() - p.height) - 1.0f;
+		else if (p.y + (float)p.height > ScreenHeight())
+			p.y = float(ScreenHeight() - p.height) - 1.0f;
 	}
 
 	void Player_Draw(sPlayer& p)
 	{
-		FillRectangle((int)p.x, (int)p.y, (int)p.x + p.width, (int)p.y + p.height);
+		FillRectangle((int)p.x, (int)p.y, p.width, p.height);
 	}
 
 	bool CheckCollision(sBall& b, sPlayer& p)
@@ -148,8 +145,8 @@ protected:
 	{
 		// Initialize a ball
 
-		ball.x = float(GetScreenWidth() / 2);
-		ball.y = float(GetScreenHeight() / 2);
+		ball.x = float(ScreenWidth() / 2);
+		ball.y = float(ScreenHeight() / 2);
 
 		ball.radius = 3;
 
@@ -161,7 +158,7 @@ protected:
 		// Initialize the players
 
 		player1.x = 50.0f;
-		player1.y = float(GetScreenHeight() / 2);
+		player1.y = float(ScreenHeight() / 2);
 
 		player1.width = 5;
 		player1.height = 50;
@@ -171,8 +168,8 @@ protected:
 		player2.width = 5;
 		player2.height = 50;
 
-		player2.x = float(GetScreenWidth() - player2.width - 50);
-		player2.y = float(GetScreenHeight() / 2);
+		player2.x = float(ScreenWidth() - player2.width - 50);
+		player2.y = float(ScreenHeight() / 2);
 
 		player2.speed = 50.0f;
 
@@ -191,22 +188,22 @@ protected:
 
 	bool OnUserUpdate(float fDeltaTime) override
 	{
-		Clear(def::PIXEL_SOLID, def::FG_BLACK);
+		Clear(PIXEL_SOLID, FG_BLACK);
 
 		// Update ball
 
-		Ball_Move();
+		Ball_Move(fDeltaTime);
 		Ball_Collide();
 		Ball_ChangeScore();
 		Ball_Draw();
 
 		// Update players
 
-		Player_Move(player1, L'W', L'S');
+		Player_Move(player1, L'W', L'S', fDeltaTime);
 		Player_Clip(player1);
 		Player_Draw(player1);
 
-		Player_Move(player2, VK_UP, VK_DOWN);
+		Player_Move(player2, VK_UP, VK_DOWN, fDeltaTime);
 		Player_Clip(player2);
 		Player_Draw(player2);
 
@@ -216,7 +213,7 @@ protected:
 			ResetGame();
 
 		DrawString(10, 10, L"Score: " + std::to_wstring(nPlayer1_Score));
-		DrawString(GetScreenWidth() - 75, 10, L"Score: " + std::to_wstring(nPlayer2_Score));
+		DrawString(ScreenWidth() - 75, 10, L"Score: " + std::to_wstring(nPlayer2_Score));
 
 		return true;
 	}
@@ -227,12 +224,8 @@ int main()
 {
 	AtariPong demo;
 
-	def::rcode rc = demo.ConstructConsole(256, 240, 4, 4);
-
-	if (rc.ok)
+	if (demo.ConstructConsole(256, 240, 4, 4) == RCODE_OK)
 		demo.Run();
-	else
-		std::cerr << rc.info << '\n';
 
 	return 0;
 }
