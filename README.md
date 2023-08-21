@@ -1,16 +1,14 @@
 # **ConsoleGameEngine**
 
-## Описание
+## Description
 
-ConsoleGameEngine - это простой игровой движок для взаимодействия с командной строкой Windows для создания игр и приложений.
+ConsoleGameEngine is a simple game engine that can be used for building games and applications in Windows Command Prompt
 
-## Версия 2.2
+## Documentation
 
-## Документация
+### Example
 
-### Пример
-
-Давайте рассмотрим простой пример:
+Let's take a look on an example:
 
 ```c++
 #include "ConsoleGameEngine.h"
@@ -37,142 +35,28 @@ int main()
 {
 	Example demo;
 	
-	if (demo.Construct(256, 240, 4, 4) == RCODE_OK)
+	if (demo.Construct(256, 240, 4, 4) == rcode::OK)
 		demo.Run();
 	
 	return 0;
 }
 ```
 
-Сперва нам нужно подключить файл ```ConsoleGameEngine.h```. 
+First of all we need to include `ConsoleGameEngine.h`. 
 
-После нам нужно создать класс, который публично наследует от ```ConsoleGameEngine``` класса из пространства имен `def`. В этом случае нам сначала нужно переопределить конструктор, чтобы задать название нашего приложения и затем проделать тоже самое с функциями: `OnUserCreate` и `OnUserUpdate`, вторая функция получает параметром аргумент дельта-время. По умолчанию эти функцию возвращают `true`, но когда ты пытаешься указать `false` приложение останавливается. Заметьте, что `OnUserCreate` вызывается только один раз, а `OnUserUpdate` на каждом обновлении вашего процессора.
+Then we need to create a class, that publicly inherits from `ConsoleGameEngine` class. Then we need to override a constructor, to set the application name and then we do the same with 2 virtual methods: `OnUserCreate` and `OnUserUpdate`, the second method takes as parameter `fDeltaTime`. They should return `true` to prevent exiting from application. `OnUserCreate` is being called only once, and `OnUserUpdate` on every frame.
 
-В `main` функции создаем объект нашего класса и проверяем достаточно ли памяти для создания окна, поддерживает ли ваш монитор такое разрешение. Метод `Construct` принимает 4 аргумента: ширину окна, высоту окна, ширину пикселя, высоту пикселя. Данный метод возвращает `def::rcode`, мы сохраняем это в переменной. Если поле `ok` содержит `true`, то мы вызываем метод `Run`, а иначе мы выводим сообщение об ошибке, которое находится в поле `info`.
+Now we need to create a `main` function, after that we must create instance of our derived class, then we create an if statement with calling `Construct` method where we pass screen width, screen height, font width and font height, if it returns rcode::OK, we can call `Run` method.
 
-### Описание функций
+## Additional
 
-Заметьте, что аргумент `c` - это тип пикселя, который вы можете получить из `def::PIXEL_TYPE` и аргумент `col` - это цвет пикселя, который можно получить из `def::FG_COLORS` или из `def::BG_COLORS`. 
+1. [Sprite Editor](https://github.com/defini7/SpriteEditor)
 
-1. Draw 
-
-   - Меняет цвет пикселя по заданным координатам.
-
-2. DrawLine
-
-   - Рисует линию по 2 точки.
-
-3. DrawTriangle
-
-   - Рисует треугольник по 3 точкам.
-
-4. FillTriangle
-
-   - Рисует закрашенный треугольник по 3 точкам.
-
-5. DrawRectangle
-
-   - Рисует прямоугольник по 2 точкам (первая - левый верхний угол, вторая - правый нижний угол).
-
-6. DrawRectangleS
-
-   - В данном случае рисует прямоугольник по двум точкам, но уже по размеру.
-
-7. FillRectangle
-
-   - Рисует закрашенный прямоугольник по 2 точкам (первая - левый верхний угол, вторая - правый нижний угол).
-
-8. FillRectangleS
-
-   - В данном случае рисует закрашенный прямоугольник по двум точкам, но уже по размеру.
-
-9. DrawCircle
-
-   - Рисует круг по одной точке (центру окружности) и радиусу.
-
-10. FillCircle
-
-   - Рисует закрашенный круг по одной точке (центру окружности) и радиусу.
-
-11. DrawSprite
-
-    - Рисует спрайт, используя объект класса `Sprite`.
-
-12. DrawPartialSprite
-
-    - Рисует спрайт, используя объект класса `Sprite`, первый аргумент - это позиция на экране, а другие два аргумента - позиция и размер в файле. Используются координаты.
-
-13. DrawPartialSpriteS
-
-    - Рисует спрайт, используя объект класса `Sprite`, первый аргумент - это позиция на экране, а другие два аргумента - позиция и размер в файле. Используется размер.
-
-14. DrawString
-
-    - Принимает параметром UNICODE строку, например `L"Hello, World!"`, и выводит по заданным координатам.
-
-15. Clear
-
-    - Очищает экран. 
-
-16. Focused
-
-    - Возвращает `true`, если командная строка в фокусе, иначе `false`.
-
-17. GetMouse
-
-    - Возвращает позицию курсора относительно командной строки.
-
-18. GetMouseX
-
-- Возвращает позицию курсора по оси X относительно командной строки.
-
-19. GetMouseY
-
-- Возвращает позицию курсора по оси Y относительно командной строки.
-
-18. GetScreenSize
-
-    - Возвращает размер экрана.
-
-19. GetScreenWidth
-
-- Возвращает ширину экрана.
-
-20. GetScreenHeight
-
-- Возвращает высоту экрана.
-
-21. MakeSound
-
-- В качестве аргумента принимает название аудио-файла и проигрывает его асинхронно.
-
-### Клавиатура и мышь
-
-ConsoleGameEngine предоставляет 256 клавиш и 5 кнопок на мыше, у каждой клавиши или кнопки 3 состояния: `bReleased`(когда кнопка была опущена), `bPressed`(когда кнопка была поднята) и `bHeld`(когда кнопка была зажата).
-
-Пример:
-
-```c++
-if (GetKey(L'A').bHeld)
-{
-  vPlayer.x -= 30.0f * dt;
-}
-
-if (GetMouse(0).bPressed)
-{
-  Draw(GetMouse(), def::PIXEL_SOLID, def::FG_RED);
-}
-```
-
-## Полезности
-
-1. Редактор спрайтов: [SpriteEditor](https://github.com/defini7/SpriteEditor)
-
-## Лицензия
+## License
 
 BSD 3-Clause License
 
-Copyright (c) 2021, 2022 Alex
+Copyright (c) 2021, 2022, 2023 Alex
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
