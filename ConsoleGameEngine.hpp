@@ -5,7 +5,7 @@
 /***
 *	BSD 3-Clause License
 
-	Copyright (c) 2021, 2022 Alex
+	Copyright (c) 2021, 2022, 2023 Alex
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
@@ -91,6 +91,9 @@
 
 #pragma comment(lib, "winmm.lib")
 
+#undef min
+#undef max
+
 enum FG_COLORS : int16_t
 {
 	FG_BLACK,
@@ -175,10 +178,10 @@ private:
 	void Create(int32_t nWidth, int32_t nHeight);
 
 public:
-	void SetGlyph(int32_t x, int32_t y, int16_t c);
-	void SetColour(int32_t x, int32_t y, int16_t c);
+	void SetGlyph(int32_t x, int32_t y, wchar_t c);
+	void SetColour(int32_t x, int32_t y, int16_t col);
 
-	int16_t GetGlyph(int32_t x, int32_t y);
+	wchar_t GetGlyph(int32_t x, int32_t y);
 	int16_t GetColour(int32_t x, int32_t y);
 
 	bool Save(const std::wstring& sFileName);
@@ -209,25 +212,25 @@ public:
 	void Run();
 
 public:
-	bool MakeSound(std::wstring sFilename, bool bLoop);
+	bool MakeSound(const std::wstring& sFilename, bool bLoop);
 
 	bool Focused();
 
-	virtual void Draw(int32_t x, int32_t y, int16_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
-	virtual void DrawRectangle(int32_t x, int32_t y, int32_t sizeX, int32_t sizeY, int16_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
-	virtual void FillRectangle(int32_t x, int32_t y, int32_t sizeX, int32_t sizeY, int16_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
-	virtual void DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
-	virtual void FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
-	virtual void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
-	virtual void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
-	virtual void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
+	virtual void Draw(int32_t x, int32_t y, wchar_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
+	virtual void DrawRectangle(int32_t x, int32_t y, int32_t sizeX, int32_t sizeY, wchar_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
+	virtual void FillRectangle(int32_t x, int32_t y, int32_t sizeX, int32_t sizeY, wchar_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
+	virtual void DrawCircle(int32_t x, int32_t y, int32_t radius, wchar_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
+	virtual void FillCircle(int32_t x, int32_t y, int32_t radius, wchar_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
+	virtual void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, wchar_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
+	virtual void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, wchar_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
+	virtual void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, wchar_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
 	virtual void DrawSprite(int32_t x, int32_t y, Sprite* sprite);
 	virtual void DrawSpriteAlpha(int32_t x, int32_t y, Sprite* sprite);
 	virtual void DrawPartialSprite(int32_t x, int32_t y, int32_t fx, int32_t fy, int32_t fsizeX, int32_t fsizeY, Sprite* sprite);
 	virtual void DrawPartialSpriteAlpha(int32_t x, int32_t y, int32_t fx, int32_t fy, int32_t fsizeX, int32_t fsizeY, Sprite* sprite);
-	virtual void DrawWireFrameModel(const std::vector<std::pair<float, float>>& modelCoordinates, float x, float y, float r, float s, int16_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
+	virtual void DrawWireFrameModel(const std::vector<std::pair<float, float>>& modelCoordinates, float x, float y, float r, float s, wchar_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
 	virtual void DrawString(int32_t x, int32_t y, const std::wstring& text, int16_t col = FG_WHITE);
-	virtual void Clear(int16_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
+	virtual void Clear(wchar_t c = PIXEL_SOLID, int16_t col = FG_WHITE);
 
 	int32_t MouseX() const;
 	int32_t MouseY() const;
@@ -318,7 +321,7 @@ void Sprite::Create(int32_t nWidth, int32_t nHeight)
 	}
 }
 
-void Sprite::SetGlyph(int32_t x, int32_t y, int16_t c)
+void Sprite::SetGlyph(int32_t x, int32_t y, wchar_t c)
 {
 	if (x >= 0 && x < nWidth && y >= 0 && y < nHeight)
 		m_Glyphs[y * nWidth + x] = c;
@@ -330,7 +333,7 @@ void Sprite::SetColour(int32_t x, int32_t y, int16_t c)
 		m_Colours[y * nWidth + x] = c;
 }
 
-int16_t Sprite::GetGlyph(int32_t x, int32_t y)
+wchar_t Sprite::GetGlyph(int32_t x, int32_t y)
 {
 	if (x >= 0 && x < nWidth && y >= 0 && y < nHeight)
 		return m_Glyphs[y * nWidth + x];
@@ -377,15 +380,15 @@ bool Sprite::Load(const std::wstring& sFileName)
 	_wfopen_s(&f, sFileName.c_str(), L"rb");
 	if (!f) return false;
 
-	std::fread(&nWidth, sizeof(int), 1, f);
-	std::fread(&nHeight, sizeof(int), 1, f);
+	fread(&nWidth, sizeof(int), 1, f);
+	fread(&nHeight, sizeof(int), 1, f);
 
 	Create(nWidth, nHeight);
 
-	std::fread(m_Colours, sizeof(int16_t), nWidth * nHeight, f);
-	std::fread(m_Glyphs, sizeof(int16_t), nWidth * nHeight, f);
+	fread(m_Colours, sizeof(int16_t), nWidth * nHeight, f);
+	fread(m_Glyphs, sizeof(int16_t), nWidth * nHeight, f);
 
-	std::fclose(f);
+	fclose(f);
 
 	return true;
 }
@@ -474,7 +477,7 @@ void ConsoleGameEngine::Run()
 	if (m_thrGame.joinable()) m_thrGame.join();
 }
 
-bool ConsoleGameEngine::MakeSound(std::wstring sFilename, bool bLoop)
+bool ConsoleGameEngine::MakeSound(const std::wstring& sFilename, bool bLoop)
 {
 	DWORD f = SND_ASYNC | SND_FILENAME;
 	if (bLoop) f |= SND_LOOP;
@@ -487,7 +490,7 @@ bool ConsoleGameEngine::Focused()
 	return m_bFocused;
 }
 
-void ConsoleGameEngine::Draw(int32_t x, int32_t y, int16_t c, int16_t col)
+void ConsoleGameEngine::Draw(int32_t x, int32_t y, wchar_t c, int16_t col)
 {
 	if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
 	{
@@ -496,14 +499,14 @@ void ConsoleGameEngine::Draw(int32_t x, int32_t y, int16_t c, int16_t col)
 	}
 }
 
-void ConsoleGameEngine::FillRectangle(int32_t x, int32_t y, int32_t sizeX, int32_t sizeY, int16_t c, int16_t col)
+void ConsoleGameEngine::FillRectangle(int32_t x, int32_t y, int32_t sizeX, int32_t sizeY, wchar_t c, int16_t col)
 {
 	for (int32_t i = 0; i < sizeX; i++)
 		for (int32_t j = 0; j < sizeY; j++)
 			Draw(x + i, y + j, c, col);
 }
 
-void ConsoleGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t c, int16_t col)
+void ConsoleGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, wchar_t c, int16_t col)
 {
 	if (radius <= 0) return;
 
@@ -527,7 +530,7 @@ void ConsoleGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, int16_t
 	}
 }
 
-void ConsoleGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, int16_t c, int16_t col)
+void ConsoleGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, wchar_t c, int16_t col)
 {
 	if (radius <= 0) return;
 
@@ -553,7 +556,7 @@ void ConsoleGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, int16_t
 	}
 }
 
-void ConsoleGameEngine::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t c, int16_t col)
+void ConsoleGameEngine::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, wchar_t c, int16_t col)
 {
 	int32_t x, y, xe, ye;
 
@@ -632,14 +635,14 @@ void ConsoleGameEngine::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 	}
 }
 
-void ConsoleGameEngine::DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c, int16_t col)
+void ConsoleGameEngine::DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, wchar_t c, int16_t col)
 {
 	DrawLine(x1, y1, x2, y2, c, col);
 	DrawLine(x2, y2, x3, y3, c, col);
 	DrawLine(x3, y3, x1, y1, c, col);
 }
 
-void ConsoleGameEngine::FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int16_t c, int16_t col)
+void ConsoleGameEngine::FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, wchar_t c, int16_t col)
 {
 	auto drawline = [&](int32_t sx, int32_t ex, int32_t ny) { for (int32_t i = sx; i <= ex; i++) Draw(i, ny, c, col); };
 
@@ -900,7 +903,7 @@ next:
 	}
 }
 
-void ConsoleGameEngine::DrawRectangle(int32_t x, int32_t y, int32_t sizeX, int32_t sizeY, int16_t c, int16_t col)
+void ConsoleGameEngine::DrawRectangle(int32_t x, int32_t y, int32_t sizeX, int32_t sizeY, wchar_t c, int16_t col)
 {
 	for (int32_t i = 0; i <= sizeX; i++)
 	{
@@ -949,41 +952,26 @@ void ConsoleGameEngine::DrawPartialSpriteAlpha(int32_t x, int32_t y, int32_t fx,
 
 	for (int32_t i = fx, x1 = 0; i < fx + fsizeX; i++, x1++)
 		for (int32_t j = fy, y1 = 0; j < fy + fsizeY; j++, y1++)
+		{
 			if (sprite->GetGlyph(i, j) != L' ')
 				Draw(x + x1, y + y1, sprite->GetGlyph(i, j), sprite->GetColour(i, j) | sprite->GetColour(i, j) * 16);
+		}
 }
 
-void ConsoleGameEngine::DrawWireFrameModel(const std::vector<std::pair<float, float>>& modelCoordinates, float x, float y, float r, float s, int16_t c, int16_t col)
+void ConsoleGameEngine::DrawWireFrameModel(const std::vector<std::pair<float, float>>& modelCoordinates, float x, float y, float r, float s, wchar_t c, int16_t col)
 {
-	std::vector<std::pair<float, float>> vecTransformedCoordinates;
-	int32_t nVerts = modelCoordinates.size();
-	vecTransformedCoordinates.resize(nVerts);
+	size_t nVerts = modelCoordinates.size();
+	std::vector<std::pair<float, float>> vecTransformedCoordinates(nVerts);
 
-	// Rotate
-	for (int32_t i = 0; i < nVerts; i++)
+	for (size_t i = 0; i < nVerts; i++)
 	{
-		vecTransformedCoordinates[i].first = modelCoordinates[i].first * cos(r) - modelCoordinates[i].second * sin(r);
-		vecTransformedCoordinates[i].second = modelCoordinates[i].first * sin(r) + modelCoordinates[i].second * cos(r);
+		vecTransformedCoordinates[i].first = (modelCoordinates[i].first * cos(r) - modelCoordinates[i].second * sin(r)) * s + x;
+		vecTransformedCoordinates[i].second = (modelCoordinates[i].first * sin(r) + modelCoordinates[i].second * cos(r)) * s + y;
 	}
 
-	// Scale
-	for (int32_t i = 0; i < nVerts; i++)
+	for (size_t i = 0; i <= nVerts; i++)
 	{
-		vecTransformedCoordinates[i].first = vecTransformedCoordinates[i].first * s;
-		vecTransformedCoordinates[i].second = vecTransformedCoordinates[i].second * s;
-	}
-
-	// Translate
-	for (int32_t i = 0; i < nVerts; i++)
-	{
-		vecTransformedCoordinates[i].first = vecTransformedCoordinates[i].first + x;
-		vecTransformedCoordinates[i].second = vecTransformedCoordinates[i].second + y;
-	}
-
-	// Draw Closed Polygon
-	for (int32_t i = 0; i <= nVerts; i++)
-	{
-		int32_t j = (i + 1);
+		size_t j = (i + 1);
 		DrawLine((int)vecTransformedCoordinates[i % nVerts].first, (int)vecTransformedCoordinates[i % nVerts].second,
 			(int)vecTransformedCoordinates[j % nVerts].first, (int)vecTransformedCoordinates[j % nVerts].second, c, col);
 	}
@@ -998,7 +986,7 @@ void ConsoleGameEngine::DrawString(int32_t x, int32_t y, const std::wstring& tex
 	}
 }
 
-void ConsoleGameEngine::Clear(int16_t c, int16_t col)
+void ConsoleGameEngine::Clear(wchar_t c, int16_t col)
 {
 	FillRectangle(0, 0, m_nScreenWidth, m_nScreenHeight, c, col);
 }
@@ -1056,26 +1044,33 @@ void ConsoleGameEngine::AppThread()
 			tp1 = tp2;
 			m_fDeltaTime = elapsedTime.count();
 
-			wchar_t buffer_title[256];
-			swprintf_s(buffer_title, 256, L"github.com/defini7 - Console Game Engine - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / m_fDeltaTime);
-			SetConsoleTitleW(buffer_title);
+			wchar_t title[256];
+			swprintf_s(title, 256, L"github.com/defini7 - Console Game Engine - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / m_fDeltaTime);
+			SetConsoleTitleW(title);
 
 			if (!OnUserUpdate(m_fDeltaTime))
 				m_bGameThreadActive = false;
 
 			INPUT_RECORD inBuf[32];
-			DWORD events = 0;
-			GetNumberOfConsoleInputEvents(m_hConsoleIn, &events);
-			if (events > 0)
-				ReadConsoleInputW(m_hConsoleIn, inBuf, events, &events);
+			DWORD nEvents = 0;
+			GetNumberOfConsoleInputEvents(m_hConsoleIn, &nEvents);
+			if (nEvents > 0)
+				ReadConsoleInputW(m_hConsoleIn, inBuf, nEvents, &nEvents);
 
-			for (DWORD i = 0; i < events; i++)
+			for (DWORD i = 0; i < nEvents; i++)
 			{
 				switch (inBuf[i].EventType)
 				{
 				case FOCUS_EVENT:
-					m_bFocused = inBuf[i].Event.FocusEvent.bSetFocus;
-					break;
+				m_bFocused = inBuf[i].Event.FocusEvent.bSetFocus;
+				break;
+
+				case WINDOW_BUFFER_SIZE_EVENT:
+				{
+					m_nScreenWidth = (int32_t)inBuf[i].Event.WindowBufferSizeEvent.dwSize.X;
+					m_nScreenHeight = (int32_t)inBuf[i].Event.WindowBufferSizeEvent.dwSize.Y;
+				}
+				break;
 
 				case MOUSE_EVENT:
 				{
@@ -1096,13 +1091,13 @@ void ConsoleGameEngine::AppThread()
 					break;
 
 					default:
-						break;
+					break;
 					}
 				}
 				break;
 
 				default:
-					break;
+				break;
 				}
 			}
 
@@ -1130,26 +1125,26 @@ void ConsoleGameEngine::AppThread()
 				m_nKeyOldState[i] = m_nKeyNewState[i];
 			}
 
-			for (int32_t m = 0; m < 5; m++)
+			for (int32_t i = 0; i < 5; i++)
 			{
-				m_Mouse[m].bPressed = false;
-				m_Mouse[m].bReleased = false;
+				m_Mouse[i].bPressed = false;
+				m_Mouse[i].bReleased = false;
 
-				if (m_bMouseNewState[m] != m_bMouseOldState[m])
+				if (m_bMouseNewState[i] != m_bMouseOldState[i])
 				{
-					if (m_bMouseNewState[m])
+					if (m_bMouseNewState[i])
 					{
-						m_Mouse[m].bPressed = true;
-						m_Mouse[m].bHeld = true;
+						m_Mouse[i].bPressed = true;
+						m_Mouse[i].bHeld = true;
 					}
 					else
 					{
-						m_Mouse[m].bReleased = true;
-						m_Mouse[m].bHeld = false;
+						m_Mouse[i].bReleased = true;
+						m_Mouse[i].bHeld = false;
 					}
 				}
 
-				m_bMouseOldState[m] = m_bMouseNewState[m];
+				m_bMouseOldState[i] = m_bMouseNewState[i];
 			}
 
 			WriteConsoleOutputW(m_hConsoleOut, m_pScreen, { (int16_t)m_nScreenWidth, (int16_t)m_nScreenHeight }, { 0, 0 }, &m_rWindow);
