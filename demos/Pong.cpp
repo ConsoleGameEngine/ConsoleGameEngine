@@ -1,4 +1,5 @@
-#include "ConsoleGameEngine.h"
+#define CGE_IMPL
+#include "ConsoleGameEngine.hpp"
 
 struct sBall
 {
@@ -224,7 +225,7 @@ int main()
 {
 	AtariPong demo;
 
-	if (demo.ConstructConsole(256, 240, 4, 4) == RCODE_OK)
+	if (demo.ConstructConsole(256, 240, 4, 4) == rcode::OK)
 		demo.Run();
 
 	return 0;
