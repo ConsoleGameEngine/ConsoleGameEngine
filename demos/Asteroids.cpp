@@ -1,4 +1,5 @@
-#include "ConsoleGameEngine.h"
+#define CGE_IMPL
+#include "ConsoleGameEngine.hpp"
 
 #undef max
 #undef min
@@ -262,7 +263,7 @@ protected:
 		return true;
 	}
 
-	virtual void Draw(int x, int y, short c = 0x2588, short col = 0x000F) override
+	virtual void Draw(int x, int y, wchar_t c = 0x2588, short col = 0x000F) override
 	{
 		float fx, fy;
 		WrapCoords(x, y, fx, fy);
@@ -285,7 +286,7 @@ private:
 int main()
 {
 	Asteroids demo;
-	if (demo.ConstructConsole(160, 100, 8, 8) == RCODE_OK)
+	if (demo.ConstructConsole(160, 100, 8, 8) == rcode::OK)
 		demo.Run();
 	return 0;
 }
