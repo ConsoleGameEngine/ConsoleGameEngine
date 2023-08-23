@@ -1,4 +1,5 @@
-#include "ConsoleGameEngine.h"
+#define CGE_IMPL
+#include "ConsoleGameEngine.hpp"
 
 #include <thread>
 #include <list>
@@ -117,7 +118,7 @@ protected:
 		nCurrentX -= (int)(GetKey(VK_LEFT).bHeld && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX - 1, nCurrentY));
 		nCurrentY += (int)(GetKey(VK_DOWN).bHeld && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1));
 
-		if (GetMouse(0).bPressed)
+		if (GetKey(VK_SPACE).bPressed)
 			nCurrentRotation += (int)DoesPieceFit(nCurrentPiece, nCurrentRotation + 1, nCurrentX, nCurrentY);
 
 		if (bForceDown)
@@ -177,7 +178,7 @@ protected:
 			for (int j = 0; j < nAreaHeight; j++)
 				Draw(i + 2, j + 2, PIXEL_SOLID, pArea[j * nAreaWidth + i]);
 		}
-				
+
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -213,7 +214,7 @@ int main()
 {
 	Tetris demo;
 
-	if (demo.ConstructConsole(80, 50, 16, 16) == RCODE_OK)
+	if (demo.ConstructConsole(80, 50, 16, 16) == rcode::OK)
 		demo.Run();
 
 	return 0;
