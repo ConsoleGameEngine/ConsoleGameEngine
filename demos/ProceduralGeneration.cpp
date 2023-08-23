@@ -1,8 +1,7 @@
-#include "ConsoleGameEngine.h"
+#define CGE_IMPL
+#include "ConsoleGameEngine.hpp"
 
-using namespace def;
-
-class Example : public def::ConsoleGameEngine
+class Example : public ConsoleGameEngine
 {
 public:
 	Example()
@@ -33,8 +32,11 @@ private:
 
 	bool bPanStarted = false;
 
-	def::vi2d vStartPan = { 0, 0 };
-	def::vi2d vOffset = { 0, 0 };
+	int nStartPanX = 0;
+	int nStartPanY = 0;
+
+	int nOffsetX = 0;
+	int nOffsetY = 0;
 
 protected:
 	bool OnUserCreate() override
@@ -44,11 +46,10 @@ protected:
 
 	bool OnUserUpdate(float fDeltaTime) override
 	{
-
 		if (GetMouse(0).bPressed)
 		{
-			vStartPan.x = GetMouseX();
-			vStartPan.y = GetMouseY();
+			nStartPanX = MouseX();
+			nStartPanY = MouseY();
 			bPanStarted = true;
 		}
 
@@ -57,25 +58,22 @@ protected:
 
 		if (bPanStarted)
 		{
-			int32_t nMouseX = GetMouseX();
-			int32_t nMouseY = GetMouseY();
+			int32_t nMouseX = MouseX();
+			int32_t nMouseY = MouseY();
 
-			vOffset.x += vStartPan.x - nMouseX;
-			vOffset.y += vStartPan.y - nMouseY;
+			nOffsetX += nStartPanX - nMouseX;
+			nOffsetY += nStartPanY - nMouseY;
 
-			if (vOffset.x < 0)
-				vOffset.x = 0;
-
-			vStartPan.x = nMouseX;
-			vStartPan.y = nMouseY;
+			nStartPanX = nMouseX;
+			nStartPanY = nMouseY;
 		}
 
 		Clear(PIXEL_SOLID, FG_BLACK);
 
-		for (int i = 0; i < GetScreenWidth(); i++)
-			for (int j = 0; j < GetScreenHeight(); j++)
+		for (int i = 0; i < ScreenWidth(); i++)
+			for (int j = 0; j < ScreenHeight(); j++)
 			{
-				uint32_t nSeed = (j + vOffset.y) << 16 | (i + vOffset.x);
+				uint32_t nSeed = (j + nOffsetY) << 16 | (i + nOffsetX);
 
 				uint32_t nRand = Lehmer(nSeed);
 
@@ -98,12 +96,9 @@ protected:
 int main()
 {
 	Example demo;
-	def::rcode err = demo.ConstructConsole(256, 240, 4, 4);
 
-	if (err.ok)
+	if (demo.ConstructConsole(256, 240, 4, 4) == rcode::OK)
 		demo.Run();
-	else
-		std::cerr << err.info << "\n";
 
 	return 0;
 }
