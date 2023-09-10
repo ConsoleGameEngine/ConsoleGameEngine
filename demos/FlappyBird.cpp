@@ -133,8 +133,8 @@ private:
 
 		if (fBirdVelocity > 0.0f)
 		{
-			DrawString(nBirdX, (int)fBirdPosition + 0, L"\\\\\\", FG_WHITE);
-			DrawString(nBirdX, (int)fBirdPosition + 1, L"<\\\\\\=&", FG_WHITE);
+			DrawString(nBirdX, (int)fBirdPosition + 0, LR"(\\\)", FG_WHITE);
+			DrawString(nBirdX, (int)fBirdPosition + 1, LR"(<\\\=&)", FG_WHITE);
 		}
 		else
 		{
