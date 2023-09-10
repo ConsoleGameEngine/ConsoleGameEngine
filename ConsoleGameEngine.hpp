@@ -979,10 +979,13 @@ void ConsoleGameEngine::DrawWireFrameModel(const std::vector<std::pair<float, fl
 
 void ConsoleGameEngine::DrawString(int32_t x, int32_t y, const std::wstring& text, int16_t col)
 {
-	for (size_t i = 0; i < text.size(); i++)
+	if (x + text.size() < ScreenWidth() && x >= 0 && y >= 0 && y < ScreenHeight())
 	{
-		m_pScreen[y * m_nScreenWidth + x + i].Char.UnicodeChar = text[i];
-		m_pScreen[y * m_nScreenWidth + x + i].Attributes = col;
+		for (size_t i = 0; i < text.size(); i++)
+		{
+			m_pScreen[y * m_nScreenWidth + x + i].Char.UnicodeChar = text[i];
+			m_pScreen[y * m_nScreenWidth + x + i].Attributes = col;
+		}
 	}
 }
 
@@ -1062,8 +1065,8 @@ void ConsoleGameEngine::AppThread()
 				switch (inBuf[i].EventType)
 				{
 				case FOCUS_EVENT:
-				m_bFocused = inBuf[i].Event.FocusEvent.bSetFocus;
-				break;
+					m_bFocused = inBuf[i].Event.FocusEvent.bSetFocus;
+					break;
 
 				case WINDOW_BUFFER_SIZE_EVENT:
 				{
@@ -1091,13 +1094,13 @@ void ConsoleGameEngine::AppThread()
 					break;
 
 					default:
-					break;
+						break;
 					}
 				}
 				break;
 
 				default:
-				break;
+					break;
 				}
 			}
 
