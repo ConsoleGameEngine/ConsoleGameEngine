@@ -1,6 +1,6 @@
 # **ConsoleGameEngine**
 
-## NOTICE
+## Something that can drive you insane
 
 That works absolutely horrible on Windows 11
 
