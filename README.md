@@ -1,5 +1,9 @@
 # **ConsoleGameEngine**
 
+## NOTICE
+
+That works absolutely horrible on Windows 11
+
 ## Description
 
 ConsoleGameEngine is a simple game engine that can be used for building games and applications in Windows Command Prompt
