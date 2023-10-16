@@ -67,7 +67,7 @@ protected:
 
 		wstring sPattern;
 
-		sPattern  = L".........";
+		sPattern = L".........";
 		sPattern += L".........";
 		sPattern += L".........";
 		sPattern += L"#........";
@@ -76,7 +76,7 @@ protected:
 		sPattern += L".........";
 		vPatterns.push_back(sPattern);
 
-		sPattern  = L".........";
+		sPattern = L".........";
 		sPattern += L".........";
 		sPattern += L"#........";
 		sPattern += L".........";
@@ -85,7 +85,7 @@ protected:
 		sPattern += L".........";
 		vPatterns.push_back(sPattern);
 
-		sPattern  = L".........";
+		sPattern = L".........";
 		sPattern += L".........";
 		sPattern += L"..#......";
 		sPattern += L"#........";
@@ -94,7 +94,7 @@ protected:
 		sPattern += L".........";
 		vPatterns.push_back(sPattern);
 
-		sPattern  = L".........";
+		sPattern = L".........";
 		sPattern += L"....#....";
 		sPattern += L"..#......";
 		sPattern += L"#...#....";
@@ -179,7 +179,7 @@ protected:
 
 			std::wstring sMsg = L"Game Over! Score: " + to_wstring(nScore) + L". Press SPACE to play again.";
 			DrawString(ScreenWidth() / 2 - sMsg.length() / 2, ScreenHeight() / 2, sMsg, FG_WHITE);
-			
+
 			return true;
 		}
 
@@ -198,7 +198,7 @@ protected:
 			if (RectVsRect(p.pos.first, p.pos.second, nEnemyWidth, nEnemyHeight, fPlayerX, fPlayerY, nPlayerWidth, nPlayerHeight))
 				bGameOver = true;
 		}
-		
+
 		for (auto& proj : listProjectiles)
 		{
 			proj.pos.first += 3.0f * fSpeed * fDeltaTime;
