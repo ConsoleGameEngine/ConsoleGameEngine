@@ -36,7 +36,7 @@ int main()
 {
 	Example demo;
 	
-	if (demo.Construct(256, 240, 4, 4) == rcode::OK)
+	if (demo.ConstructConsole(256, 240, 4, 4) == rcode::OK)
 		demo.Run();
 	
 	return 0;
