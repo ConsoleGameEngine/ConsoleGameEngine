@@ -11,7 +11,8 @@ ConsoleGameEngine is a simple game engine that can be used for building games an
 Let's take a look on an example:
 
 ```c++
-#include "ConsoleGameEngine.h"
+#define CGE_IMPL
+#include "ConsoleGameEngine.hpp"
 
 class Example : public ConsoleGameEngine
 {
