@@ -1,220 +1,130 @@
 #define CGE_IMPL
 #include "ConsoleGameEngine.hpp"
 
-struct sBall
+struct Object
 {
-	float x;
-	float y;
-
-	int radius;
-
-	float speed;
-
-	float xVel;
-	float yVel;
+	float px, py;
+	float vx, vy;
+	float sx, sy;
 };
 
-struct sPlayer
-{
-	float x;
-	float y;
-
-	int width;
-	int height;
-
-	float speed;
-};
-
-class AtariPong : public ConsoleGameEngine
+class CPong : public ConsoleGameEngine
 {
 public:
-	AtariPong()
+	CPong()
 	{
-		sAppName = L"Atari Pong";
+		sAppName = L"Pong";
 	}
 
 private:
-	sBall ball;
+	Object bats[2];
+	Object ball;
 
-	int nPlayer1_Score;
-	int nPlayer2_Score;
-
-	sPlayer player1;
-	sPlayer player2;
+	int score[2];
 
 protected:
-
-	void Ball_Move(float fDeltaTime)
+	static bool RectVsRect(
+		float px1, float py1, float sx1, float sy1,
+		float px2, float py2, float sx2, float sy2)
 	{
-		ball.x += ball.xVel * fDeltaTime;
-		ball.y += ball.yVel * fDeltaTime;
+		return px1 + sx1 >= px2 &&
+			px1 <= px2 + sx2 &&
+			py1 + sy1 >= py2 &&
+			py1 <= py2 + sy2;
 	}
 
-	void Ball_Reset(float fModifier)
+	void ResetBall()
 	{
-		ball.x = float(ScreenWidth() / 2 - ball.radius / 2);
-		ball.y = float(ScreenHeight() / 2 - ball.radius / 2);
+		ball.px = float(ScreenWidth() / 2);
+		ball.py = float(ScreenHeight() / 2);
 
-		ball.xVel = ball.speed * fModifier;
-		ball.yVel = 0.0f;
-	}
-
-	void Ball_ChangeScore()
-	{
-		if (ball.x < 0.0f)
-		{
-			Ball_Reset(1.0f);
-			nPlayer2_Score++;
-		}
-		else if ((int)ball.x + ball.radius > ScreenWidth())
-		{
-			Ball_Reset(-1.0f);
-			nPlayer1_Score++;
-		}
-	}
-
-	void Ball_CollideWall()
-	{
-		if (ball.y < 0.0f)
-		{
-			ball.y = 0.0f;
-			ball.yVel = -ball.yVel;
-		}
-		else if ((int)ball.y + ball.radius > ScreenHeight())
-		{
-			ball.y = float(ScreenHeight() - ball.radius);
-			ball.yVel = -ball.yVel;
-		}
-	}
-
-	void Ball_CollidePlayer(sPlayer& p, int dir)
-	{
-		if (CheckCollision(ball, p))
-		{
-			ball.xVel = ball.speed * dir;
-
-			float fMiddleBall = ball.y + float(ball.radius / 2);
-			float fMiddlePlayer = float(p.y + p.height / 2);
-
-			ball.yVel = (fMiddleBall - fMiddlePlayer) * 5.0f;
-		}
-	}
-
-	void Ball_Collide()
-	{
-		Ball_CollideWall();
-
-		Ball_CollidePlayer(player1, 1);
-		Ball_CollidePlayer(player2, -1);
-	}
-
-	void Ball_Draw()
-	{
-		FillCircle((int)ball.x, (int)ball.y, ball.radius);
-	}
-
-	void Player_Move(sPlayer& p, short up, short down, float fDeltaTime)
-	{
-		if (GetKey(up).bHeld)	p.y -= p.speed * fDeltaTime;
-		if (GetKey(down).bHeld) p.y += p.speed * fDeltaTime;
-	}
-
-	void Player_Clip(sPlayer& p)
-	{
-		if (p.y < 0.0f)
-			p.y = 1.0f;
-		else if (p.y + (float)p.height > ScreenHeight())
-			p.y = float(ScreenHeight() - p.height) - 1.0f;
-	}
-
-	void Player_Draw(sPlayer& p)
-	{
-		FillRectangle((int)p.x, (int)p.y, p.width, p.height);
-	}
-
-	bool CheckCollision(sBall& b, sPlayer& p)
-	{
-		float fBallX = b.x - float(b.radius / 2);
-		float fBallY = b.y - float(b.radius / 2);
-
-		float fSize = float(b.radius * 2);
-
-		return p.x < fBallX + fSize - 1 && p.x + (float)p.width + 1 > fBallX && p.y < fBallY + fSize - 1 && p.y + (float)p.height + 1 > fBallY;
-	}
-
-	void ResetGame()
-	{
-		// Initialize a ball
-
-		ball.x = float(ScreenWidth() / 2);
-		ball.y = float(ScreenHeight() / 2);
-
-		ball.radius = 3;
-
-		ball.speed = 20.0f;
-
-		ball.xVel = -ball.speed;
-		ball.yVel = 0.0f;
-
-		// Initialize the players
-
-		player1.x = 50.0f;
-		player1.y = float(ScreenHeight() / 2);
-
-		player1.width = 5;
-		player1.height = 50;
-
-		player1.speed = 50.0f;
-
-		player2.width = 5;
-		player2.height = 50;
-
-		player2.x = float(ScreenWidth() - player2.width - 50);
-		player2.y = float(ScreenHeight() / 2);
-
-		player2.speed = 50.0f;
-
-		// Initialize score
-
-		nPlayer1_Score = 0;
-		nPlayer2_Score = 0;
+		ball.vx = -1.0f;
+		ball.vy = 1.0f;
 	}
 
 	bool OnUserCreate() override
 	{
-		ResetGame();
+		bats[0].px = 2.0f;
+		bats[1].px = float(ScreenWidth() - 3);
+
+		for (int i = 0; i < 2; i++)
+		{
+			bats[i].py = (float)ScreenHeight() * 0.3f;
+			bats[i].sx = 1.0f;
+			bats[i].sy = (float)ScreenHeight() * 0.2f;
+
+			score[i] = 0;
+		}
+
+		ResetBall();
+
+		ball.sx = 2.0f;
+		ball.sy = 2.0f;
 
 		return true;
 	}
 
 	bool OnUserUpdate(float fDeltaTime) override
 	{
+		if (GetKey(L'W').bHeld) bats[0].vy = -1.0f;
+		if (GetKey(L'S').bHeld) bats[0].vy = +1.0f;
+
+		if (GetKey(VK_UP).bHeld) bats[1].vy = -1.0f;
+		if (GetKey(VK_DOWN).bHeld) bats[1].vy = +1.0f;
+
+		for (int i = 0; i < 2; i++)
+		{
+			if (RectVsRect(bats[i].px, bats[i].py, bats[i].sx, bats[i].sy,
+				ball.px, ball.py, ball.sx, ball.sy))
+			{
+				ball.vx *= -1.0f;
+			}
+
+			bats[i].px += 50.0f * bats[i].vx * fDeltaTime;
+			bats[i].py += 50.0f * bats[i].vy * fDeltaTime;
+
+			bats[i].vx = 0.0f;
+			bats[i].vy = 0.0f;
+		}
+
+		ball.px += 20.0f * ball.vx * fDeltaTime;
+		ball.py += 20.0f * ball.vy * fDeltaTime;
+
+		if (ball.py + ball.sy >= ScreenHeight() || ball.py < 0.0f)
+		{
+			ball.vy *= -1.0f;
+			ball.py += ball.vy;
+		}
+
+		if (ball.px < 0.0f)
+		{
+			score[1]++;
+			ResetBall();
+		}
+
+		if (ball.px >= ScreenWidth())
+		{
+			score[0]++;
+			ResetBall();
+		}
+
 		Clear(PIXEL_SOLID, FG_BLACK);
 
-		// Update ball
+		for (int y = 0; y < ScreenHeight(); y++)
+		{
+			if (y % 2 == 0)
+				Draw(ScreenWidth() / 2, y, PIXEL_SOLID, FG_WHITE);
+		}
 
-		Ball_Move(fDeltaTime);
-		Ball_Collide();
-		Ball_ChangeScore();
-		Ball_Draw();
+		DrawString(1, 1, std::to_wstring(score[0]), FG_WHITE);
 
-		// Update players
+		std::wstring score2 = std::to_wstring(score[1]);
+		DrawString(ScreenWidth() - score2.length() - 1, 1, score2, FG_WHITE);
 
-		Player_Move(player1, L'W', L'S', fDeltaTime);
-		Player_Clip(player1);
-		Player_Draw(player1);
+		for (int i = 0; i < 2; i++)
+			FillRectangle(bats[i].px, bats[i].py, bats[i].sx, bats[i].sy, PIXEL_SOLID, FG_YELLOW);
 
-		Player_Move(player2, VK_UP, VK_DOWN, fDeltaTime);
-		Player_Clip(player2);
-		Player_Draw(player2);
-
-		// Update score
-
-		if (nPlayer1_Score == 5 || nPlayer2_Score == 5)
-			ResetGame();
-
-		DrawString(10, 10, L"Score: " + std::to_wstring(nPlayer1_Score));
-		DrawString(ScreenWidth() - 75, 10, L"Score: " + std::to_wstring(nPlayer2_Score));
+		FillRectangle(ball.px, ball.py, ball.sx, ball.sy, PIXEL_HALF, FG_RED);
 
 		return true;
 	}
@@ -223,10 +133,10 @@ protected:
 
 int main()
 {
-	AtariPong demo;
+	CPong app;
 
-	if (demo.ConstructConsole(256, 240, 4, 4) == rcode::OK)
-		demo.Run();
+	if (app.ConstructConsole(80, 40, 12, 12) == rcode::OK)
+		app.Run();
 
 	return 0;
 }
