@@ -27,10 +27,10 @@ protected:
 		float px1, float py1, float sx1, float sy1,
 		float px2, float py2, float sx2, float sy2)
 	{
-		return px1 + sx1 >= px2 &&
-			px1 <= px2 + sx2 &&
-			py1 + sy1 >= py2 &&
-			py1 <= py2 + sy2;
+		return px1 + sx1 > px2 &&
+			px1 < px2 + sx2 &&
+			py1 + sy1 > py2 &&
+			py1 < py2 + sy2;
 	}
 
 	void ResetBall()
