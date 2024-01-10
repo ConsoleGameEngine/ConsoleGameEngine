@@ -57,7 +57,7 @@ Now we need to create a `main` function, after that we must create instance of o
 
 BSD 3-Clause License
 
-Copyright (c) 2021, 2022, 2023 Alex
+Copyright (c) 2021 - 2024 Alex
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
