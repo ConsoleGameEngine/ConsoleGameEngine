@@ -5,7 +5,7 @@
 /***
 *	BSD 3-Clause License
 
-	Copyright (c) 2021, 2022, 2023 Alex
+	Copyright (c) 2021 - 2024 Alex
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,8 @@
 #pragma region consolegameengine_sample
 /**
 * Example (engine only supports .spr files, check [this](https://github.com/defini7/SpriteEditor) for editing .spr files):
-	#include "ConsoleGameEngine.h"
+	#define CGE_IMPL
+	#include "ConsoleGameEngine.hpp"
 
 	class Example : public ConsoleGameEngine
 	{
