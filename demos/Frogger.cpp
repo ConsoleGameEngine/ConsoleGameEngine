@@ -81,7 +81,9 @@ public:
 
 			int x2 = (nTileX * nTileSize + nOffset) % (ScreenWidth() * 2);
 			int y2 = nTileY * nTileSize;
-			if (x2 < 0) x2 = (ScreenWidth() * 2) - (abs(x2) % (ScreenWidth() * 2));
+
+			if (x2 < 0)
+				x2 = (ScreenWidth() * 2) - (abs(x2) % (ScreenWidth() * 2));
 
 			if (x1 < x2 + nTileSize && y1 < y2 + nTileSize &&
 				x2 < x1 + nTileSize && y2 < y1 + nTileSize)
@@ -101,6 +103,7 @@ public:
 					fPotentialX += vecLines[nTileY].first * fDeltaTime;
 					break;
 				}
+
 			}
 
 			nTileX++;
@@ -117,8 +120,8 @@ public:
 		for (auto& line : vecLines)
 		{
 			int nOffset = (int)(line.first * fGlobalTime * (float)nTileSize) % nMapWidth;
-
 			nTileX = 0;
+
 			for (const auto& tile : line.second)
 			{
 				int x = (nTileX * nTileSize + nOffset) % nMapWidth;
