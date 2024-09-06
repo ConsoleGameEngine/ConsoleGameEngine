@@ -163,7 +163,7 @@ class Sprite
 public:
 	Sprite();
 	Sprite(int32_t nWidth, int32_t nHeight);
-	Sprite(std::wstring sFileName);
+	Sprite(const std::wstring& sFileName);
 
 	~Sprite();
 
@@ -295,7 +295,7 @@ Sprite::Sprite(int32_t nWidth, int32_t nHeight)
 	Create(nWidth, nHeight);
 }
 
-Sprite::Sprite(std::wstring sFileName)
+Sprite::Sprite(const std::wstring& sFileName)
 {
 	if (!Load(sFileName))
 		Create(8, 8);
