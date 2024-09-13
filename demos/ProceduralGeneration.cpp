@@ -25,7 +25,7 @@ private:
 		return m2;
 	}
 
-	void Clamp(uint32_t& n, uint32_t min, uint32_t max)
+	void Wrap(uint32_t& n, uint32_t min, uint32_t max)
 	{
 		n = (n % (max - min)) + min;
 	}
@@ -80,10 +80,10 @@ protected:
 				bool bIsPlanet = nRand % 2048 < 4;
 
 				uint32_t nRadius = nRand;
-				Clamp(nRadius, 3, 8);
+				Wrap(nRadius, 3, 8);
 
 				uint32_t nCol = nRand;
-				Clamp(nCol, 1, 15);
+				Wrap(nCol, 1, 15);
 
 				if (bIsPlanet)
 					FillCircle(i, j, nRadius, PIXEL_SOLID, (int16_t)nCol);
