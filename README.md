@@ -47,7 +47,7 @@ First of all we need to include `ConsoleGameEngine.hpp`.
 
 Then we need to create a class, that publicly inherits from `ConsoleGameEngine` class. Then we need to override a constructor, to set the application name and then we do the same with 2 virtual methods: `OnUserCreate` and `OnUserUpdate`, the second method takes as parameter `fDeltaTime`. They should return `true` to prevent exiting from application. `OnUserCreate` is being called only once, and `OnUserUpdate` on every frame.
 
-Now we need to create a `main` function, after that we must create instance of our derived class, then we create an if statement with calling `Construct` method where we pass screen width, screen height, font width and font height, if it returns rcode::OK, we can call `Run` method.
+Now we need to create a `main` function, after that we must create instance of our derived class, then we create an if statement with calling `ConstructConsole` method where we pass screen width, screen height, font width and font height, if it returns `rcode::OK`, we can call `Run` method.
 
 ## Additional
 
