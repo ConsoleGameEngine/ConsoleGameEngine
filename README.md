@@ -2,7 +2,7 @@
 
 ## Description
 
-ConsoleGameEngine is a simple game engine that can be used for building games and applications in Windows Command Prompt
+ConsoleGameEngine is a simple game engine that can be used for building games and applications in the Windows Command Prompt
 
 ## Documentation
 
@@ -43,7 +43,7 @@ int main()
 }
 ```
 
-First of all we need to include `ConsoleGameEngine.h`. 
+First of all we need to include `ConsoleGameEngine.hpp`. 
 
 Then we need to create a class, that publicly inherits from `ConsoleGameEngine` class. Then we need to override a constructor, to set the application name and then we do the same with 2 virtual methods: `OnUserCreate` and `OnUserUpdate`, the second method takes as parameter `fDeltaTime`. They should return `true` to prevent exiting from application. `OnUserCreate` is being called only once, and `OnUserUpdate` on every frame.
 
