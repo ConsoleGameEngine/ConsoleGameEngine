@@ -1,8 +1,0 @@
-[package]
-name = "consolegameengine"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-winapi = { version="0.3.9", features=["impl-default", "playsoundapi"] }
-win32console = "0.1.5"
