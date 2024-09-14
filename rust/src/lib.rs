@@ -118,7 +118,6 @@ pub struct ConsoleGameEngine {
     delta_time: f32,
 
     is_focused: bool,
-    is_active: bool,
 
     time_last: Instant
 }
@@ -171,6 +170,18 @@ fn new_char_info(char: u16, attributes: u16) -> CHAR_INFO {
     CHAR_INFO {
         Char: uchar,
         Attributes: attributes
+    }
+}
+
+impl From<Colour> for u16 {
+    fn from(value: Colour) -> Self {
+        value as u16
+    }
+}
+
+impl From<Pixel> for u16 {
+    fn from(value: Pixel) -> Self {
+        value as u16
     }
 }
 
@@ -262,7 +273,7 @@ impl Sprite {
     }
 }
 
-pub fn make_sound(file_name: &str, looped: bool) {
+pub fn make_sound(file_name: &str, looped: bool) -> bool {
     let mut flags: DWORD = SND_ASYNC | SND_FILENAME;
     if looped { flags |= SND_LOOP; }
 
@@ -270,10 +281,10 @@ pub fn make_sound(file_name: &str, looped: bool) {
         Ok(string) => {
             string.encode_utf16().collect::<Vec<u16>>()
         },
-        Err(_) => { return }
+        Err(_) => { return false }
     };
 
-    unsafe { PlaySoundW(buffer.as_ptr(), std::mem::zeroed(), flags); }
+    unsafe { PlaySoundW(buffer.as_ptr(), std::mem::zeroed(), flags) == 1 }
 }
 
 impl ConsoleGameEngine {
@@ -309,7 +320,6 @@ impl ConsoleGameEngine {
             font_height: 0,
 
             is_focused: false,
-            is_active: false,
 
             time_last: Instant::now()
         }
@@ -379,13 +389,9 @@ impl ConsoleGameEngine {
         }
 
         self.screen = vec![new_char_info(0x2588 as u16, 0); screen_width * screen_height];
-        self.is_active = true;
-
         self.time_last = Instant::now();
 
         let _ = self.console_out.set_cursor_position(Coord::new(0, 0));
-
-        // TODO: SetConsoleCtrlHandler
 
         Rcode::Ok
     }
