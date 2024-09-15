@@ -12,7 +12,7 @@ use std::io::{BufReader, BufWriter, Read, Write};
 use std::time::Instant;
 
 #[derive(Clone, Copy)]
-#[repr(i16)]
+#[repr(u16)]
 pub enum Colour {
     Black,
     FgDarkBlue,
@@ -48,7 +48,7 @@ pub enum Colour {
 }
 
 #[derive(Clone, Copy)]
-#[repr(i16)]
+#[repr(u16)]
 pub enum Pixel {
     Solid = 0x2588,
     ThreeQuarters = 0x2593,
