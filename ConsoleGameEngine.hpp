@@ -77,8 +77,10 @@
 **/
 #pragma endregion
 
-#ifndef UNICODE
-#error Enable Unicode in settings
+#if !defined(UNICODE) || !defined(_UNICODE)
+#pragma message("We are trying to enable UNICODE for you but you can do it yourself")
+#define UNICODE
+#define _UNICODE
 #endif
 
 #include <Windows.h>
