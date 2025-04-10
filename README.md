@@ -11,7 +11,7 @@ ConsoleGameEngine is a simple game engine that can be used for building games an
 Let's take a look on an example:
 
 ```c++
-#define CGE_IMPL
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 class Example : public ConsoleGameEngine
@@ -21,22 +21,25 @@ public:
 	{
 		sAppName = L"Example";
 	}
+
 protected:
 	virtual bool OnUserCreate() override
 	{
 		return true;
 	}
+
 	virtual bool OnUserUpdate(float fDeltaTime) override
 	{
 		return true;
 	}
+
 };
 
 int main()
 {
 	Example demo;
 	
-	if (demo.ConstructConsole(256, 240, 4, 4) == rcode::OK)
+	if (demo.ConstructConsole(256, 240, 4, 4) == RC_OK)
 		demo.Run();
 	
 	return 0;
@@ -47,7 +50,7 @@ First of all we need to include `ConsoleGameEngine.hpp`.
 
 Then we need to create a class, that publicly inherits from `ConsoleGameEngine` class. Then we need to override a constructor, to set the application name and then we do the same with 2 virtual methods: `OnUserCreate` and `OnUserUpdate`, the second method takes as parameter `fDeltaTime`. They should return `true` to prevent exiting from application. `OnUserCreate` is being called only once, and `OnUserUpdate` on every frame.
 
-Now we need to create a `main` function, after that we must create instance of our derived class, then we create an if statement with calling `ConstructConsole` method where we pass screen width, screen height, font width and font height, if it returns `rcode::OK`, we can call `Run` method.
+Now we need to create a `main` function, after that we must create instance of our derived class, then we create an if statement with calling `ConstructConsole` method where we pass screen width, screen height, font width and font height, if it returns `RC_OK`, we can call `Run` method.
 
 ## Additional
 
@@ -57,7 +60,7 @@ Now we need to create a `main` function, after that we must create instance of o
 
 BSD 3-Clause License
 
-Copyright (c) 2021 - 2024 Alex
+Copyright (c) 2021 - 2025 Alex
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

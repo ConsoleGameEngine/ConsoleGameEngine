@@ -1,4 +1,4 @@
-#define CGE_IMPL
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 #include <array>
@@ -126,8 +126,8 @@ protected:
 				NewGame(nMines);
 			else
 			{
-				int x = MouseX();
-				int y = MouseY();
+				int x = GetMouseX();
+				int y = GetMouseY();
 
 				if (world.Inside(x, y) && !world.Get(x, y).bFlag)
 					OpenFields(x, y);
@@ -136,8 +136,8 @@ protected:
 
 		if (GetMouse(1).bReleased)
 		{
-			int x = MouseX();
-			int y = MouseY();
+			int x = GetMouseX();
+			int y = GetMouseY();
 
 			if (world.Inside(x, y))
 			{
@@ -188,7 +188,7 @@ int main()
 {
 	CMinesweeper app;
 
-	if (app.ConstructConsole(nScreenWidth, nScreenHeight, 16, 16) == rcode::OK)
+	if (app.ConstructConsole(nScreenWidth, nScreenHeight, 16, 16) == RC_OK)
 		app.Run();
 
 	return 0;

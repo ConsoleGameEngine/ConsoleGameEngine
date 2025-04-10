@@ -1,4 +1,4 @@
-#define CGE_IMPL
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 #undef min
@@ -260,7 +260,7 @@ protected:
 int main()
 {
 	FirstPersonShooter demo;
-	if (demo.ConstructConsole(256, 240, 4, 4) == rcode::OK)
+	if (demo.ConstructConsole(256, 240, 4, 4) == RC_OK)
 		demo.Run();
 	return 0;
 }

@@ -1,4 +1,4 @@
-#define CGE_IMPL
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 #include <list>
@@ -262,7 +262,7 @@ protected:
 int main()
 {
 	Space demo;
-	if (demo.ConstructConsole(120, 40, 16, 16) == rcode::OK)
+	if (demo.ConstructConsole(120, 40, 16, 16) == RC_OK)
 		demo.Run();
 	return 0;
 }

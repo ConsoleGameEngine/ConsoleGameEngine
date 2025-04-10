@@ -28,8 +28,8 @@ fn main() {
 
     if let Rcode::Ok = app.construct_console(256, 240, 4, 4, "Procedural Generation") {
         while let Rcode::Ok = app.update() {
-            let mouse_x = app.mouse_x();
-            let mouse_y = app.mouse_y();
+            let mouse_x = app.get_mouse_x();
+            let mouse_y = app.get_mouse_y();
 
             if app.get_mouse(0).pressed {
                 pan_start_x = mouse_x;
@@ -54,7 +54,7 @@ fn main() {
             app.draw_string(1, 1, format!("({mouse_x}, {mouse_y})"), Colour::FgRed as u16);
 
             for i in 0..app.screen_width() as i32 {
-                for j in 0..app.screen_height() as i32{
+                for j in 0..app.screen_height() as i32 {
                     let seed = (j + offset_y) << 16 | (i + offset_x);
                     let rand = lehmer(seed as u32);
 

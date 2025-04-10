@@ -956,8 +956,8 @@ impl ConsoleGameEngine {
         self.fill_rectangle(0, 0, self.screen_width as i32, self.screen_height as i32, glyph, col);
     }
 
-    pub fn mouse_x(&self) -> i32 { self.mouse_x }
-    pub fn mouse_y(&self) -> i32 { self.mouse_y }
+    pub fn get_mouse_x(&self) -> i32 { self.mouse_x }
+    pub fn get_mouse_y(&self) -> i32 { self.mouse_y }
 
     pub fn get_mouse(&self, button: usize) -> KeyState { self.mouse[button] }
     pub fn get_key(&self, key: usize) -> KeyState { self.keys[key] }

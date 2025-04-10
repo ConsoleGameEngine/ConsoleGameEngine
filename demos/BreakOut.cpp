@@ -1,4 +1,4 @@
-#define CGE_IMPL
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 #include <list>
@@ -134,7 +134,7 @@ protected:
 int main()
 {
 	BreakOut demo;
-	if (demo.ConstructConsole(40, 30, 24, 24) == rcode::OK)
+	if (demo.ConstructConsole(40, 30, 24, 24) == RC_OK)
 		demo.Run();
 	return 0;
 }

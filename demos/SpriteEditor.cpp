@@ -1,4 +1,4 @@
-#define CGE_IMPL
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 using namespace std;
@@ -75,8 +75,8 @@ protected:
 		int nCanvasEndX = nCanvasStartX + sprCanvas->nWidth;
 		int nCanvasEndY = nCanvasStartY + sprCanvas->nHeight;
 
-		int nMouseX = MouseX();
-		int nMouseY = MouseY();
+		int nMouseX = GetMouseX();
+		int nMouseY = GetMouseY();
 
 		int nNormalisedX = nMouseX - nCanvasStartX;
 		int nNormalisedY = nMouseY - nCanvasStartY;
@@ -180,7 +180,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (demo.ConstructConsole(80, 80, 10, 10) == rcode::OK)
+	if (demo.ConstructConsole(80, 80, 10, 10) == RC_OK)
 		demo.Run();
 
 	return 0;

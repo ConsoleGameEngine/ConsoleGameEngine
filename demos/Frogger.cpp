@@ -1,4 +1,4 @@
-#define CGE_IMPL
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 using namespace std;
@@ -174,7 +174,7 @@ int main()
 {
 	Frogger app;
 
-	if (app.ConstructConsole(128, 72, 8, 8) == rcode::OK)
+	if (app.ConstructConsole(128, 72, 8, 8) == RC_OK)
 		app.Run();
 
 	return 0;

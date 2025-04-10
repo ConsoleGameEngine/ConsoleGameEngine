@@ -1,4 +1,4 @@
-#define CGE_IMPL
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 #include <list>
@@ -175,7 +175,7 @@ int main()
 {
 	FlappyBird app;
 
-	if (app.ConstructConsole(80, 60, 16, 16) == rcode::OK)
+	if (app.ConstructConsole(80, 60, 16, 16) == RC_OK)
 		app.Run();
 
 	return 0;

@@ -1,4 +1,4 @@
-#define CGE_IMPL
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 struct Object
@@ -135,7 +135,7 @@ int main()
 {
 	CPong app;
 
-	if (app.ConstructConsole(80, 40, 12, 12) == rcode::OK)
+	if (app.ConstructConsole(80, 40, 12, 12) == RC_OK)
 		app.Run();
 
 	return 0;

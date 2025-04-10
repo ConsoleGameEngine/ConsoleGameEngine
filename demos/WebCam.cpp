@@ -1,4 +1,6 @@
-#define CGE_IMPL
+// ESCAPI: https://github.com/jarikomppa/escapi
+
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 #include "escapi.h"
@@ -73,7 +75,7 @@ int main()
 {
 	Example demo;
 
-	if (demo.ConstructConsole(256, 240, 4, 4) == rcode::OK)
+	if (demo.ConstructConsole(256, 240, 4, 4) == RC_OK)
 		demo.Run();
 
 	return 0;

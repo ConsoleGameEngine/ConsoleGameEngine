@@ -1,4 +1,4 @@
-#define CGE_IMPL
+#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 #include "ConsoleGameEngine.hpp"
 
 class Example : public ConsoleGameEngine
@@ -48,8 +48,8 @@ protected:
 	{
 		if (GetMouse(0).bPressed)
 		{
-			nStartPanX = MouseX();
-			nStartPanY = MouseY();
+			nStartPanX = GetMouseX();
+			nStartPanY = GetMouseY();
 			bPanStarted = true;
 		}
 
@@ -58,8 +58,8 @@ protected:
 
 		if (bPanStarted)
 		{
-			int32_t nMouseX = MouseX();
-			int32_t nMouseY = MouseY();
+			int32_t nMouseX = GetMouseX();
+			int32_t nMouseY = GetMouseY();
 
 			nOffsetX += nStartPanX - nMouseX;
 			nOffsetY += nStartPanY - nMouseY;
@@ -97,7 +97,7 @@ int main()
 {
 	Example demo;
 
-	if (demo.ConstructConsole(256, 240, 4, 4) == rcode::OK)
+	if (demo.ConstructConsole(256, 240, 4, 4) == RC_OK)
 		demo.Run();
 
 	return 0;
