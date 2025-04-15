@@ -1,255 +1,259 @@
 #include "ConsoleGameEngine.h"
 
-wchar_t* utilInitWchar(const wchar_t* data)
+wchar_t* cgeUtilInitWchar(const wchar_t* pData)
 {
-	size_t size = (lstrlenW(data) + 1) * sizeof(wchar_t);
+	size_t nBytes = (lstrlenW(pData) + 1) * sizeof(wchar_t);
 
-	wchar_t* new = (wchar_t*)malloc(size);
-	memcpy(new, data, size);
+	wchar_t* pNew = (wchar_t*)malloc(nBytes);
+	memcpy(pNew, pData, nBytes);
 
-	return new;
+	return pNew;
 }
 
-void utilSwapInt(int* a, int* b)
+void cgeUtilSwapInt(int* a, int* b)
 {
-	int temp = *a;
+	int nTemp = *a;
 	*a = *b;
-	*b = temp;
+	*b = nTemp;
 }
 
-Sprite spriteNew()
+PSprite spriteNew()
 {
-	return (Sprite)malloc(sizeof(_Sprite));
+	return (PSprite)malloc(sizeof(Sprite));
 }
 
-void spriteDelete(Sprite spr)
+void spriteDelete(PSprite pSprite)
 {
-	if (spr)
+	if (pSprite)
 	{
-		free(spr->colours);
-		free(spr->glyphs);
-
-		spr->width = 0;
-		spr->height = 0;
+		free(pSprite->pColours);
+		free(pSprite->pGlyphs);
+		free(pSprite);
 	}
 }
 
-Sprite spriteCreate(int width, int height)
+PSprite spriteCreate(int nWidth, int nHeight)
 {
-	Sprite spr = spriteNew();
+	PSprite pSprite = spriteNew();
 
-	spr->width = width;
-	spr->height = height;
+	pSprite->nWidth = nWidth;
+	pSprite->nHeight = nHeight;
 
-	size_t size = width * height * sizeof(short);
+	size_t nSize = nWidth * nHeight;
 
-	spr->glyphs = (short*)malloc(size);
-	spr->colours = (short*)malloc(size);
+	pSprite->pGlyphs = (wchar_t*)malloc(nSize * sizeof(wchar_t));
+	pSprite->pColours = (short*)malloc(nSize * sizeof(short));
 
-	// Compiler, SHUT UP!
-	memset(spr->glyphs, L' ', size);
-	memset(spr->colours, FG_BLACK, size);
+	memset(pSprite->pGlyphs, L' ', nSize * sizeof(wchar_t));
+	memset(pSprite->pColours, FG_BLACK, nSize * sizeof(short));
 
-	return spr;
+	return pSprite;
 }
 
-Sprite spriteFromFile(const wchar_t* fileName)
+PSprite spriteFromFile(const wchar_t* sFileName)
 {
-	Sprite spr = spriteNew();
-	
-	if (spriteLoad(spr, fileName))
-		return spr;
+	PSprite pSprite = spriteNew();
+
+	if (spriteLoad(pSprite, sFileName))
+		return pSprite;
 
 	return NULL;
 }
 
-void spriteSetGlyph(Sprite spr, int x, int y, short glyph)
+void spriteSetGlyph(PSprite pSprite, int x, int y, short nGlyph)
 {
-	if (x >= 0 && x < spr->width && y >= 0 && y < spr->height)
-		spr->glyphs[y * spr->width + x] = glyph;
+	if (x >= 0 && x < pSprite->nWidth && y >= 0 && y < pSprite->nHeight)
+		pSprite->pGlyphs[y * pSprite->nWidth + x] = nGlyph;
 }
 
-void spriteSetColour(Sprite spr, int x, int y, short colour)
+void spriteSetColour(PSprite pSprite, int x, int y, short nColour)
 {
-	if (x >= 0 && x < spr->width && y >= 0 && y < spr->height)
-		spr->colours[y * spr->width + x] = colour;
+	if (x >= 0 && x < pSprite->nWidth && y >= 0 && y < pSprite->nHeight)
+		pSprite->pColours[y * pSprite->nWidth + x] = nColour;
 }
 
-short spriteGetGlyph(Sprite spr, int x, int y)
+short spriteGetGlyph(const PSprite pSprite, int x, int y)
 {
-	if (x >= 0 && x < spr->width && y >= 0 && y < spr->height)
-		return spr->glyphs[y * spr->width + x];
+	if (x >= 0 && x < pSprite->nWidth && y >= 0 && y < pSprite->nHeight)
+		return pSprite->pGlyphs[y * pSprite->nWidth + x];
 
 	return L' ';
 }
 
-short spriteGetColour(Sprite spr, int x, int y)
+short spriteGetColour(const PSprite pSprite, int x, int y)
 {
-	if (x >= 0 && x < spr->width && y >= 0 && y < spr->height)
-		return spr->colours[y * spr->width + x];
+	if (x >= 0 && x < pSprite->nWidth && y >= 0 && y < pSprite->nHeight)
+		return pSprite->pColours[y * pSprite->nWidth + x];
 
 	return FG_BLACK;
 }
 
-bool spriteSave(Sprite spr, const wchar_t* fileName)
+cgeBool spriteSave(const PSprite pSprite, const wchar_t* sFileName)
 {
-	if (!spr) return false;
+	if (!pSprite)
+		return CGE_FALSE;
 
-	FILE* file = fopen((const char*)fileName, "wb");
-	if (file == NULL) return false;
+	FILE* pFile;
+	_wfopen_s(&pFile, sFileName, L"wb");
 
-	fwrite(&spr->width, sizeof(int), 1, file);
-	fwrite(&spr->height, sizeof(int), 1, file);
+	if (!pFile)
+		return CGE_FALSE;
 
-	size_t size = spr->width * spr->height;
+	fwrite(&pSprite->nWidth, sizeof(int), 1, pFile);
+	fwrite(&pSprite->nHeight, sizeof(int), 1, pFile);
 
-	fwrite(spr->colours, sizeof(short), size, file);
-	fwrite(spr->glyphs, sizeof(short), size, file);
+	size_t nSize = pSprite->nWidth * pSprite->nHeight;
 
-	fclose(file);
+	fwrite(pSprite->pColours, sizeof(short), nSize, pFile);
+	fwrite(pSprite->pGlyphs, sizeof(short), nSize, pFile);
 
-	return true;
+	fclose(pFile);
+
+	return CGE_TRUE;
 }
 
-bool spriteLoad(Sprite spr, const wchar_t* fileName)
+cgeBool spriteLoad(PSprite pSprite, const wchar_t* sFileName)
 {
-	if (!spr) return false;
+	if (!pSprite)
+		return CGE_FALSE;
 
-	FILE* file = fopen((const char*)fileName, "rb");
-	if (file == NULL) return false;
+	FILE* pFile;
+	_wfopen_s(&pFile, sFileName, L"rb");
 
-	fread(&spr->width, sizeof(int), 1, file);
-	fread(&spr->height, sizeof(int), 1, file);
+	if (!pFile)
+		return CGE_FALSE;
 
-	size_t size = spr->width * spr->height;
+	fread(&pSprite->nWidth, sizeof(int), 1, pFile);
+	fread(&pSprite->nHeight, sizeof(int), 1, pFile);
 
-	spr->glyphs = (short*)malloc(size * sizeof(short));
-	spr->colours = (short*)malloc(size * sizeof(short));
+	size_t nSize = pSprite->nWidth * pSprite->nHeight;
 
-	// Compiler, SHUT UP!
-	fread(spr->colours, sizeof(short), size, file);
-	fread(spr->glyphs, sizeof(short), size, file);
+	pSprite->pGlyphs = (short*)malloc(nSize * sizeof(short));
+	pSprite->pColours = (short*)malloc(nSize * sizeof(short));
 
-	fclose(file);
+	fread(pSprite->pColours, sizeof(short), nSize, pFile);
+	fread(pSprite->pGlyphs, sizeof(short), nSize, pFile);
 
-	return true;
+	fclose(pFile);
+
+	return CGE_TRUE;
 }
 
-ConsoleGameEngine cgeNew()
+void cgeInit()
 {
-	ConsoleGameEngine cge = (ConsoleGameEngine)malloc(sizeof(_ConsoleGameEngine));
+	_engine.hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	_engine.hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
 
-	// MSVC, SHUT UP!
-	cge->consoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	cge->consoleIn = GetStdHandle(STD_INPUT_HANDLE);
+	_engine.hWindow = GetConsoleWindow();
+	_engine.hDrawContext = GetDC(_engine.hWindow);
 
-	cge->window = GetConsoleWindow();
-	cge->dc = GetDC(cge->window);
-
-	cge->appName = utilInitWchar(L"Undefined");
-	cge->fontName = utilInitWchar(L"Consolas");
-
-	return cge;
+	_engine.sAppName = cgeUtilInitWchar(L"Undefined");
+	_engine.sFontName = cgeUtilInitWchar(L"Consolas");
 }
 
-void cgeDelete()
+void cgeShutdown()
 {
-	free(_cge->screen);
+	free(_engine.sAppName);
+	free(_engine.sFontName);
+	free(_engine.pScreen);
 }
 
 BOOL WINAPI cgeHandlerRoutine(DWORD eventCode)
 {
 	if (eventCode == CTRL_CLOSE_EVENT)
 	{
-		_cge->isGameActive = false;
+		_engine.bIsGameActive = CGE_FALSE;
 		return FALSE;
 	}
 
 	return TRUE;
 }
 
-RCODE cgeConstructConsole(int screenWidth, int screenHeight, int fontWidth, int fontHeight, const wchar_t* title)
+ErrorCode cgeConstructConsole(int nScreenWidth, int nScreenHeight, int nFontWidth, int nFontHeight, const wchar_t* sTitle)
 {
-	if (screenWidth <= 0 || screenHeight <= 0 || fontWidth <= 0 || fontHeight <= 0)
+	if (nScreenWidth <= 0 || nScreenHeight <= 0 || nFontWidth <= 0 || nFontHeight <= 0)
 		return RC_INVALID_SCREEN_SIZE;
 
-	_cge = cgeNew();
+	cgeInit();
 
-	_cge->screenWidth = screenWidth;
-	_cge->screenHeight = screenHeight;
+	_engine.nScreenWidth = nScreenWidth;
+	_engine.nScreenHeight = nScreenHeight;
 
-	_cge->fontWidth = fontWidth;
-	_cge->fontHeight = fontHeight;
+	_engine.nFontWidth = nFontWidth;
+	_engine.nFontHeight = nFontHeight;
 
-	_cge->consoleOut = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+	_engine.hConsoleOut = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
-	if (_cge->consoleOut == INVALID_HANDLE_VALUE)
+	if (_engine.hConsoleOut == INVALID_HANDLE_VALUE)
 		return RC_INVALID_SCREEN_BUFFER;
 
-	_cge->windowRect.Left = 0;
-	_cge->windowRect.Top = 0;
-	_cge->windowRect.Right = 1;
-	_cge->windowRect.Bottom = 1;
+	_engine.rWindow.Left = 0;
+	_engine.rWindow.Top = 0;
+	_engine.rWindow.Right = 1;
+	_engine.rWindow.Bottom = 1;
 
-	SetConsoleWindowInfo(_cge->consoleOut, TRUE, &_cge->windowRect);
+	SetConsoleWindowInfo(_engine.hConsoleOut, TRUE, &_engine.rWindow);
 
-	COORD coord = { (short)screenWidth, (short)screenHeight };
+	COORD coord = { (short)nScreenWidth, (short)nScreenHeight };
 
-	if (!SetConsoleScreenBufferSize(_cge->consoleOut, coord)) return RC_INVALID_SCREEN_SIZE;
-	if (!SetConsoleActiveScreenBuffer(_cge->consoleOut)) return RC_INVALID_SCREEN_BUFFER;
+	if (!SetConsoleScreenBufferSize(_engine.hConsoleOut, coord))
+		return RC_INVALID_SCREEN_SIZE;
+
+	if (!SetConsoleActiveScreenBuffer(_engine.hConsoleOut))
+		return RC_INVALID_SCREEN_BUFFER;
 
 	CONSOLE_FONT_INFOEX cfi;
 	cfi.cbSize = sizeof(cfi);
 	cfi.nFont = 0;
-	cfi.dwFontSize.X = fontWidth;
-	cfi.dwFontSize.Y = fontHeight;
+	cfi.dwFontSize.X = nFontWidth;
+	cfi.dwFontSize.Y = nFontHeight;
 	cfi.FontFamily = FF_DONTCARE;
 	cfi.FontWeight = FW_NORMAL;
 
-	wcscpy(cfi.FaceName, _cge->fontName);
-	if (!SetCurrentConsoleFontEx(_cge->consoleOut, false, &cfi))
+	wcscpy(cfi.FaceName, _engine.sFontName);
+
+	if (!SetCurrentConsoleFontEx(_engine.hConsoleOut, FALSE, &cfi))
 		return RC_INVALID_FONT;
 
-	if (!SetConsoleMode(_cge->consoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
+	if (!SetConsoleMode(_engine.hConsoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
 		return RC_INVALID_CONSOLE_MODE;
 
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	if (!GetConsoleScreenBufferInfo(_cge->consoleOut, &csbi))
+	if (!GetConsoleScreenBufferInfo(_engine.hConsoleOut, &csbi))
 		return RC_INVALID_SCREEN_INFO;
 
-	if (screenHeight > csbi.dwMaximumWindowSize.Y)
+	if (nScreenHeight > csbi.dwMaximumWindowSize.Y)
 		return RC_INVALID_SCREEN_SIZE;
 
-	if (screenWidth > csbi.dwMaximumWindowSize.X)
+	if (nScreenWidth > csbi.dwMaximumWindowSize.X)
 		return RC_INVALID_SCREEN_SIZE;
 
-	_cge->windowRect.Left = 0;
-	_cge->windowRect.Top = 0;
-	_cge->windowRect.Right = screenWidth - 1;
-	_cge->windowRect.Bottom = screenHeight - 1;
+	_engine.rWindow.Left = 0;
+	_engine.rWindow.Top = 0;
+	_engine.rWindow.Right = nScreenWidth - 1;
+	_engine.rWindow.Bottom = nScreenHeight - 1;
 
-	SetConsoleWindowInfo(_cge->consoleOut, TRUE, &_cge->windowRect);
+	SetConsoleWindowInfo(_engine.hConsoleOut, TRUE, &_engine.rWindow);
 
-	_cge->screen = (CHAR_INFO*)malloc(sizeof(CHAR_INFO) * screenWidth * screenHeight);
-	memset(_cge->screen, 0, sizeof(CHAR_INFO) * screenWidth * screenHeight);
+	_engine.pScreen = (CHAR_INFO*)calloc(nScreenWidth * nScreenHeight, sizeof(CHAR_INFO));
 
-	_cge->isGameActive = true;
+	_engine.bIsGameActive = CGE_TRUE;
 
-	QueryPerformanceCounter(&_cge->_tp1);
-	QueryPerformanceCounter(&_cge->_tp2);
+	QueryPerformanceCounter(&_engine._tp1);
+	QueryPerformanceCounter(&_engine._tp2);
 
 	for (int i = 0; i < 256; i++)
 	{
-		_cge->keys[i].held = false;
-		_cge->keys[i].pressed = false;
-		_cge->keys[i].released = false;
+		_engine.aryKeys[i].bHeld = CGE_FALSE;
+		_engine.aryKeys[i].bPressed = CGE_FALSE;
+		_engine.aryKeys[i].bReleased = CGE_FALSE;
 	}
 
 	for (int i = 0; i < 5; i++)
 	{
-		_cge->mouse[i].held = false;
-		_cge->mouse[i].pressed = false;
-		_cge->mouse[i].released = false;
+		_engine.aryMouse[i].bHeld = CGE_FALSE;
+		_engine.aryMouse[i].bPressed = CGE_FALSE;
+		_engine.aryMouse[i].bReleased = CGE_FALSE;
 	}
 
 	SetConsoleCtrlHandler(cgeHandlerRoutine, TRUE);
@@ -257,62 +261,59 @@ RCODE cgeConstructConsole(int screenWidth, int screenHeight, int fontWidth, int 
 	return RC_OK;
 }
 
-RCODE cgeUpdate()
+cgeBool cgeUpdate()
 {
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
 
-	QueryPerformanceCounter(&_cge->_tp2);
-	_cge->deltaTime = (float)(_cge->_tp2.QuadPart - _cge->_tp1.QuadPart) / (float)freq.QuadPart;
-	_cge->_tp1 = _cge->_tp2;
+	QueryPerformanceCounter(&_engine._tp2);
+	_engine.fDeltaTime = (float)(_engine._tp2.QuadPart - _engine._tp1.QuadPart) / (float)freq.QuadPart;
+	_engine._tp1 = _engine._tp2;
 
-	wchar_t title[256];
-	swprintf_s(title, 256, L"github.com/defini7 - Console Game Engine - %s - FPS: %3.2f", _cge->appName, 1.0f / _cge->deltaTime);
-	SetConsoleTitleW(title);
+	wchar_t sTitle[128];
+	swprintf_s(sTitle, 128, L"github.com/defini7 - Console Game Engine - %s - FPS: %3.2f", _engine.sAppName, 1.0f / _engine.fDeltaTime);
+	SetConsoleTitleW(sTitle);
 
-	INPUT_RECORD inBuf[32];
-	DWORD events = 0;
+	INPUT_RECORD irBuffer[32];
+	DWORD nEvents = 0;
 
-	GetNumberOfConsoleInputEvents(_cge->consoleIn, &events);
+	GetNumberOfConsoleInputEvents(_engine.hConsoleIn, &nEvents);
 
-	if (events > 0)
-		ReadConsoleInputW(_cge->consoleIn, inBuf, events, &events);
+	if (nEvents > 0)
+		ReadConsoleInputW(_engine.hConsoleIn, irBuffer, nEvents, &nEvents);
 
-	for (DWORD i = 0; i < events; i++)
+	for (DWORD i = 0; i < nEvents; i++)
 	{
-		switch (inBuf[i].EventType)
+		switch (irBuffer[i].EventType)
 		{
 		case FOCUS_EVENT:
-			_cge->isFocused = inBuf[i].Event.FocusEvent.bSetFocus;
-			break;
+			_engine.bIsFocused = irBuffer[i].Event.FocusEvent.bSetFocus;
+		break;
 
 		case WINDOW_BUFFER_SIZE_EVENT:
 		{
-			_cge->screenWidth = (int)(inBuf[i].Event.WindowBufferSizeEvent.dwSize.X);
-			_cge->screenHeight = (int)(inBuf[i].Event.WindowBufferSizeEvent.dwSize.Y);
+			_engine.nScreenWidth = (int)(irBuffer[i].Event.WindowBufferSizeEvent.dwSize.X);
+			_engine.nScreenHeight = (int)(irBuffer[i].Event.WindowBufferSizeEvent.dwSize.Y);
 		}
 		break;
 
 		case MOUSE_EVENT:
 		{
-			switch (inBuf[i].Event.MouseEvent.dwEventFlags)
+			switch (irBuffer[i].Event.MouseEvent.dwEventFlags)
 			{
 			case MOUSE_MOVED:
 			{
-				_cge->mouseX = (int)(inBuf[i].Event.MouseEvent.dwMousePosition.X);
-				_cge->mouseY = (int)(inBuf[i].Event.MouseEvent.dwMousePosition.Y);
+				_engine.nMouseX = (int)(irBuffer[i].Event.MouseEvent.dwMousePosition.X);
+				_engine.nMouseY = (int)(irBuffer[i].Event.MouseEvent.dwMousePosition.Y);
 			}
 			break;
 
 			case 0:
 			{
 				for (int m = 0; m < 5; m++)
-					_cge->mouseNewState[m] = (inBuf[i].Event.MouseEvent.dwButtonState & (1 << m)) > 0;
+					_engine.aryMouseNewState[m] = (irBuffer[i].Event.MouseEvent.dwButtonState & (1 << m)) > 0;
 			}
 			break;
-
-			default:
-				break;
 			}
 		}
 		break;
@@ -321,79 +322,79 @@ RCODE cgeUpdate()
 
 	for (int i = 0; i < 256; i++)
 	{
-		_cge->keyNewState[i] = GetAsyncKeyState(i);
+		_engine.aryKeyNewState[i] = GetAsyncKeyState(i);
 
-		_cge->keys[i].pressed = false;
-		_cge->keys[i].released = false;
+		_engine.aryKeys[i].bPressed = CGE_FALSE;
+		_engine.aryKeys[i].bReleased = CGE_FALSE;
 
-		if (_cge->keyNewState[i] != _cge->keyOldState[i])
+		if (_engine.aryKeyNewState[i] != _engine.aryKeyOldState[i])
 		{
-			if (_cge->keyNewState[i] & 0x8000)
+			if (_engine.aryKeyNewState[i] & 0x8000)
 			{
-				_cge->keys[i].pressed = !_cge->keys[i].held;
-				_cge->keys[i].held = true;
+				_engine.aryKeys[i].bPressed = !_engine.aryKeys[i].bHeld;
+				_engine.aryKeys[i].bHeld = CGE_TRUE;
 			}
 			else
 			{
-				_cge->keys[i].released = true;
-				_cge->keys[i].held = false;
+				_engine.aryKeys[i].bReleased = CGE_TRUE;
+				_engine.aryKeys[i].bHeld = CGE_FALSE;
 			}
 		}
 
-		_cge->keyOldState[i] = _cge->keyNewState[i];
+		_engine.aryKeyOldState[i] = _engine.aryKeyNewState[i];
 	}
 
 	for (int i = 0; i < 5; i++)
 	{
-		_cge->mouse[i].pressed = false;
-		_cge->mouse[i].released = false;
+		_engine.aryMouse[i].bPressed = CGE_FALSE;
+		_engine.aryMouse[i].bReleased = CGE_FALSE;
 
-		if (_cge->mouseNewState[i] != _cge->mouseOldState[i])
+		if (_engine.aryMouseNewState[i] != _engine.aryMouseOldState[i])
 		{
-			if (_cge->mouseNewState[i])
+			if (_engine.aryMouseNewState[i])
 			{
-				_cge->mouse[i].pressed = true;
-				_cge->mouse[i].held = true;
+				_engine.aryMouse[i].bPressed = CGE_TRUE;
+				_engine.aryMouse[i].bHeld = CGE_TRUE;
 			}
 			else
 			{
-				_cge->mouse[i].released = true;
-				_cge->mouse[i].held = false;
+				_engine.aryMouse[i].bReleased = CGE_TRUE;
+				_engine.aryMouse[i].bHeld = CGE_FALSE;
 			}
 		}
 
-		_cge->mouseOldState[i] = _cge->mouseNewState[i];
+		_engine.aryMouseOldState[i] = _engine.aryMouseNewState[i];
 	}
 
-	COORD size = { (short)_cge->screenWidth, (short)_cge->screenHeight };
+	COORD size = { (short)_engine.nScreenWidth, (short)_engine.nScreenHeight };
 	COORD coord = { 0, 0 };
 
-	WriteConsoleOutputW(_cge->consoleOut, _cge->screen, size, coord, &_cge->windowRect);
+	WriteConsoleOutputW(_engine.hConsoleOut, _engine.pScreen, size, coord, &_engine.rWindow);
 
-	return _cge->isGameActive;
+	return _engine.bIsGameActive;
 }
 
-bool cgeMakeSound(const wchar_t* fileName, bool looped)
+cgeBool cgeMakeSound(const wchar_t* sFileName, cgeBool bLooped)
 {
-	DWORD flags = SND_ASYNC | SND_FILENAME;
-	if (looped) flags |= SND_LOOP;
+	DWORD nFlags = SND_ASYNC | SND_FILENAME;
+	if (bLooped) nFlags |= SND_LOOP;
 
-	return PlaySoundW(fileName, NULL, flags);
+	return PlaySoundW(sFileName, NULL, nFlags);
 }
 
 void cgeDraw(int x, int y, wchar_t glyph, short col)
 {
-	if (x >= 0 && x < _cge->screenWidth && y >= 0 && y < _cge->screenHeight)
+	if (x >= 0 && x < _engine.nScreenWidth && y >= 0 && y < _engine.nScreenHeight)
 	{
-		_cge->screen[y * _cge->screenWidth + x].Char.UnicodeChar = glyph;
-		_cge->screen[y * _cge->screenWidth + x].Attributes = col;
+		_engine.pScreen[y * _engine.nScreenWidth + x].Char.UnicodeChar = glyph;
+		_engine.pScreen[y * _engine.nScreenWidth + x].Attributes = col;
 	}
 }
 
-void cgeFillRectangle(int x, int y, int sizeX, int sizeY, wchar_t glyph, wchar_t col)
+void cgeFillRectangle(int x, int y, int w, int h, wchar_t glyph, wchar_t col)
 {
-	for (int i = 0; i < sizeX; i++)
-		for (int j = 0; j < sizeY; j++)
+	for (int i = 0; i < w; i++)
+		for (int j = 0; j < h; j++)
 			cgeDraw(x + i, y + j, glyph, col);
 }
 
@@ -403,13 +404,13 @@ void cgeDrawHorizontalLine(int start, int end, int y, wchar_t glyph, short col)
 		cgeDraw(i, y, glyph, col);
 }
 
-void cgeDrawCircle(int x, int y, int radius, wchar_t glyph, short col)
+void cgeDrawCircle(int x, int y, int r, wchar_t glyph, short col)
 {
-	if (radius <= 0) return;
+	if (r <= 0) return;
 
 	int x1 = 0;
-	int y1 = radius;
-	int p = 3 - 2 * radius;
+	int y1 = r;
+	int p = 3 - 2 * r;
 
 	while (y1 >= x1)
 	{
@@ -427,13 +428,13 @@ void cgeDrawCircle(int x, int y, int radius, wchar_t glyph, short col)
 	}
 }
 
-void cgeFillCircle(int x, int y, int radius, wchar_t glyph, short col)
+void cgeFillCircle(int x, int y, int r, wchar_t glyph, short col)
 {
-	if (radius <= 0) return;
+	if (r <= 0) return;
 
 	int x1 = 0;
-	int y1 = radius;
-	int p = 3 - 2 * radius;
+	int y1 = r;
+	int p = 3 - 2 * r;
 
 	while (y1 >= x1)
 	{
@@ -537,15 +538,15 @@ void cgeFillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, wchar_t gly
 {
 	int t1x, t2x, y, minx, maxx, t1xp, t2xp;
 
-	bool changed1 = false;
-	bool changed2 = false;
+	cgeBool changed1 = CGE_FALSE;
+	cgeBool changed2 = CGE_FALSE;
 
 	int signx1, signx2, dx1, dy1, dx2, dy2;
 	int e1, e2;
 
-	if (y1 > y2) { utilSwapInt(&y1, &y2); utilSwapInt(&x1, &x2); }
-	if (y1 > y3) { utilSwapInt(&y1, &y3); utilSwapInt(&x1, &x3); }
-	if (y2 > y3) { utilSwapInt(&y2, &y3); utilSwapInt(&x2, &x3); }
+	if (y1 > y2) { cgeUtilSwapInt(&y1, &y2); cgeUtilSwapInt(&x1, &x2); }
+	if (y1 > y3) { cgeUtilSwapInt(&y1, &y3); cgeUtilSwapInt(&x1, &x3); }
+	if (y2 > y3) { cgeUtilSwapInt(&y2, &y3); cgeUtilSwapInt(&x2, &x3); }
 
 	t1x = t2x = x1; y = y1;
 	dx1 = x2 - x1;
@@ -573,14 +574,14 @@ void cgeFillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, wchar_t gly
 
 	if (dy1 > dx1)
 	{
-		utilSwapInt(&dx1, &dy1);
-		changed1 = true;
+		cgeUtilSwapInt(&dx1, &dy1);
+		changed1 = CGE_TRUE;
 	}
 
 	if (dy2 > dx2)
 	{
-		utilSwapInt(&dy2, &dx2);
-		changed2 = true;
+		cgeUtilSwapInt(&dy2, &dx2);
+		changed2 = CGE_TRUE;
 	}
 
 	e2 = (int)(dx2 >> 1);
@@ -691,11 +692,11 @@ next:
 
 	if (dy1 > dx1)
 	{
-		utilSwapInt(&dy1, &dx1);
-		changed1 = true;
+		cgeUtilSwapInt(&dy1, &dx1);
+		changed1 = CGE_TRUE;
 	}
 	else
-		changed1 = false;
+		changed1 = CGE_FALSE;
 
 	e1 = (int)(dx1 >> 1);
 
@@ -789,81 +790,81 @@ next:
 
 		if (y > y3)
 			return;
-	} 
+	}
 }
 
-void cgeDrawRectangle(int x, int y, int sizeX, int sizeY, wchar_t glyph, short col)
+void cgeDrawRectangle(int x, int y, int w, int h, wchar_t glyph, short col)
 {
-	for (int i = 0; i <= sizeX; i++)
+	for (int i = 0; i <= w; i++)
 	{
 		cgeDraw(x + i, y, glyph, col);
-		cgeDraw(x + i, y + sizeY, glyph, col);
+		cgeDraw(x + i, y + h, glyph, col);
 	}
 
-	for (int j = 0; j <= sizeY; j++)
+	for (int j = 0; j <= h; j++)
 	{
 		cgeDraw(x, y + j, glyph, col);
-		cgeDraw(x + sizeX, y + j, glyph, col);
+		cgeDraw(x + w, y + j, glyph, col);
 	}
 }
 
-void cgeDrawSprite(int x, int y, Sprite sprite)
+void cgeDrawSprite(int x, int y, const PSprite const pSprite)
 {
-	if (sprite == NULL) return;
+	if (!pSprite) return;
 
-	for (int i = 0; i < sprite->width; i++)
-		for (int j = 0; j < sprite->height; j++)
+	for (int i = 0; i < pSprite->nWidth; i++)
+		for (int j = 0; j < pSprite->nHeight; j++)
 		{
-			short glyph = spriteGetGlyph(sprite, i, j);
-			short col = spriteGetColour(sprite, i, j);
+			short glyph = spriteGetGlyph(pSprite, i, j);
+			short col = spriteGetColour(pSprite, i, j);
 
 			cgeDraw(x + i, y + j, glyph, col | col * 16);
 		}
 }
 
-void cgeDrawSpriteAlpha(int x, int y, Sprite sprite)
+void cgeDrawSpriteAlpha(int x, int y, const PSprite const pSprite)
 {
-	if (sprite == NULL) return;
+	if (!pSprite) return;
 
-	for (int i = 0; i < sprite->width; i++)
-		for (int j = 0; j < sprite->height; j++)
+	for (int i = 0; i < pSprite->nWidth; i++)
+		for (int j = 0; j < pSprite->nHeight; j++)
 		{
-			short glyph = spriteGetGlyph(sprite, i, j);
+			short glyph = spriteGetGlyph(pSprite, i, j);
 
 			if (glyph != L' ')
 			{
-				short col = spriteGetColour(sprite, i, j);
+				short col = spriteGetColour(pSprite, i, j);
 				cgeDraw(x + i, y + j, glyph, col | col * 16);
 			}
 		}
 }
 
-void cgeDrawPartialSprite(int x, int y, int fx, int fy, int fsizeX, int fsizeY, Sprite sprite)
+void cgeDrawPartialSprite(int x, int y, int fx, int fy, int fw, int fh, PSprite pSprite)
 {
-	if (sprite == NULL) return;
+	if (!pSprite) return;
 
-	for (int i = fx, x1 = 0; i < fx + fsizeX; i++, x1++)
-		for (int j = fy, y1 = 0; j < fy + fsizeY; j++, y1++)
+	for (int i = fx, x1 = 0; i < fx + fw; i++, x1++)
+		for (int j = fy, y1 = 0; j < fy + fh; j++, y1++)
 		{
-			short glyph = spriteGetGlyph(sprite, i, j);
-			short col = spriteGetColour(sprite, i, j);
+			short glyph = spriteGetGlyph(pSprite, i, j);
+			short col = spriteGetColour(pSprite, i, j);
 
 			cgeDraw(x + x1, y + y1, glyph, col | col * 16);
 		}
 }
 
-void cgeDrawPartialSpriteAlpha(int x, int y, int fx, int fy, int fsizeX, int fsizeY, Sprite sprite)
+void cgeDrawPartialSpriteAlpha(int x, int y, int fx, int fy, int fw, int fh, PSprite pSprite)
 {
-	if (sprite == NULL) return;
+	if (!pSprite) return;
 
-	for (int i = fx, x1 = 0; i < fx + fsizeX; i++, x1++)
-		for (int j = fy, y1 = 0; j < fy + fsizeY; j++, y1++)
+	for (int i = fx, x1 = 0; i < fx + fw; i++, x1++)
+		for (int j = fy, y1 = 0; j < fy + fh; j++, y1++)
 		{
-			short glyph = spriteGetGlyph(sprite, i, j);
+			short glyph = spriteGetGlyph(pSprite, i, j);
 
 			if (glyph != L' ')
 			{
-				short col = spriteGetColour(sprite, i, j);
+				short col = spriteGetColour(pSprite, i, j);
 				cgeDraw(x + x1, y + y1, glyph, col | col * 16);
 			}
 		}
@@ -873,57 +874,57 @@ void cgeDrawString(int x, int y, const wchar_t* text, short col)
 {
 	size_t len = lstrlenW(text);
 
-	if (x + len < _cge->screenWidth && x >= 0 && y >= 0 && y < _cge->screenHeight)
+	if (x + len < _engine.nScreenWidth && x >= 0 && y >= 0 && y < _engine.nScreenHeight)
 	{
 		for (size_t i = 0; i < len; i++)
 		{
-			_cge->screen[y * _cge->screenWidth + x + i].Char.UnicodeChar = text[i];
-			_cge->screen[y * _cge->screenWidth + x + i].Attributes = col;
+			_engine.pScreen[y * _engine.nScreenWidth + x + i].Char.UnicodeChar = text[i];
+			_engine.pScreen[y * _engine.nScreenWidth + x + i].Attributes = col;
 		}
 	}
 }
 
 void cgeClear(wchar_t glyph, short col)
 {
-	cgeFillRectangle(0, 0, _cge->screenWidth, _cge->screenHeight, glyph, col);
+	cgeFillRectangle(0, 0, _engine.nScreenWidth, _engine.nScreenHeight, glyph, col);
 }
 
-bool cgeIsFocused()
+cgeBool cgeIsFocused()
 {
-	return _cge->isFocused;
+	return _engine.bIsFocused;
 }
 
 int cgeGetMouseX()
 {
-	return _cge->mouseX;
+	return _engine.nMouseX;
 }
 
 int cgeGetMouseY()
 {
-	return _cge->mouseY;
+	return _engine.nMouseY;
 }
 
 KeyState cgeGetMouse(int button)
 {
-	return _cge->mouse[button];
+	return _engine.aryMouse[button];
 }
 
 KeyState cgeGetKey(int key)
 {
-	return _cge->keys[key];
+	return _engine.aryKeys[key];
 }
 
 float cgeGetDeltaTime()
 {
-	return _cge->deltaTime;
+	return _engine.fDeltaTime;
 }
 
 int cgeScreenWidth()
 {
-	return _cge->screenWidth;
+	return _engine.nScreenWidth;
 }
 
 int cgeScreenHeight()
 {
-	return _cge->screenHeight;
+	return _engine.nScreenHeight;
 }

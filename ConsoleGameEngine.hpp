@@ -38,7 +38,7 @@
 #pragma region consolegameengine_sample
 /**
 * Example (engine only supports .spr files, check [this](https://github.com/defini7/SpriteEditor) for editing .spr files):
-	#define CGE_IMPL
+	#define CONSOLE_GAME_ENGINE_IMPLEMENTATION
 	#include "ConsoleGameEngine.hpp"
 
 	class Example : public ConsoleGameEngine
@@ -145,7 +145,7 @@ enum PixelType : short
 	PIXEL_QUARTER = 0x2591
 };
 
-enum COMMON_LVB : unsigned short
+enum CommonLvb : unsigned short
 {
 	CL_GRID_HORIZONTAL = 0x400,
 	CL_GRID_LVERTICAL = 0x0800,
@@ -170,7 +170,7 @@ public:
 	~Sprite();
 
 private:
-	short* m_pGlyphs = nullptr;
+	wchar_t* m_pGlyphs = nullptr;
 	short* m_pColours = nullptr;
 
 public:
@@ -316,7 +316,7 @@ void Sprite::Create(int nWidth, int nHeight)
 	this->nWidth = nWidth;
 	this->nHeight = nHeight;
 
-	m_pGlyphs = new short[nWidth * nHeight];
+	m_pGlyphs = new wchar_t[nWidth * nHeight];
 	m_pColours = new short[nWidth * nHeight];
 
 	for (int i = 0; i < nWidth * nHeight; i++)
@@ -356,17 +356,26 @@ short Sprite::GetColour(int x, int y)
 
 bool Sprite::Save(const std::wstring& sFileName)
 {
-	std::wofstream file(sFileName, std::ios::binary);
+	std::ofstream file(sFileName, std::ios::binary);
 
 	if (!file.is_open())
 		return false;
 
-	file << nWidth << nHeight;
+	auto write = [&](void* data, std::streamsize bytes)
+		{
+			file.write(reinterpret_cast<const char*>(data), bytes);
+			return !file.bad();
+		};
 
-	std::streamsize nBytesCount = nWidth * nHeight * sizeof(short);
+	//file.exceptions(std::ostream::failbit | std::ostream::badbit);
 
-	file.write((const wchar_t*)m_pColours, nBytesCount);
-	file.write((const wchar_t*)m_pGlyphs, nBytesCount);
+	if (!write(&nWidth, sizeof(int))) return false;
+	if (!write(&nHeight, sizeof(int))) return false;
+
+	std::streamsize nSize = nWidth * nHeight;
+
+	if (!write(m_pGlyphs, nSize * sizeof(wchar_t))) return false;
+	if (!write(m_pColours, nSize * sizeof(short))) return false;
 
 	file.close();
 
@@ -381,18 +390,26 @@ bool Sprite::Load(const std::wstring& sFileName)
 	if (m_pColours)
 		delete[] m_pColours;
 
-	std::wifstream file(sFileName, std::ios::binary);
+	std::ifstream file(sFileName, std::ios::binary);
 
 	if (!file.is_open())
 		return false;
 
-	file >> nWidth >> nHeight;
+	auto read = [&](void* data, int bytes)
+		{
+			file.read(reinterpret_cast<char*>(data), bytes);
+			return !file.bad();
+		};
+
+	if (!read(&nWidth, sizeof(int))) return false;
+	if (!read(&nHeight, sizeof(int))) return false;
+	 
 	Create(nWidth, nHeight);
 
-	std::streamsize nBytesCount = nWidth * nHeight * sizeof(short);
+	std::streamsize nSize = nWidth * nHeight;
 
-	file.read((wchar_t*)m_pColours, nBytesCount);
-	file.read((wchar_t*)m_pGlyphs, nBytesCount);
+	if (!read(m_pGlyphs, nSize * sizeof(wchar_t))) return false;
+	if (!read(m_pColours, nSize * sizeof(short))) return false;
 
 	file.close();
 
@@ -943,7 +960,7 @@ void ConsoleGameEngine::DrawSprite(int x, int y, Sprite* sprite)
 
 	for (int i = 0; i < sprite->nWidth; i++)
 		for (int j = 0; j < sprite->nHeight; j++)
-			Draw(x + i, y + j, sprite->GetGlyph(i, j), sprite->GetColour(i, j) | sprite->GetColour(i, j) * 16);
+			Draw(x + i, y + j, sprite->GetGlyph(i, j), sprite->GetColour(i, j));
 }
 
 void ConsoleGameEngine::DrawSpriteAlpha(int x, int y, Sprite* sprite)

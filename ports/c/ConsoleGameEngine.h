@@ -5,7 +5,7 @@
 /***
 *	BSD 3-Clause License
 
-	Copyright (c) 2021 - 2024 Alex
+	Copyright (c) 2021 - 2025 Alex
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
@@ -38,46 +38,31 @@
 #pragma region consolegameengine_sample
 /**
 * Example (engine only supports .spr files, check [this](https://github.com/defini7/SpriteEditor) for editing .spr files):
-	#define CGE_IMPL
 	#include "ConsoleGameEngine.hpp"
 
-	class Example : public ConsoleGameEngine
+	void cgeRun()
 	{
-	public:
-		Example()
+		while (cgeUpdate())
 		{
-			sAppName = L"Example";
+			for (int i = 0; i < cgeScreenWidth(); i++)
+				for (int j = 0; j < cgeScreenHeight(); j++)
+					cgeDraw(i, j, PIXEL_SOLID, rand() % 16);
 		}
+	}
 
-	protected:
-		bool OnUserCreate() override
-		{
-			return true;
-		}
-
-		bool OnUserUpdate(float fDeltaTime) override
-		{
-			for (int32_t i = 0; i < ScreenWidth(); i++)
-				for (int32_t j = 0; j < ScreenHeight(); j++)
-					Draw(i, j, PIXEL_SOLID, rand() % 15);
-
-			return true;
-		}
-	};
-
-	int32_t main()
+	int main()
 	{
-			Example demo;
+		if (cgeConstructConsole(256, 240, 4, 4))
+			cgeRun();
 
-			if (demo.ConstructConsole(120, 40, 12, 12) == rcode::OK)
-				demo.Run();
-
-			return 0;
+		return 0;
 	}
 **/
 #pragma endregion
 
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #ifndef UNICODE
 #pragma message("UNICODE is disabled, but let's try to enable it!")
@@ -87,7 +72,6 @@
 
 #include <Windows.h>
 #include <math.h>
-#include <stdbool.h>
 #include <stdio.h>
 
 #pragma comment(lib, "winmm.lib")
@@ -95,8 +79,13 @@
 #undef min
 #undef max
 
-wchar_t* utilInitWchar(const wchar_t* data);
-void utilSwapInt(int* a, int* b);
+typedef unsigned char cgeBool;
+
+#define CGE_FALSE (cgeBool)0
+#define CGE_TRUE (cgeBool)1
+
+wchar_t* cgeUtilInitWchar(const wchar_t* pData);
+void cgeUtilSwapInt(int* a, int* b);
 
 typedef enum
 {
@@ -116,7 +105,7 @@ typedef enum
 	FG_MAGENTA,
 	FG_YELLOW,
 	FG_WHITE
-} FG_COLORS;
+} ForegroundColours;
 
 typedef enum
 {
@@ -136,7 +125,7 @@ typedef enum
 	BG_MAGENTA = 0x00D0,
 	BG_YELLOW = 0x00E0,
 	BG_WHITE = 0x00F0
-} BG_COLORS;
+} BackgroundColours;
 
 typedef enum
 {
@@ -144,7 +133,7 @@ typedef enum
 	PIXEL_THREEQUARTERS = 0x2593,
 	PIXEL_HALF = 0x2592,
 	PIXEL_QUARTER = 0x2591
-} PIXEL_TYPE;
+} PixelType;
 
 typedef enum
 {
@@ -152,38 +141,38 @@ typedef enum
 	CL_GRID_LVERTICAL = 0x0800,
 	CL_GRID_RVERTICAL = 0x1000,
 	CL_UNDERSCORE = 0x8000
-} COMMON_LVB;
+} CommonLvb;
 
 typedef struct
 {
-	bool held;
-	bool released;
-	bool pressed;
+	cgeBool bHeld;
+	cgeBool bReleased;
+	cgeBool bPressed;
 } KeyState;
 
-typedef struct
+typedef struct Sprite
 {
-	int width;
-	int height;
+	int nWidth;
+	int nHeight;
 
-	short* glyphs;
-	short* colours;
-} _Sprite, *Sprite;
+	wchar_t* pGlyphs;
+	short* pColours;
+} Sprite, *PSprite;
 
-Sprite spriteNew();
-void spriteDelete(Sprite spr);
+PSprite spriteNew();
+void spriteDelete(PSprite pSprite);
 
-Sprite spriteCreate(int width, int height);
-Sprite spriteFromFile(const wchar_t* fileName);
+PSprite spriteCreate(int nWidth, int nHeight);
+PSprite spriteFromFile(const wchar_t* sFileName);
 
-void spriteSetGlyph(Sprite spr, int x, int y, short glyph);
-void spriteSetColour(Sprite spr, int x, int y, short colour);
+void spriteSetGlyph(PSprite pSprite, int x, int y, short nGlyph);
+void spriteSetColour(PSprite pSprite, int x, int y, short nColour);
 
-short spriteGetGlyph(Sprite spr, int x, int y);
-short spriteGetColour(Sprite spr, int x, int y);
+short spriteGetGlyph(PSprite pSprite, int x, int y);
+short spriteGetColour(PSprite pSprite, int x, int y);
 
-bool spriteSave(Sprite spr, const wchar_t* fileName);
-bool spriteLoad(Sprite spr, const wchar_t* fileName);
+cgeBool spriteSave(PSprite pSprite, const wchar_t* sFileName);
+cgeBool spriteLoad(PSprite pSprite, const wchar_t* sFileName);
 
 typedef enum
 {
@@ -193,84 +182,85 @@ typedef enum
 	RC_INVALID_FONT,
 	RC_INVALID_CONSOLE_MODE,
 	RC_INVALID_SCREEN_INFO,
-} RCODE;
+} ErrorCode;
 
-typedef struct
+typedef struct ConsoleGameEngine
 {
-	wchar_t* appName;
-	wchar_t* fontName;
+	wchar_t* sAppName;
+	wchar_t* sFontName;
 
-	CHAR_INFO* screen;
-	HANDLE consoleOut;
-	HANDLE consoleIn;
+	CHAR_INFO* pScreen;
+	HANDLE hConsoleOut;
+	HANDLE hConsoleIn;
 
-	SMALL_RECT windowRect;
-	HWND window;
-	HDC dc;
+	SMALL_RECT rWindow;
+	HWND hWindow;
+	HDC hDrawContext;
 
-	KeyState keys[256];
-	KeyState mouse[5];
+	KeyState aryKeys[256];
+	KeyState aryMouse[5];
 
-	short keyOldState[256];
-	short keyNewState[256];
+	short aryKeyOldState[256];
+	short aryKeyNewState[256];
 
-	bool mouseOldState[5];
-	bool mouseNewState[5];
+	cgeBool aryMouseOldState[5];
+	cgeBool aryMouseNewState[5];
 
-	int mouseX;
-	int mouseY;
+	int nMouseX;
+	int nMouseY;
 
-	int screenWidth;
-	int screenHeight;
+	int nScreenWidth;
+	int nScreenHeight;
 
-	int fontWidth;
-	int fontHeight;
+	int nFontWidth;
+	int nFontHeight;
 
-	float deltaTime;
+	float fDeltaTime;
 
-	bool isFocused;
-	bool isGameActive;
+	cgeBool bIsFocused;
+	cgeBool bIsGameActive;
 
 	LARGE_INTEGER _tp1;
 	LARGE_INTEGER _tp2;
 
-} _ConsoleGameEngine, *ConsoleGameEngine;
+} ConsoleGameEngine, *PConsoleGameEngine;
 
-ConsoleGameEngine _cge;
+// !!! DO NOT access it directly !!!
+static ConsoleGameEngine _engine;
 
-ConsoleGameEngine cgeNew();
-void cgeDelete();
+void cgeInit();
+void cgeShutdown();
 
-BOOL WINAPI cgeHandlerRoutine(DWORD eventCode);
+BOOL WINAPI cgeHandlerRoutine(DWORD nEventCode);
 
-RCODE cgeConstructConsole(int screenWidth, int screenHeight, int fontWidth, int fontHeight, const wchar_t* title);
-RCODE cgeUpdate();
+ErrorCode cgeConstructConsole(int nScreenWidth, int nScreenHeight, int nFontWidth, int nFontHeight, const wchar_t* sTitle);
+cgeBool cgeUpdate();
 
-bool cgeMakeSound(const wchar_t* fileName, bool looped);
+cgeBool cgeMakeSound(const wchar_t* sFileName, cgeBool bLooped);
 
 void cgeDraw(int x, int y, wchar_t glyph, short col);
-void cgeFillRectangle(int x, int y, int sizeX, int sizeY, wchar_t glyph, wchar_t col);
+void cgeFillRectangle(int x, int y, int w, int h, wchar_t glyph, wchar_t col);
 void cgeDrawHorizontalLine(int start, int end, int y, wchar_t glyph, short col);
-void cgeDrawCircle(int x, int y, int radius, wchar_t glyph, short col);
-void cgeFillCircle(int x, int y, int radius, wchar_t glyph, short col);
+void cgeDrawCircle(int x, int y, int r, wchar_t glyph, short col);
+void cgeFillCircle(int x, int y, int r, wchar_t glyph, short col);
 void cgeDrawLine(int x1, int y1, int x2, int y2, wchar_t glyph, short col);
 void cgeDrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, wchar_t glyph, short col);
 void cgeFillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, wchar_t glyph, short col);
-void cgeDrawRectangle(int x, int y, int sizeX, int sizeY, wchar_t glyph, short col);
-void cgeDrawSprite(int x, int y, Sprite sprite);
-void cgeDrawSpriteAlpha(int x, int y, Sprite sprite);
-void cgeDrawPartialSprite(int x, int y, int fx, int fy, int fsizeX, int fsizeY, Sprite sprite);
-void cgeDrawPartialSpriteAlpha(int x, int y, int fx, int fy, int fsizeX, int fsizeY, Sprite sprite);
-void cgeDrawString(int x, int y, const wchar_t* text, short col);
+void cgeDrawRectangle(int x, int y, int w, int h, wchar_t glyph, short col);
+void cgeDrawSprite(int x, int y, const PSprite const pSprite);
+void cgeDrawSpriteAlpha(int x, int y, const PSprite pSprite);
+void cgeDrawPartialSprite(int x, int y, int fx, int fy, int fw, int fh, const PSprite const pSprite);
+void cgeDrawPartialSpriteAlpha(int x, int y, int fx, int fy, int fw, int fh, const PSprite const pSprite);
+void cgeDrawString(int x, int y, const wchar_t* sText, short col);
 void cgeClear(wchar_t glyph, short col);
 
-bool cgeIsFocused();
+cgeBool cgeIsFocused();
 
 int cgeGetMouseX();
 int cgeGetMouseY();
 
-KeyState cgeGetMouse(int button);
-KeyState cgeGetKey(int key);
+KeyState cgeGetMouse(int nButton);
+KeyState cgeGetKey(int nKey);
 
 float cgeGetDeltaTime();
 
